@@ -8,7 +8,7 @@ npm i
 npm run commit
 ```
 
-## Libraries
+## Library Usage
 
 ### Ant Design
 ```JavaScript
