@@ -1,0 +1,32 @@
+server:
+  port: 8200
+
+logging:
+  level:
+    org.springframework.security: trace
+    org.hibernate.sql: trace
+
+springdoc:
+  show-oauth2-endpoints: true
+  model-and-view-allowed: true
+  writer-with-default-pretty-printer: true
+  default-support-form-data: true
+
+
+spring:
+  application:
+    name: authentication
+  profiles:
+    include:
+      - core
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope:
+              - email
+              - openid
+              - profile

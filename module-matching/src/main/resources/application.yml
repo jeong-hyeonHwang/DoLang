@@ -1,6 +1,14 @@
 spring:
   application:
     name: matching
+  profiles:
+    include:
+      - core
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8200
 
 server:
   port: 8300

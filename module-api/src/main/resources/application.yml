@@ -1,6 +1,15 @@
 spring:
   application:
     name: api
+  profiles:
+    include:
+      - core
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8200
+          jwk-set-uri: http://localhost:8200/oauth2/jwks
 
 server:
   port: 8100

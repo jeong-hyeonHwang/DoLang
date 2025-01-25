@@ -33,10 +33,13 @@ subprojects {
 
     dependencies {
         implementation("org.springframework.boot:spring-boot-starter")
+        implementation("org.springframework.boot:spring-boot-starter-data-jpa")
         compileOnly("org.projectlombok:lombok")
         annotationProcessor("org.projectlombok:lombok")
         testImplementation("org.springframework.boot:spring-boot-starter-test")
         testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+        runtimeOnly("com.mysql:mysql-connector-j")
     }
 
     tasks.withType<Test> {
@@ -49,7 +52,7 @@ project(":module-core") {
     }
 }
 
-project(":module-authentication") {
+project(":module-authorization") {
     dependencies {
         implementation(project(":module-core"))
     }
