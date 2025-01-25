@@ -1,4 +1,4 @@
-group = "live.dolang.matching"
+group = "live.dolang.api"
 version = "0.0.1"
 
 dependencies {

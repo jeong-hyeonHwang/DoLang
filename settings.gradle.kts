@@ -1,5 +1,6 @@
 rootProject.name = "dolang-backend"
 
-include(":module-auth")
-include(":module-matching")
-include(":module-main")
+include("module-core")
+include("module-authentication")
+include("module-matching")
+include("module-api")
