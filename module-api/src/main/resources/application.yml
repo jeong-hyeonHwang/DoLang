@@ -1,9 +1,6 @@
 spring:
   application:
     name: api
-  profiles:
-    include:
-      - core
   security:
     oauth2:
       resourceserver:

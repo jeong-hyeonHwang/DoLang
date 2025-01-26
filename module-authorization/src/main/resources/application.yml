@@ -16,9 +16,6 @@ springdoc:
 spring:
   application:
     name: authentication
-  profiles:
-    include:
-      - core
   security:
     oauth2:
       client:
