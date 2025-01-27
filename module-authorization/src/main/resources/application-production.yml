@@ -3,8 +3,8 @@ server:
 
 logging:
   level:
-    org.springframework.security: trace
-    org.hibernate.sql: trace
+    org.springframework.security: info
+    org.hibernate.sql: info
 
 springdoc:
   show-oauth2-endpoints: true

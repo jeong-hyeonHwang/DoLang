@@ -1,8 +1,24 @@
+server:
+  ssl:
+    bundle: "dolang-bundle"
+
 spring:
+  application:
+    name: core
+  ssl:
+    bundle:
+      jks:
+        dolang-bundle:
+          key:
+            alias: "1"
+          keystore:
+            location: ${DOLANG_SSL_KEY_LOCATION}
+            password: ${DOLANG_SSL_KEY_PASSWORD}
+            type: "PKCS12"
   datasource:
-    url: jdbc:mysql://dolang-mysql:3306/dolang
-    username: user
-    password: password
+    url: jdbc:mysql://host.docker.internal:3306/${DOLANG_MYSQL_DATABASE}
+    username: ${DOLANG_MYSQL_USER}
+    password: ${DOLANG_MYSQL_PASSWORD}
   jpa:
     open-in-view: false
     hibernate:

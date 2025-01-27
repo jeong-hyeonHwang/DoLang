@@ -34,3 +34,8 @@ out/
 
 ### VS Code ###
 .vscode/
+
+
+### SSH KEY ###
+*.jks
+*.p12
