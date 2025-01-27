@@ -5,11 +5,13 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+import jakarta.servlet.http.HttpServletResponse;
 import live.dolang.core.domain.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.security.config.Customizer;
@@ -37,6 +39,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 
+import java.nio.file.Files;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.interfaces.RSAPrivateKey;
@@ -95,7 +98,7 @@ public class SecurityConfig {
             throws Exception {
         http
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
+                        .requestMatchers("/", "/index.html","/token", "/token.html", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
                         .requestMatchers("/oauth2/authorization/google").authenticated()
                         .anyRequest().denyAll()
                 )
@@ -103,6 +106,18 @@ public class SecurityConfig {
                 .oauth2Login(oauth2Login -> {
                     oauth2Login
                             .successHandler(federatedIdentityAuthenticationSuccessHandler);
+                })
+                .exceptionHandling(exceptions -> {
+                    exceptions.defaultAuthenticationEntryPointFor(
+                            (request, response, authException) -> {
+                                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                                response.setContentType("text/html;charset=UTF-8");
+                                ClassPathResource htmlFile = new ClassPathResource("static/401.html");
+                                String htmlContent = Files.readString(htmlFile.getFile().toPath());
+                                response.getWriter().write(htmlContent);
+                            },
+                            new MediaTypeRequestMatcher(MediaType.APPLICATION_JSON)
+                    );
                 });
 
         return http.build();
