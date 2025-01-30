@@ -1,4 +1,3 @@
-HELP.md
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
@@ -35,3 +34,10 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### SSH KEY ###
+*.jks
+*.p12
+
+### generated scripts ###
+/scripts/**

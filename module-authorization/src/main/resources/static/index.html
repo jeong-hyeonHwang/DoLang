@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OAuth2 Authorization</title>
+    <style>
+        /* 기존 CSS 유지 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        body {
+            background: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .param-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            text-align: left;
+        }
+
+        label {
+            font-weight: 500;
+            color: #24292e;
+        }
+
+        input, select {
+            padding: 10px;
+            border: 1px solid #e1e4e8;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .scope-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .scope-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .auth-button {
+            padding: 12px 24px;
+            background: #0366d6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.2s;
+        }
+
+        .auth-button:hover {
+            background: #0356b6;
+        }
+
+        .token-button {
+            background: #58a95b;
+            margin-top: 10px;
+        }
+
+        .token-button:hover {
+            background: #6fb673;
+        }
+
+        .reset-button {
+            background: #6c757d;
+            margin-top: 10px;
+        }
+
+        .reset-button:hover {
+            background: #5a6268;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <form class="param-form" id="oauthForm">
+        <div class="form-group">
+            <label for="client_id">Client ID:</label>
+            <input type="text" id="client_id" name="client_id" value="oidc-client" required>
+        </div>
+
+        <div class="form-group">
+            <label for="redirect_uri">Redirect URI:</label>
+            <input type="url" id="redirect_uri" name="redirect_uri"
+                   value="http://localhost:3000/oauth2/code" required>
+        </div>
+
+        <div class="form-group">
+            <label for="response_type">Response Type:</label>
+            <select id="response_type" name="response_type">
+                <option value="code" selected>code</option>
+                <option value="token">token</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Scope:</label>
+            <div class="scope-group">
+                <label class="scope-item">
+                    <input type="checkbox" name="scope" value="openid" checked> openid
+                </label>
+                <label class="scope-item">
+                    <input type="checkbox" name="scope" value="profile"> profile
+                </label>
+                <label class="scope-item">
+                    <input type="checkbox" name="scope" value="email"> email
+                </label>
+            </div>
+        </div>
+
+        <button type="submit" class="auth-button">1. Authorize with OAuth2</button>
+        <button type="button" class="auth-button token-button" onclick="window.location.href = '/token'">2. Get Token</button>
+        <button type="button" class="auth-button reset-button" onclick="resetDefaults()">Reset to Defaults</button>
+    </form>
+</div>
+
+<script>
+    document.getElementById('oauthForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const params = {
+            client_id: encodeURIComponent(document.getElementById('client_id').value),
+            redirect_uri: encodeURIComponent(document.getElementById('redirect_uri').value),
+            response_type: encodeURIComponent(document.getElementById('response_type').value),
+            scope: Array.from(document.querySelectorAll('input[name="scope"]:checked'))
+                .map(el => encodeURIComponent(el.value)).join('+')
+        };
+
+        window.location.href = `http://localhost:8200/oauth2/authorize?response_type=${params.response_type}` +
+            `&client_id=${params.client_id}&redirect_uri=${params.redirect_uri}` +
+            `&scope=${params.scope}`;
+    });
+
+    function resetDefaults() {
+        document.getElementById('client_id').value = 'oidc-client';
+        document.getElementById('redirect_uri').value = 'http://localhost:3000/oauth2/code';
+        document.getElementById('response_type').value = 'code';
+
+        document.querySelectorAll('input[name="scope"]').forEach(checkbox => {
+            checkbox.checked = checkbox.value === 'openid';
+        });
+    }
+</script>
+</body>
+</html>

@@ -1,6 +1,30 @@
+server:
+  port: 8300
+
 spring:
   application:
     name: matching
+  datasource:
+    url: jdbc:mysql://localhost:3306/dolang
+    username: user
+    password: password
+  jpa:
+    open-in-view: false
+    properties:
+      #      hibernate.generate_statistics: true
+      hibernate.log_slow_query: 1000
+      hibernate.highlight_sql: true
+      jakarta.persistence.schema-generation.database.action: create-drop
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8200
+          jwk-set-uri: http://localhost:8200/oauth2/jwks
 
-server:
-  port: 8300
+logging:
+  level:
+    live.dolang: trace
+    org.hibernate.SQL_SLOW: info
+    org.hibernate.SQL: debug
+    org.hibernate.orm.jdbc.bind: trace

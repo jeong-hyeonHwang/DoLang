@@ -1,0 +1,58 @@
+server:
+  port: 8200
+
+spring:
+  application:
+    name: auth
+  datasource:
+    url: jdbc:mysql://localhost:3306/dolang
+    username: user
+    password: password
+  jpa:
+    open-in-view: false
+    properties:
+      #      hibernate.generate_statistics: true
+      hibernate.log_slow_query: 1000
+      hibernate.highlight_sql: true
+
+      # 데이터베이스에 대해 어떤 schema tooling Action 이 수행될 건지.
+      jakarta.persistence.schema-generation.database.action: create-drop
+      # 데이터베이스에 스키마 생성시 어떤 걸 기반으로 할 건지.
+      jakarta.persistence.schema-generation.create-source: metadata_then_script
+      jakarta.persistence.schema-generation.create-script-source: classpath:create-schema.sql
+      # 데이터베이스에 스키마 삭제시 어떤 걸 기반으로 할 건지.
+      jakarta.persistence.schema-generation.drop-source: metadata_then_script
+      jakarta.persistence.schema-generation.drop-script-source: classpath:drop-schema.sql
+
+      # 스크립트 파일에 대해 어떤 schema tooling Action 이 수행될 건지.
+      jakarta.persistence.schema-generation.scripts.action: create-drop
+      jakarta.persistence.schema-generation.scripts.create-target: scripts/auth/create.sql
+      jakarta.persistence.schema-generation.scripts.drop-target: scripts/auth/drop.sql
+
+      # 데이터베이스 스키마도 만들어줄까?
+      jakarta.persistence.create-database-schemas: true
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${DOLANG_GOOGLE_CLIENT_ID}
+            client-secret: ${DOLANG_GOOGLE_CLIENT_SECRET}
+            scope:
+              - email
+              - openid
+              - profile
+
+logging:
+  level:
+    live.dolang: trace
+    org.springframework.security: info
+    org.hibernate.SQL_SLOW: info
+    org.hibernate.SQL: debug
+    org.hibernate.orm.jdbc.bind: trace
+
+springdoc:
+  show-oauth2-endpoints: true
+  model-and-view-allowed: true
+  writer-with-default-pretty-printer: true
+  default-support-form-data: true
