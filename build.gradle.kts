@@ -4,19 +4,9 @@ plugins {
     id("io.spring.dependency-management") version "1.1.7"
 }
 
-group = "live.dolang"
-version = "0.0.1"
-
-val querydslVersion = "5.1.0"
-val blazePersistenceVersion = "1.6.14"
-
-configurations {
-    compileOnly {
-        extendsFrom(configurations.annotationProcessor.get())
-    }
-}
-
 allprojects {
+    group = "live.dolang"
+    version = "0.0.1"
     repositories {
         mavenCentral()
     }
@@ -44,6 +34,9 @@ subprojects {
         testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
         runtimeOnly("com.mysql:mysql-connector-j")
+
+        val querydslVersion = "5.1.0"
+        val blazePersistenceVersion = "1.6.14"
 
         implementation("com.querydsl:querydsl-jpa:${querydslVersion}:jakarta")
         annotationProcessor("com.querydsl:querydsl-apt:${querydslVersion}:jakarta")
