@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Table(name = "users", indexes = {
         @Index(name = "idx_users_google_id", columnList = "google_id", unique = true),
         @Index(name = "idx_users_email", columnList = "email", unique = true),
-})
+}, schema = "dolang")
 public class User {
 
     @Id

@@ -1,29 +1,29 @@
 server:
-  port: 8200
-
-logging:
-  level:
-    org.springframework.security: info
-    org.hibernate.sql: info
-
-springdoc:
-  show-oauth2-endpoints: true
-  model-and-view-allowed: true
-  writer-with-default-pretty-printer: true
-  default-support-form-data: true
-
+  ssl.bundle: "dolang-bundle"
 
 spring:
-  application:
-    name: auth
-  security:
-    oauth2:
-      client:
-        registration:
-          google:
-            client-id: ${DOLANG_GOOGLE_CLIENT_ID}
-            client-secret: ${DOLANG_GOOGLE_CLIENT_SECRET}
-            scope:
-              - email
-              - openid
-              - profile
+  datasource:
+    url: jdbc:mysql://dolang.live:3306/${DOLANG_MYSQL_DATABASE}
+    username: ${DOLANG_MYSQL_USER}
+    password: ${DOLANG_MYSQL_PASSWORD}
+  jpa:
+    properties:
+      jakarta.persistence.schema-generation.database.action: none
+      jakarta.persistence.schema-generation.scripts.action: none
+      jakarta.persistence.create-database-schemas: false
+  ssl:
+    bundle:
+      jks:
+        dolang-bundle:
+          key:
+            alias: "1"
+          keystore:
+            location: ${DOLANG_SSL_KEY_LOCATION}
+            password: ${DOLANG_SSL_KEY_PASSWORD}
+            type: "PKCS12"
+
+logging:
+  file:
+    path: /var/log
+  level:
+    live.dolang: info

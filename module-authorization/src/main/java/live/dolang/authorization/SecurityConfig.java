@@ -98,7 +98,7 @@ public class SecurityConfig {
             throws Exception {
         http
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/", "/index.html","/token", "/token.html", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
+                        .requestMatchers("/", "/index.html", "/token", "/token.html", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
                         .requestMatchers("/oauth2/authorization/google").authenticated()
                         .anyRequest().denyAll()
                 )
@@ -241,17 +241,4 @@ public class SecurityConfig {
         return successHandler;
     }
 
-//    @Bean
-//    public EmbeddedDatabase embeddedDatabase() {
-//        // @formatter:off
-//        return new EmbeddedDatabaseBuilder()
-//                .generateUniqueName(true)
-//                .setType(EmbeddedDatabaseType.H2)
-//                .setScriptEncoding("UTF-8")
-//                .addScript("org/springframework/security/oauth2/server/authorization/oauth2-authorization-schema.sql")
-//                .addScript("org/springframework/security/oauth2/server/authorization/oauth2-authorization-consent-schema.sql")
-//                .addScript("org/springframework/security/oauth2/server/authorization/client/oauth2-registered-client-schema.sql")
-//                .build();
-//        // @formatter:on
-//    }
 }

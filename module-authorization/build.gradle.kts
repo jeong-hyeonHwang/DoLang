@@ -12,14 +12,6 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.3")
 }
 
-sourceSets {
-    named("main") {
-        java {
-            setSrcDirs(listOf("src/main/java", "build/generated"))
-        }
-    }
-}
-
 tasks.named<BootBuildImage>("bootBuildImage") {
     environment.put("BP_JVM_VERSION", "17")
 }
