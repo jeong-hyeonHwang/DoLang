@@ -48,8 +48,12 @@ logging:
     live.dolang: trace
     org.springframework.security: info
     org.hibernate.SQL_SLOW: info
+    # SQL execution
     org.hibernate.SQL: debug
+    # JDBC parameter binding
     org.hibernate.orm.jdbc.bind: trace
+    # JDBC result set extraction
+    org.hibernate.orm.jdbc.extract: trace
 
 springdoc:
   show-oauth2-endpoints: true
