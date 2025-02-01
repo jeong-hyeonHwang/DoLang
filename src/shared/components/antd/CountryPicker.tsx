@@ -8,9 +8,7 @@ const App: React.FC = () => (
     placeholder="Search to Select"
     optionFilterProp="label"
     filterSort={(optionA, optionB) =>
-      (optionA?.label ?? '')
-        .toLowerCase()
-        .localeCompare((optionB?.label ?? '').toLowerCase())
+      (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
     }
     options={[
       {

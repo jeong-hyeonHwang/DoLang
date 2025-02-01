@@ -1,8 +1,4 @@
-import {
-  RuleConfigCondition,
-  RuleConfigSeverity,
-  TargetCaseType,
-} from '@commitlint/types';
+import { RuleConfigCondition, RuleConfigSeverity, TargetCaseType } from '@commitlint/types';
 
 export default {
   parserPreset: 'conventional-changelog-conventionalcommits',
@@ -10,11 +6,7 @@ export default {
     'body-leading-blank': [RuleConfigSeverity.Warning, 'always'] as const,
     'body-max-line-length': [RuleConfigSeverity.Error, 'always', 100] as const,
     'footer-leading-blank': [RuleConfigSeverity.Warning, 'always'] as const,
-    'footer-max-line-length': [
-      RuleConfigSeverity.Error,
-      'always',
-      100,
-    ] as const,
+    'footer-max-line-length': [RuleConfigSeverity.Error, 'always', 100] as const,
     'header-max-length': [RuleConfigSeverity.Error, 'always', 100] as const,
     'header-trim': [RuleConfigSeverity.Error, 'always'] as const,
     'subject-case': [
@@ -29,19 +21,7 @@ export default {
     'type-enum': [
       RuleConfigSeverity.Error,
       'always',
-      [
-        'build',
-        'chore',
-        'ci',
-        'docs',
-        'feat',
-        'fix',
-        'perf',
-        'refactor',
-        'revert',
-        'style',
-        'test',
-      ],
+      ['build', 'chore', 'ci', 'docs', 'feat', 'fix', 'perf', 'refactor', 'revert', 'style', 'test'],
     ] as [RuleConfigSeverity, RuleConfigCondition, string[]],
   },
   prompt: {
@@ -65,8 +45,7 @@ export default {
             emoji: '📚',
           },
           style: {
-            description:
-              '코드의 의미에 영향을 주지 않는 변경 (공백, 서식, 세미콜론 누락 등)',
+            description: '코드의 의미에 영향을 주지 않는 변경 (공백, 서식, 세미콜론 누락 등)',
             title: 'Styles',
             emoji: '💎',
           },
@@ -86,14 +65,12 @@ export default {
             emoji: '🚨',
           },
           build: {
-            description:
-              '빌드 시스템이나 외부 종속성에 영향을 주는 변경 (예: gulp, broccoli, npm)',
+            description: '빌드 시스템이나 외부 종속성에 영향을 주는 변경 (예: gulp, broccoli, npm)',
             title: 'Builds',
             emoji: '🛠',
           },
           ci: {
-            description:
-              'CI 구성 파일 및 스크립트 변경 (예: Travis, Circle, BrowserStack, SauceLabs)',
+            description: 'CI 구성 파일 및 스크립트 변경 (예: Travis, Circle, BrowserStack, SauceLabs)',
             title: 'Continuous Integrations',
             emoji: '⚙️',
           },
@@ -110,12 +87,10 @@ export default {
         },
       },
       scope: {
-        description:
-          'What is the scope of this change (e.g. component or file name)',
+        description: 'What is the scope of this change (e.g. component or file name)',
       },
       subject: {
-        description:
-          'Write a short, imperative tense description of the change',
+        description: 'Write a short, imperative tense description of the change',
       },
       body: {
         description: 'Provide a longer description of the change',
@@ -124,8 +99,7 @@ export default {
         description: 'Are there any breaking changes?',
       },
       breakingBody: {
-        description:
-          'A BREAKING CHANGE commit requires a body. Please enter a longer description of the commit itself',
+        description: 'A BREAKING CHANGE commit requires a body. Please enter a longer description of the commit itself',
       },
       breaking: {
         description: 'Describe the breaking changes',

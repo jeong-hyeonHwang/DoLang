@@ -15,22 +15,15 @@
   </head>
   <body>
     <script>
-      document.documentElement.dataset.theme =
-        localStorage.getItem('tsd-theme') || 'os';
+      document.documentElement.dataset.theme = localStorage.getItem('tsd-theme') || 'os';
       document.body.style.display = 'none';
-      setTimeout(
-        () =>
-          app ? app.showPage() : document.body.style.removeProperty('display'),
-        500
-      );
+      setTimeout(() => (app ? app.showPage() : document.body.style.removeProperty('display')), 500);
     </script>
     <header class="tsd-page-toolbar">
       <div class="tsd-toolbar-contents container">
         <div class="table-cell" id="tsd-search">
           <div class="field">
-            <label
-              for="tsd-search-field"
-              class="tsd-widget tsd-toolbar-icon search no-caption"
+            <label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"
               ><svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <use href="assets/icons.svg#icon-search"></use></svg></label
             ><input type="text" id="tsd-search-field" aria-label="Search" />
@@ -43,11 +36,7 @@
           <a href="index.html" class="title">librarytest</a>
         </div>
         <div class="table-cell" id="tsd-widgets">
-          <a
-            href="#"
-            class="tsd-widget tsd-toolbar-icon menu no-caption"
-            data-toggle="menu"
-            aria-label="Menu"
+          <a href="#" class="tsd-widget tsd-toolbar-icon menu no-caption" data-toggle="menu" aria-label="Menu"
             ><svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <use href="assets/icons.svg#icon-menu"></use></svg
           ></a>
@@ -80,11 +69,7 @@
                   <ul id="tsd-filter-options">
                     <li class="tsd-filter-item">
                       <label class="tsd-filter-input"
-                        ><input
-                          type="checkbox"
-                          id="tsd-filter-protected"
-                          name="protected"
-                        /><svg
+                        ><input type="checkbox" id="tsd-filter-protected" name="protected" /><svg
                           width="32"
                           height="32"
                           viewBox="0 0 32 32"
@@ -112,12 +97,7 @@
                     </li>
                     <li class="tsd-filter-item">
                       <label class="tsd-filter-input"
-                        ><input
-                          type="checkbox"
-                          id="tsd-filter-inherited"
-                          name="inherited"
-                          checked
-                        /><svg
+                        ><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked /><svg
                           width="32"
                           height="32"
                           viewBox="0 0 32 32"
@@ -145,11 +125,7 @@
                     </li>
                     <li class="tsd-filter-item">
                       <label class="tsd-filter-input"
-                        ><input
-                          type="checkbox"
-                          id="tsd-filter-external"
-                          name="external"
-                        /><svg
+                        ><input type="checkbox" id="tsd-filter-external" name="external" /><svg
                           width="32"
                           height="32"
                           viewBox="0 0 32 32"

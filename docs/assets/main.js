@@ -2,8 +2,7 @@
 window.translations = {
   copy: 'Copy',
   copied: 'Copied!',
-  normally_hidden:
-    'This member is normally hidden due to your filter settings.',
+  normally_hidden: 'This member is normally hidden due to your filter settings.',
   hierarchy_expand: 'Expand',
   hierarchy_collapse: 'Collapse',
 };
@@ -15,9 +14,7 @@ window.translations = {
   var Ne = Object.getOwnPropertyNames;
   var Ve = Object.getPrototypeOf,
     Be = Object.prototype.hasOwnProperty;
-  var qe = (t, e) => () => (
-    e || t((e = { exports: {} }).exports, e), e.exports
-  );
+  var qe = (t, e) => () => (e || t((e = { exports: {} }).exports, e), e.exports);
   var je = (t, e, n, r) => {
     if ((e && typeof e == 'object') || typeof e == 'function')
       for (let i of Ne(e))
@@ -31,12 +28,7 @@ window.translations = {
   };
   var $e = (t, e, n) => (
     (n = t != null ? De(Ve(t)) : {}),
-    je(
-      e || !t || !t.__esModule
-        ? le(n, 'default', { value: t, enumerable: !0 })
-        : n,
-      t
-    )
+    je(e || !t || !t.__esModule ? le(n, 'default', { value: t, enumerable: !0 }) : n, t)
   );
   var pe = qe((de, he) => {
     (function () {
@@ -61,28 +53,18 @@ window.translations = {
         }),
         (t.utils.clone = function (e) {
           if (e == null) return e;
-          for (
-            var n = Object.create(null), r = Object.keys(e), i = 0;
-            i < r.length;
-            i++
-          ) {
+          for (var n = Object.create(null), r = Object.keys(e), i = 0; i < r.length; i++) {
             var s = r[i],
               o = e[s];
             if (Array.isArray(o)) {
               n[s] = o.slice();
               continue;
             }
-            if (
-              typeof o == 'string' ||
-              typeof o == 'number' ||
-              typeof o == 'boolean'
-            ) {
+            if (typeof o == 'string' || typeof o == 'number' || typeof o == 'boolean') {
               n[s] = o;
               continue;
             }
-            throw new TypeError(
-              'clone is not deep and does not support nested objects'
-            );
+            throw new TypeError('clone is not deep and does not support nested objects');
           }
           return n;
         }),
@@ -99,9 +81,7 @@ window.translations = {
         }),
         (t.FieldRef.prototype.toString = function () {
           return (
-            this._stringValue == null &&
-              (this._stringValue =
-                this.fieldName + t.FieldRef.joiner + this.docRef),
+            this._stringValue == null && (this._stringValue = this.fieldName + t.FieldRef.joiner + this.docRef),
             this._stringValue
           );
         });
@@ -143,10 +123,7 @@ window.translations = {
             s = [];
           if (e === t.Set.complete) return this;
           if (e === t.Set.empty) return e;
-          this.length < e.length
-            ? ((n = this), (r = e))
-            : ((n = e), (r = this)),
-            (i = Object.keys(n.elements));
+          this.length < e.length ? ((n = this), (r = e)) : ((n = e), (r = this)), (i = Object.keys(n.elements));
           for (var o = 0; o < i.length; o++) {
             var a = i[o];
             a in r.elements && s.push(a);
@@ -158,9 +135,7 @@ window.translations = {
             ? t.Set.complete
             : e === t.Set.empty
               ? this
-              : new t.Set(
-                  Object.keys(this.elements).concat(Object.keys(e.elements))
-                );
+              : new t.Set(Object.keys(this.elements).concat(Object.keys(e.elements)));
         }),
         (t.idf = function (e, n) {
           var r = 0;
@@ -191,28 +166,15 @@ window.translations = {
         if (e == null || e == null) return [];
         if (Array.isArray(e))
           return e.map(function (m) {
-            return new t.Token(
-              t.utils.asString(m).toLowerCase(),
-              t.utils.clone(n)
-            );
+            return new t.Token(t.utils.asString(m).toLowerCase(), t.utils.clone(n));
           });
-        for (
-          var r = e.toString().toLowerCase(),
-            i = r.length,
-            s = [],
-            o = 0,
-            a = 0;
-          o <= i;
-          o++
-        ) {
+        for (var r = e.toString().toLowerCase(), i = r.length, s = [], o = 0, a = 0; o <= i; o++) {
           var l = r.charAt(o),
             c = o - a;
           if (l.match(t.tokenizer.separator) || o == i) {
             if (c > 0) {
               var d = t.utils.clone(n) || {};
-              (d.position = [a, c]),
-                (d.index = s.length),
-                s.push(new t.Token(r.slice(a, o), d));
+              (d.position = [a, c]), (d.index = s.length), s.push(new t.Token(r.slice(a, o), d));
             }
             a = o + 1;
           }
@@ -225,8 +187,7 @@ window.translations = {
       }),
         (t.Pipeline.registeredFunctions = Object.create(null)),
         (t.Pipeline.registerFunction = function (e, n) {
-          n in this.registeredFunctions &&
-            t.utils.warn('Overwriting existing registered function: ' + n),
+          n in this.registeredFunctions && t.utils.warn('Overwriting existing registered function: ' + n),
             (e.label = n),
             (t.Pipeline.registeredFunctions[e.label] = e);
         }),
@@ -277,8 +238,7 @@ window.translations = {
             for (var i = this._stack[r], s = [], o = 0; o < e.length; o++) {
               var a = i(e[o], o, e);
               if (!(a == null || a === ''))
-                if (Array.isArray(a))
-                  for (var l = 0; l < a.length; l++) s.push(a[l]);
+                if (Array.isArray(a)) for (var l = 0; l < a.length; l++) s.push(a[l]);
                 else s.push(a);
             }
             e = s;
@@ -305,17 +265,11 @@ window.translations = {
         (t.Vector.prototype.positionForIndex = function (e) {
           if (this.elements.length == 0) return 0;
           for (
-            var n = 0,
-              r = this.elements.length / 2,
-              i = r - n,
-              s = Math.floor(i / 2),
-              o = this.elements[s * 2];
+            var n = 0, r = this.elements.length / 2, i = r - n, s = Math.floor(i / 2), o = this.elements[s * 2];
             i > 1 && (o < e && (n = s), o > e && (r = s), o != e);
 
           )
-            (i = r - n),
-              (s = n + Math.floor(i / 2)),
-              (o = this.elements[s * 2]);
+            (i = r - n), (s = n + Math.floor(i / 2)), (o = this.elements[s * 2]);
           if (o == e || o > e) return s * 2;
           if (o < e) return (s + 1) * 2;
         }),
@@ -341,36 +295,20 @@ window.translations = {
         }),
         (t.Vector.prototype.dot = function (e) {
           for (
-            var n = 0,
-              r = this.elements,
-              i = e.elements,
-              s = r.length,
-              o = i.length,
-              a = 0,
-              l = 0,
-              c = 0,
-              d = 0;
+            var n = 0, r = this.elements, i = e.elements, s = r.length, o = i.length, a = 0, l = 0, c = 0, d = 0;
             c < s && d < o;
 
           )
             (a = r[c]),
               (l = i[d]),
-              a < l
-                ? (c += 2)
-                : a > l
-                  ? (d += 2)
-                  : a == l && ((n += r[c + 1] * i[d + 1]), (c += 2), (d += 2));
+              a < l ? (c += 2) : a > l ? (d += 2) : a == l && ((n += r[c + 1] * i[d + 1]), (c += 2), (d += 2));
           return n;
         }),
         (t.Vector.prototype.similarity = function (e) {
           return this.dot(e) / this.magnitude() || 0;
         }),
         (t.Vector.prototype.toArray = function () {
-          for (
-            var e = new Array(this.elements.length / 2), n = 1, r = 0;
-            n < this.elements.length;
-            n += 2, r++
-          )
+          for (var e = new Array(this.elements.length / 2), n = 1, r = 0; n < this.elements.length; n += 2, r++)
             e[r] = this.elements[n];
           return e;
         }),
@@ -434,8 +372,7 @@ window.translations = {
           j =
             /^(.+?)(ational|tional|enci|anci|izer|bli|alli|entli|eli|ousli|ization|ation|ator|alism|iveness|fulness|ousness|aliti|iviti|biliti|logi)$/,
           $ = /^(.+?)(icate|ative|alize|iciti|ical|ful|ness)$/,
-          N =
-            /^(.+?)(al|ance|ence|er|ic|able|ible|ant|ement|ment|ent|ou|ism|ate|iti|ous|ive|ize)$/,
+          N = /^(.+?)(al|ance|ence|er|ic|able|ible|ant|ement|ment|ent|ou|ism|ate|iti|ous|ive|ize)$/,
           z = /^(.+?)(s|t)(ion)$/,
           Q = /^(.+?)e$/,
           W = /ll$/,
@@ -448,9 +385,7 @@ window.translations = {
               T == 'y' && (u = T.toUpperCase() + u.substr(1)),
               (h = L),
               (x = f),
-              h.test(u)
-                ? (u = u.replace(h, '$1$2'))
-                : x.test(u) && (u = u.replace(x, '$1$2')),
+              h.test(u) ? (u = u.replace(h, '$1$2')) : x.test(u) && (u = u.replace(x, '$1$2')),
               (h = y),
               (x = S),
               h.test(u))
@@ -493,11 +428,7 @@ window.translations = {
             }
             if (((h = Q), h.test(u))) {
               var E = h.exec(u);
-              (g = E[1]),
-                (h = p),
-                (x = b),
-                (O = U),
-                (h.test(g) || (x.test(g) && !O.test(g))) && (u = g);
+              (g = E[1]), (h = p), (x = b), (O = U), (h.test(g) || (x.test(g) && !O.test(g))) && (u = g);
             }
             return (
               (h = W),
@@ -649,19 +580,11 @@ window.translations = {
       }),
         t.Pipeline.registerFunction(t.trimmer, 'trimmer');
       (t.TokenSet = function () {
-        (this.final = !1),
-          (this.edges = {}),
-          (this.id = t.TokenSet._nextId),
-          (t.TokenSet._nextId += 1);
+        (this.final = !1), (this.edges = {}), (this.id = t.TokenSet._nextId), (t.TokenSet._nextId += 1);
       }),
         (t.TokenSet._nextId = 1),
         (t.TokenSet.fromArray = function (e) {
-          for (
-            var n = new t.TokenSet.Builder(), r = 0, i = e.length;
-            r < i;
-            r++
-          )
-            n.insert(e[r]);
+          for (var n = new t.TokenSet.Builder(), r = 0, i = e.length; r < i; r++) n.insert(e[r]);
           return n.finish(), n.root;
         }),
         (t.TokenSet.fromClause = function (e) {
@@ -670,19 +593,12 @@ window.translations = {
             : t.TokenSet.fromString(e.term);
         }),
         (t.TokenSet.fromFuzzyString = function (e, n) {
-          for (
-            var r = new t.TokenSet(),
-              i = [{ node: r, editsRemaining: n, str: e }];
-            i.length;
-
-          ) {
+          for (var r = new t.TokenSet(), i = [{ node: r, editsRemaining: n, str: e }]; i.length; ) {
             var s = i.pop();
             if (s.str.length > 0) {
               var o = s.str.charAt(0),
                 a;
-              o in s.node.edges
-                ? (a = s.node.edges[o])
-                : ((a = new t.TokenSet()), (s.node.edges[o] = a)),
+              o in s.node.edges ? (a = s.node.edges[o]) : ((a = new t.TokenSet()), (s.node.edges[o] = a)),
                 s.str.length == 1 && (a.final = !0),
                 i.push({
                   node: a,
@@ -728,9 +644,7 @@ window.translations = {
                 var d = s.str.charAt(0),
                   m = s.str.charAt(1),
                   p;
-                m in s.node.edges
-                  ? (p = s.node.edges[m])
-                  : ((p = new t.TokenSet()), (s.node.edges[m] = p)),
+                m in s.node.edges ? (p = s.node.edges[m]) : ((p = new t.TokenSet()), (s.node.edges[m] = p)),
                   s.str.length == 1 && (p.final = !0),
                   i.push({
                     node: p,
@@ -743,11 +657,7 @@ window.translations = {
           return r;
         }),
         (t.TokenSet.fromString = function (e) {
-          for (
-            var n = new t.TokenSet(), r = n, i = 0, s = e.length;
-            i < s;
-            i++
-          ) {
+          for (var n = new t.TokenSet(), r = n, i = 0, s = e.length; i < s; i++) {
             var o = e[i],
               a = i == s - 1;
             if (o == '*') (n.edges[o] = n), (n.final = a);
@@ -773,14 +683,7 @@ window.translations = {
         }),
         (t.TokenSet.prototype.toString = function () {
           if (this._str) return this._str;
-          for (
-            var e = this.final ? '1' : '0',
-              n = Object.keys(this.edges).sort(),
-              r = n.length,
-              i = 0;
-            i < r;
-            i++
-          ) {
+          for (var e = this.final ? '1' : '0', n = Object.keys(this.edges).sort(), r = n.length, i = 0; i < r; i++) {
             var s = n[i],
               o = this.edges[s];
             e = e + s + o.id;
@@ -788,20 +691,10 @@ window.translations = {
           return e;
         }),
         (t.TokenSet.prototype.intersect = function (e) {
-          for (
-            var n = new t.TokenSet(),
-              r = void 0,
-              i = [{ qNode: e, output: n, node: this }];
-            i.length;
-
-          ) {
+          for (var n = new t.TokenSet(), r = void 0, i = [{ qNode: e, output: n, node: this }]; i.length; ) {
             r = i.pop();
             for (
-              var s = Object.keys(r.qNode.edges),
-                o = s.length,
-                a = Object.keys(r.node.edges),
-                l = a.length,
-                c = 0;
+              var s = Object.keys(r.qNode.edges), o = s.length, a = Object.keys(r.node.edges), l = a.length, c = 0;
               c < o;
               c++
             )
@@ -814,9 +707,7 @@ window.translations = {
                     f = void 0;
                   p in r.output.edges
                     ? ((f = r.output.edges[p]), (f.final = f.final || L))
-                    : ((f = new t.TokenSet()),
-                      (f.final = L),
-                      (r.output.edges[p] = f)),
+                    : ((f = new t.TokenSet()), (f.final = L), (r.output.edges[p] = f)),
                     i.push({ qNode: v, output: f, node: b });
                 }
               }
@@ -832,16 +723,8 @@ window.translations = {
         (t.TokenSet.Builder.prototype.insert = function (e) {
           var n,
             r = 0;
-          if (e < this.previousWord)
-            throw new Error('Out of order word insertion');
-          for (
-            var i = 0;
-            i < e.length &&
-            i < this.previousWord.length &&
-            e[i] == this.previousWord[i];
-            i++
-          )
-            r++;
+          if (e < this.previousWord) throw new Error('Out of order word insertion');
+          for (var i = 0; i < e.length && i < this.previousWord.length && e[i] == this.previousWord[i]; i++) r++;
           this.minimize(r),
             this.uncheckedNodes.length == 0
               ? (n = this.root)
@@ -849,9 +732,7 @@ window.translations = {
           for (var i = r; i < e.length; i++) {
             var s = new t.TokenSet(),
               o = e[i];
-            (n.edges[o] = s),
-              this.uncheckedNodes.push({ parent: n, char: o, child: s }),
-              (n = s);
+            (n.edges[o] = s), this.uncheckedNodes.push({ parent: n, char: o, child: s }), (n = s);
           }
           (n.final = !0), (this.previousWord = e);
         }),
@@ -899,9 +780,7 @@ window.translations = {
             var c = n.clauses[l],
               d = null,
               m = t.Set.empty;
-            c.usePipeline
-              ? (d = this.pipeline.runString(c.term, { fields: c.fields }))
-              : (d = [c.term]);
+            c.usePipeline ? (d = this.pipeline.runString(c.term, { fields: c.fields })) : (d = [c.term]);
             for (var p = 0; p < d.length; p++) {
               var b = d[p];
               c.term = b;
@@ -915,11 +794,7 @@ window.translations = {
                 break;
               }
               for (var S = 0; S < L.length; S++)
-                for (
-                  var w = L[S], k = this.invertedIndex[w], _ = k._index, f = 0;
-                  f < c.fields.length;
-                  f++
-                ) {
+                for (var w = L[S], k = this.invertedIndex[w], _ = k._index, f = 0; f < c.fields.length; f++) {
                   var y = c.fields[f],
                     q = k[y],
                     F = Object.keys(q),
@@ -927,12 +802,10 @@ window.translations = {
                     $ = new t.Set(F);
                   if (
                     (c.presence == t.Query.presence.REQUIRED &&
-                      ((m = m.union($)),
-                      o[y] === void 0 && (o[y] = t.Set.complete)),
+                      ((m = m.union($)), o[y] === void 0 && (o[y] = t.Set.complete)),
                     c.presence == t.Query.presence.PROHIBITED)
                   ) {
-                    a[y] === void 0 && (a[y] = t.Set.empty),
-                      (a[y] = a[y].union($));
+                    a[y] === void 0 && (a[y] = t.Set.empty), (a[y] = a[y].union($));
                     continue;
                   }
                   if (
@@ -946,9 +819,7 @@ window.translations = {
                         Q = new t.FieldRef(z, y),
                         W = q[z],
                         U;
-                      (U = r[Q]) === void 0
-                        ? (r[Q] = new t.MatchData(w, y, W))
-                        : U.add(w, y, W);
+                      (U = r[Q]) === void 0 ? (r[Q] = new t.MatchData(w, y, W)) : U.add(w, y, W);
                     }
                     s[j] = !0;
                   }
@@ -960,11 +831,7 @@ window.translations = {
                 o[y] = o[y].intersect(m);
               }
           }
-          for (
-            var V = t.Set.complete, M = t.Set.empty, l = 0;
-            l < this.fields.length;
-            l++
-          ) {
+          for (var V = t.Set.complete, M = t.Set.empty, l = 0; l < this.fields.length; l++) {
             var y = this.fields[l];
             o[y] && (V = V.intersect(o[y])), a[y] && (M = M.union(a[y]));
           }
@@ -986,8 +853,7 @@ window.translations = {
               var x = this.fieldVectors[T],
                 O = i[T.fieldName].similarity(x),
                 R;
-              if ((R = P[h]) !== void 0)
-                (R.score += O), R.matchData.combine(r[T]);
+              if ((R = P[h]) !== void 0) (R.score += O), R.matchData.combine(r[T]);
               else {
                 var E = { ref: h, score: O, matchData: r[T] };
                 (P[h] = E), g.push(E);
@@ -1073,10 +939,7 @@ window.translations = {
           this._ref = e;
         }),
         (t.Builder.prototype.field = function (e, n) {
-          if (/\//.test(e))
-            throw new RangeError(
-              "Field '" + e + "' contains illegal character '/'"
-            );
+          if (/\//.test(e)) throw new RangeError("Field '" + e + "' contains illegal character '/'");
           this._fields[e] = n || {};
         }),
         (t.Builder.prototype.b = function (e) {
@@ -1097,50 +960,30 @@ window.translations = {
               d = this.pipeline.run(c),
               m = new t.FieldRef(r, o),
               p = Object.create(null);
-            (this.fieldTermFrequencies[m] = p),
-              (this.fieldLengths[m] = 0),
-              (this.fieldLengths[m] += d.length);
+            (this.fieldTermFrequencies[m] = p), (this.fieldLengths[m] = 0), (this.fieldLengths[m] += d.length);
             for (var b = 0; b < d.length; b++) {
               var v = d[b];
-              if (
-                (p[v] == null && (p[v] = 0),
-                (p[v] += 1),
-                this.invertedIndex[v] == null)
-              ) {
+              if ((p[v] == null && (p[v] = 0), (p[v] += 1), this.invertedIndex[v] == null)) {
                 var L = Object.create(null);
                 (L._index = this.termIndex), (this.termIndex += 1);
-                for (var f = 0; f < i.length; f++)
-                  L[i[f]] = Object.create(null);
+                for (var f = 0; f < i.length; f++) L[i[f]] = Object.create(null);
                 this.invertedIndex[v] = L;
               }
-              this.invertedIndex[v][o][r] == null &&
-                (this.invertedIndex[v][o][r] = Object.create(null));
+              this.invertedIndex[v][o][r] == null && (this.invertedIndex[v][o][r] = Object.create(null));
               for (var y = 0; y < this.metadataWhitelist.length; y++) {
                 var S = this.metadataWhitelist[y],
                   w = v.metadata[S];
-                this.invertedIndex[v][o][r][S] == null &&
-                  (this.invertedIndex[v][o][r][S] = []),
+                this.invertedIndex[v][o][r][S] == null && (this.invertedIndex[v][o][r][S] = []),
                   this.invertedIndex[v][o][r][S].push(w);
               }
             }
           }
         }),
         (t.Builder.prototype.calculateAverageFieldLengths = function () {
-          for (
-            var e = Object.keys(this.fieldLengths),
-              n = e.length,
-              r = {},
-              i = {},
-              s = 0;
-            s < n;
-            s++
-          ) {
+          for (var e = Object.keys(this.fieldLengths), n = e.length, r = {}, i = {}, s = 0; s < n; s++) {
             var o = t.FieldRef.fromString(e[s]),
               a = o.fieldName;
-            i[a] || (i[a] = 0),
-              (i[a] += 1),
-              r[a] || (r[a] = 0),
-              (r[a] += this.fieldLengths[o]);
+            i[a] || (i[a] = 0), (i[a] += 1), r[a] || (r[a] = 0), (r[a] += this.fieldLengths[o]);
           }
           for (var l = Object.keys(this._fields), s = 0; s < l.length; s++) {
             var c = l[s];
@@ -1150,11 +993,7 @@ window.translations = {
         }),
         (t.Builder.prototype.createFieldVectors = function () {
           for (
-            var e = {},
-              n = Object.keys(this.fieldTermFrequencies),
-              r = n.length,
-              i = Object.create(null),
-              s = 0;
+            var e = {}, n = Object.keys(this.fieldTermFrequencies), r = n.length, i = Object.create(null), s = 0;
             s < r;
             s++
           ) {
@@ -1178,15 +1017,10 @@ window.translations = {
                 w,
                 k,
                 _;
-              i[f] === void 0
-                ? ((w = t.idf(this.invertedIndex[f], this.documentCount)),
-                  (i[f] = w))
-                : (w = i[f]),
+              i[f] === void 0 ? ((w = t.idf(this.invertedIndex[f], this.documentCount)), (i[f] = w)) : (w = i[f]),
                 (k =
                   (w * ((this._k1 + 1) * y)) /
-                  (this._k1 *
-                    (1 - this._b + this._b * (l / this.averageFieldLength[a])) +
-                    y)),
+                  (this._k1 * (1 - this._b + this._b * (l / this.averageFieldLength[a])) + y)),
                 (k *= b),
                 (k *= v),
                 (_ = Math.round(k * 1e3) / 1e3),
@@ -1197,9 +1031,7 @@ window.translations = {
           this.fieldVectors = e;
         }),
         (t.Builder.prototype.createTokenSet = function () {
-          this.tokenSet = t.TokenSet.fromArray(
-            Object.keys(this.invertedIndex).sort()
-          );
+          this.tokenSet = t.TokenSet.fromArray(Object.keys(this.invertedIndex).sort());
         }),
         (t.Builder.prototype.build = function () {
           return (
@@ -1220,37 +1052,27 @@ window.translations = {
           n.unshift(this), e.apply(this, n);
         }),
         (t.MatchData = function (e, n, r) {
-          for (
-            var i = Object.create(null), s = Object.keys(r || {}), o = 0;
-            o < s.length;
-            o++
-          ) {
+          for (var i = Object.create(null), s = Object.keys(r || {}), o = 0; o < s.length; o++) {
             var a = s[o];
             i[a] = r[a].slice();
           }
           (this.metadata = Object.create(null)),
-            e !== void 0 &&
-              ((this.metadata[e] = Object.create(null)),
-              (this.metadata[e][n] = i));
+            e !== void 0 && ((this.metadata[e] = Object.create(null)), (this.metadata[e][n] = i));
         }),
         (t.MatchData.prototype.combine = function (e) {
           for (var n = Object.keys(e.metadata), r = 0; r < n.length; r++) {
             var i = n[r],
               s = Object.keys(e.metadata[i]);
-            this.metadata[i] == null &&
-              (this.metadata[i] = Object.create(null));
+            this.metadata[i] == null && (this.metadata[i] = Object.create(null));
             for (var o = 0; o < s.length; o++) {
               var a = s[o],
                 l = Object.keys(e.metadata[i][a]);
-              this.metadata[i][a] == null &&
-                (this.metadata[i][a] = Object.create(null));
+              this.metadata[i][a] == null && (this.metadata[i][a] = Object.create(null));
               for (var c = 0; c < l.length; c++) {
                 var d = l[c];
                 this.metadata[i][a][d] == null
                   ? (this.metadata[i][a][d] = e.metadata[i][a][d])
-                  : (this.metadata[i][a][d] = this.metadata[i][a][d].concat(
-                      e.metadata[i][a][d]
-                    ));
+                  : (this.metadata[i][a][d] = this.metadata[i][a][d].concat(e.metadata[i][a][d]));
               }
             }
           }
@@ -1285,9 +1107,7 @@ window.translations = {
             'boost' in e || (e.boost = 1),
             'usePipeline' in e || (e.usePipeline = !0),
             'wildcard' in e || (e.wildcard = t.Query.wildcard.NONE),
-            e.wildcard & t.Query.wildcard.LEADING &&
-              e.term.charAt(0) != t.Query.wildcard &&
-              (e.term = '*' + e.term),
+            e.wildcard & t.Query.wildcard.LEADING && e.term.charAt(0) != t.Query.wildcard && (e.term = '*' + e.term),
             e.wildcard & t.Query.wildcard.TRAILING &&
               e.term.slice(-1) != t.Query.wildcard &&
               (e.term = '' + e.term + '*'),
@@ -1298,8 +1118,7 @@ window.translations = {
         }),
         (t.Query.prototype.isNegated = function () {
           for (var e = 0; e < this.clauses.length; e++)
-            if (this.clauses[e].presence != t.Query.presence.PROHIBITED)
-              return !1;
+            if (this.clauses[e].presence != t.Query.presence.PROHIBITED) return !1;
           return !0;
         }),
         (t.Query.prototype.term = function (e, n) {
@@ -1314,10 +1133,7 @@ window.translations = {
           return (r.term = e.toString()), this.clause(r), this;
         }),
         (t.QueryParseError = function (e, n, r) {
-          (this.name = 'QueryParseError'),
-            (this.message = e),
-            (this.start = n),
-            (this.end = r);
+          (this.name = 'QueryParseError'), (this.message = e), (this.start = n), (this.end = r);
         }),
         (t.QueryParseError.prototype = new Error()),
         (t.QueryLexer = function (e) {
@@ -1332,19 +1148,9 @@ window.translations = {
           for (var e = t.QueryLexer.lexText; e; ) e = e(this);
         }),
         (t.QueryLexer.prototype.sliceString = function () {
-          for (
-            var e = [], n = this.start, r = this.pos, i = 0;
-            i < this.escapeCharPositions.length;
-            i++
-          )
-            (r = this.escapeCharPositions[i]),
-              e.push(this.str.slice(n, r)),
-              (n = r + 1);
-          return (
-            e.push(this.str.slice(n, this.pos)),
-            (this.escapeCharPositions.length = 0),
-            e.join('')
-          );
+          for (var e = [], n = this.start, r = this.pos, i = 0; i < this.escapeCharPositions.length; i++)
+            (r = this.escapeCharPositions[i]), e.push(this.str.slice(n, r)), (n = r + 1);
+          return e.push(this.str.slice(n, this.pos)), (this.escapeCharPositions.length = 0), e.join('');
         }),
         (t.QueryLexer.prototype.emit = function (e) {
           this.lexemes.push({
@@ -1388,36 +1194,17 @@ window.translations = {
         (t.QueryLexer.BOOST = 'BOOST'),
         (t.QueryLexer.PRESENCE = 'PRESENCE'),
         (t.QueryLexer.lexField = function (e) {
-          return (
-            e.backup(),
-            e.emit(t.QueryLexer.FIELD),
-            e.ignore(),
-            t.QueryLexer.lexText
-          );
+          return e.backup(), e.emit(t.QueryLexer.FIELD), e.ignore(), t.QueryLexer.lexText;
         }),
         (t.QueryLexer.lexTerm = function (e) {
-          if (
-            (e.width() > 1 && (e.backup(), e.emit(t.QueryLexer.TERM)),
-            e.ignore(),
-            e.more())
-          )
+          if ((e.width() > 1 && (e.backup(), e.emit(t.QueryLexer.TERM)), e.ignore(), e.more()))
             return t.QueryLexer.lexText;
         }),
         (t.QueryLexer.lexEditDistance = function (e) {
-          return (
-            e.ignore(),
-            e.acceptDigitRun(),
-            e.emit(t.QueryLexer.EDIT_DISTANCE),
-            t.QueryLexer.lexText
-          );
+          return e.ignore(), e.acceptDigitRun(), e.emit(t.QueryLexer.EDIT_DISTANCE), t.QueryLexer.lexText;
         }),
         (t.QueryLexer.lexBoost = function (e) {
-          return (
-            e.ignore(),
-            e.acceptDigitRun(),
-            e.emit(t.QueryLexer.BOOST),
-            t.QueryLexer.lexText
-          );
+          return e.ignore(), e.acceptDigitRun(), e.emit(t.QueryLexer.BOOST), t.QueryLexer.lexText;
         }),
         (t.QueryLexer.lexEOS = function (e) {
           e.width() > 0 && e.emit(t.QueryLexer.TERM);
@@ -1432,29 +1219,15 @@ window.translations = {
               continue;
             }
             if (n == ':') return t.QueryLexer.lexField;
-            if (n == '~')
-              return (
-                e.backup(),
-                e.width() > 0 && e.emit(t.QueryLexer.TERM),
-                t.QueryLexer.lexEditDistance
-              );
-            if (n == '^')
-              return (
-                e.backup(),
-                e.width() > 0 && e.emit(t.QueryLexer.TERM),
-                t.QueryLexer.lexBoost
-              );
+            if (n == '~') return e.backup(), e.width() > 0 && e.emit(t.QueryLexer.TERM), t.QueryLexer.lexEditDistance;
+            if (n == '^') return e.backup(), e.width() > 0 && e.emit(t.QueryLexer.TERM), t.QueryLexer.lexBoost;
             if ((n == '+' && e.width() === 1) || (n == '-' && e.width() === 1))
               return e.emit(t.QueryLexer.PRESENCE), t.QueryLexer.lexText;
-            if (n.match(t.QueryLexer.termSeparator))
-              return t.QueryLexer.lexTerm;
+            if (n.match(t.QueryLexer.termSeparator)) return t.QueryLexer.lexTerm;
           }
         }),
         (t.QueryParser = function (e, n) {
-          (this.lexer = new t.QueryLexer(e)),
-            (this.query = n),
-            (this.currentClause = {}),
-            (this.lexemeIdx = 0);
+          (this.lexer = new t.QueryLexer(e)), (this.query = n), (this.currentClause = {}), (this.lexemeIdx = 0);
         }),
         (t.QueryParser.prototype.parse = function () {
           this.lexer.run(), (this.lexemes = this.lexer.lexemes);
@@ -1485,8 +1258,7 @@ window.translations = {
               default:
                 var r = 'expected either a field or a term, found ' + n.type;
                 throw (
-                  (n.str.length >= 1 && (r += " with value '" + n.str + "'"),
-                  new t.QueryParseError(r, n.start, n.end))
+                  (n.str.length >= 1 && (r += " with value '" + n.str + "'"), new t.QueryParseError(r, n.start, n.end))
                 );
             }
         }),
@@ -1650,8 +1422,7 @@ window.translations = {
   window.translations ||= {
     copy: 'Copy',
     copied: 'Copied!',
-    normally_hidden:
-      'This member is normally hidden due to your filter settings.',
+    normally_hidden: 'This member is normally hidden due to your filter settings.',
     hierarchy_expand: 'Expand',
     hierarchy_collapse: 'Collapse',
   };
@@ -1665,20 +1436,14 @@ window.translations = {
       this.createComponents(document.body),
         this.ensureFocusedElementVisible(),
         this.listenForCodeCopies(),
-        window.addEventListener('hashchange', () =>
-          this.ensureFocusedElementVisible()
-        ),
+        window.addEventListener('hashchange', () => this.ensureFocusedElementVisible()),
         document.body.style.display ||
-          (this.ensureFocusedElementVisible(),
-          this.updateIndexVisibility(),
-          this.scrollToHash());
+          (this.ensureFocusedElementVisible(), this.updateIndexVisibility(), this.scrollToHash());
     }
     createComponents(e) {
       ce.forEach((n) => {
         e.querySelectorAll(n.selector).forEach((r) => {
-          r.dataset.hasInstance ||
-            (new n.constructor({ el: r, app: this }),
-            (r.dataset.hasInstance = String(!0)));
+          r.dataset.hasInstance || (new n.constructor({ el: r, app: this }), (r.dataset.hasInstance = String(!0)));
         });
       });
     }
@@ -1705,11 +1470,8 @@ window.translations = {
       for (; n && !n.classList.contains('.tsd-navigation'); )
         n instanceof HTMLDetailsElement && (n.open = !0), (n = n.parentElement);
       if (e && !ze(e)) {
-        let r =
-          e.getBoundingClientRect().top -
-          document.documentElement.clientHeight / 4;
-        (document.querySelector('.site-menu').scrollTop = r),
-          (document.querySelector('.col-sidebar').scrollTop = r);
+        let r = e.getBoundingClientRect().top - document.documentElement.clientHeight / 4;
+        (document.querySelector('.site-menu').scrollTop = r), (document.querySelector('.col-sidebar').scrollTop = r);
       }
     }
     updateIndexVisibility() {
@@ -1718,9 +1480,7 @@ window.translations = {
       e && (e.open = !0),
         document.querySelectorAll('.tsd-index-section').forEach((r) => {
           r.style.display = 'block';
-          let i = Array.from(r.querySelectorAll('.tsd-index-link')).every(
-            (s) => s.offsetParent == null
-          );
+          let i = Array.from(r.querySelectorAll('.tsd-index-link')).every((s) => s.offsetParent == null);
           r.style.display = i ? 'none' : 'block';
         }),
         e && (e.open = n);
@@ -1741,14 +1501,11 @@ window.translations = {
       if (!n) return;
       let r = n.offsetParent == null,
         i = n;
-      for (; i !== document.body; )
-        i instanceof HTMLDetailsElement && (i.open = !0), (i = i.parentElement);
+      for (; i !== document.body; ) i instanceof HTMLDetailsElement && (i.open = !0), (i = i.parentElement);
       if (n.offsetParent == null) {
         (this.alwaysVisibleMember = n), n.classList.add('always-visible');
         let s = document.createElement('p');
-        s.classList.add('warning'),
-          (s.textContent = window.translations.normally_hidden),
-          n.prepend(s);
+        s.classList.add('warning'), (s.textContent = window.translations.normally_hidden), n.prepend(s);
       }
       r && e.scrollIntoView();
     }
@@ -1757,9 +1514,7 @@ window.translations = {
         let n;
         e.addEventListener('click', () => {
           e.previousElementSibling instanceof HTMLElement &&
-            navigator.clipboard.writeText(
-              e.previousElementSibling.innerText.trim()
-            ),
+            navigator.clipboard.writeText(e.previousElementSibling.innerText.trim()),
             (e.textContent = window.translations.copied),
             e.classList.add('visible'),
             clearTimeout(n),
@@ -1787,19 +1542,14 @@ window.translations = {
   var ge = $e(pe(), 1);
   async function H(t) {
     let e = Uint8Array.from(atob(t), (s) => s.charCodeAt(0)),
-      r = new Blob([e])
-        .stream()
-        .pipeThrough(new DecompressionStream('deflate')),
+      r = new Blob([e]).stream().pipeThrough(new DecompressionStream('deflate')),
       i = await new Response(r).text();
     return JSON.parse(i);
   }
   async function fe(t, e) {
     if (!window.searchData) return;
     let n = await H(window.searchData);
-    (t.data = n),
-      (t.index = ge.Index.load(n.index)),
-      e.classList.remove('loading'),
-      e.classList.add('ready');
+    (t.data = n), (t.index = ge.Index.load(n.index)), e.classList.remove('loading'), e.classList.add('ready');
   }
   function ve() {
     let t = document.getElementById('tsd-search');
@@ -1817,10 +1567,7 @@ window.translations = {
         fe(e, t));
     let r = document.querySelector('#tsd-search input'),
       i = document.querySelector('#tsd-search .results');
-    if (!r || !i)
-      throw new Error(
-        'The input field or the result list wrapper was not found'
-      );
+    if (!r || !i) throw new Error('The input field or the result list wrapper was not found');
     i.addEventListener('mouseup', () => {
       re(t);
     }),
@@ -1845,14 +1592,11 @@ window.translations = {
         i.altKey ||
           i.ctrlKey ||
           i.metaKey ||
-          (!n.matches(':focus') &&
-            i.key === '/' &&
-            (i.preventDefault(), n.focus()));
+          (!n.matches(':focus') && i.key === '/' && (i.preventDefault(), n.focus()));
       }),
       document.body.addEventListener('keyup', (i) => {
         t.classList.contains('has-focus') &&
-          (i.key === 'Escape' ||
-            (!e.matches(':focus-within') && !n.matches(':focus'))) &&
+          (i.key === 'Escape' || (!e.matches(':focus-within') && !n.matches(':focus'))) &&
           (n.blur(), re(t));
       });
   }
@@ -1875,8 +1619,7 @@ window.translations = {
       let a = s[o],
         l = r.data.rows[Number(a.ref)],
         c = 1;
-      l.name.toLowerCase().startsWith(i.toLowerCase()) &&
-        (c *= 1 + 1 / (1 + Math.abs(l.name.length - i.length))),
+      l.name.toLowerCase().startsWith(i.toLowerCase()) && (c *= 1 + 1 / (1 + Math.abs(l.name.length - i.length))),
         (a.score *= c);
     }
     if (s.length === 0) {
@@ -1890,8 +1633,7 @@ window.translations = {
       let l = r.data.rows[Number(s[o].ref)],
         c = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="tsd-kind-icon"><use href="#icon-${l.kind}"></use></svg>`,
         d = ye(l.name, i);
-      globalThis.DEBUG_SEARCH_WEIGHTS &&
-        (d += ` (score: ${s[o].score.toFixed(2)})`),
+      globalThis.DEBUG_SEARCH_WEIGHTS && (d += ` (score: ${s[o].score.toFixed(2)})`),
         l.parent &&
           (d = `<span class="parent">
                 ${ye(l.parent, i)}.</span>${d}`);
@@ -1902,17 +1644,14 @@ window.translations = {
         (p.innerHTML = c + d),
         m.append(p),
         p.addEventListener('focus', () => {
-          e.querySelector('.current')?.classList.remove('current'),
-            m.classList.add('current');
+          e.querySelector('.current')?.classList.remove('current'), m.classList.add('current');
         }),
         e.appendChild(m);
     }
   }
   function me(t, e, n) {
     let r = t.querySelector('.current');
-    if (!r)
-      (r = t.querySelector(n == 1 ? 'li:first-child' : 'li:last-child')),
-        r && r.classList.add('current');
+    if (!r) (r = t.querySelector(n == 1 ? 'li:first-child' : 'li:last-child')), r && r.classList.add('current');
     else {
       let i = r;
       if (n === 1)
@@ -1941,10 +1680,7 @@ window.translations = {
       s = 0,
       o = n.indexOf(r);
     for (; o != -1; )
-      i.push(
-        ne(t.substring(s, o)),
-        `<b>${ne(t.substring(o, o + r.length))}</b>`
-      ),
+      i.push(ne(t.substring(s, o)), `<b>${ne(t.substring(o, o + r.length))}</b>`),
         (s = o + r.length),
         (o = n.indexOf(r, s));
     return i.push(ne(t.substring(s))), i.join('');
@@ -1974,9 +1710,7 @@ window.translations = {
     ie = !1,
     Xe = !1,
     D = !1,
-    Le = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-      navigator.userAgent
-    );
+    Le = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   document.documentElement.classList.add(Le ? 'is-mobile' : 'not-mobile');
   Le &&
     'ontouchstart' in document.documentElement &&
@@ -2017,8 +1751,7 @@ window.translations = {
         document.documentElement.classList.toggle('has-' + this.className, e),
         this.el.classList.toggle('active', e);
       let n = (this.active ? 'to-has-' : 'from-has-') + this.className;
-      document.documentElement.classList.add(n),
-        setTimeout(() => document.documentElement.classList.remove(n), 500);
+      document.documentElement.classList.add(n), setTimeout(() => document.documentElement.classList.remove(n), 500);
     }
     onPointerUp(e) {
       D || (this.setActive(!0), e.preventDefault());
@@ -2035,8 +1768,7 @@ window.translations = {
         if (n) {
           let r = window.location.href;
           r.indexOf('#') != -1 && (r = r.substring(0, r.indexOf('#'))),
-            n.href.substring(0, r.length) == r &&
-              setTimeout(() => this.setActive(!1), 250);
+            n.href.substring(0, r.length) == r && setTimeout(() => this.setActive(!1), 250);
         }
       }
     }
@@ -2075,9 +1807,7 @@ window.translations = {
       return e ? e === 'true' : this.el.checked;
     }
     setLocalStorage(e) {
-      C.setItem(this.key, e.toString()),
-        (this.value = e),
-        this.handleValueChange();
+      C.setItem(this.key, e.toString()), (this.value = e), this.handleValueChange();
     }
     handleValueChange() {
       (this.el.checked = this.value),
@@ -2146,13 +1876,9 @@ window.translations = {
     let t = document.getElementById('tsd-nav-container');
     if (!t || !window.navigationData) return;
     let e = await H(window.navigationData);
-    (ee = document.documentElement.dataset.base),
-      ee.endsWith('/') || (ee += '/'),
-      (t.innerHTML = '');
+    (ee = document.documentElement.dataset.base), ee.endsWith('/') || (ee += '/'), (t.innerHTML = '');
     for (let n of e) Ie(n, t, []);
-    window.app.createComponents(t),
-      window.app.showPage(),
-      window.app.ensureActivePageVisible();
+    window.app.createComponents(t), window.app.showPage(), window.app.ensureActivePageVisible();
   }
   function Ie(t, e, n) {
     let r = e.appendChild(document.createElement('li'));
@@ -2178,9 +1904,7 @@ window.translations = {
       let r = e.appendChild(document.createElement('a'));
       (r.href = ee + t.path),
         n && (r.className = n),
-        location.pathname === r.pathname &&
-          !r.href.includes('#') &&
-          r.classList.add('current'),
+        location.pathname === r.pathname && !r.href.includes('#') && r.classList.add('current'),
         t.kind &&
           (r.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="tsd-kind-icon"><use href="#icon-${t.kind}"></use></svg>`),
         (r.appendChild(document.createElement('span')).textContent = t.text);
@@ -2194,27 +1918,19 @@ window.translations = {
   var te = document.documentElement.dataset.base;
   te.endsWith('/') || (te += '/');
   function Pe() {
-    document.querySelector('.tsd-full-hierarchy')
-      ? Ye()
-      : document.querySelector('.tsd-hierarchy') && Ze();
+    document.querySelector('.tsd-full-hierarchy') ? Ye() : document.querySelector('.tsd-hierarchy') && Ze();
   }
   function Ye() {
     document.addEventListener('click', (r) => {
       let i = r.target;
-      for (; i.parentElement && i.parentElement.tagName != 'LI'; )
-        i = i.parentElement;
-      i.dataset.dropdown &&
-        (i.dataset.dropdown = String(i.dataset.dropdown !== 'true'));
+      for (; i.parentElement && i.parentElement.tagName != 'LI'; ) i = i.parentElement;
+      i.dataset.dropdown && (i.dataset.dropdown = String(i.dataset.dropdown !== 'true'));
     });
     let t = new Map(),
       e = new Set();
-    for (let r of document.querySelectorAll(
-      '.tsd-full-hierarchy [data-refl]'
-    )) {
+    for (let r of document.querySelectorAll('.tsd-full-hierarchy [data-refl]')) {
       let i = r.querySelector('ul');
-      t.has(r.dataset.refl)
-        ? e.add(r.dataset.refl)
-        : i && t.set(r.dataset.refl, i);
+      t.has(r.dataset.refl) ? e.add(r.dataset.refl) : i && t.set(r.dataset.refl, i);
     }
     for (let r of e) n(r);
     function n(r) {
@@ -2228,9 +1944,7 @@ window.translations = {
       for (let s of document.querySelectorAll(`[data-refl="${r}"]`)) {
         let o = tt(),
           a = s.querySelector('ul');
-        s.insertBefore(o, a),
-          (o.dataset.dropdown = String(!!a)),
-          a || s.appendChild(i.cloneNode(!0));
+        s.insertBefore(o, a), (o.dataset.dropdown = String(!!a)), a || s.appendChild(i.cloneNode(!0));
       }
     }
   }
@@ -2288,9 +2002,7 @@ window.translations = {
           s.append(document.createTextNode('.'));
       }
       let o = s.appendChild(document.createElement('a'));
-      (o.textContent = t.reflections[e].name),
-        (o.href = te + i.url),
-        (o.className = i.class + ' tsd-signature-type');
+      (o.textContent = t.reflections[e].name), (o.href = te + i.url), (o.className = i.class + ' tsd-signature-type');
     }
     if (i.children) {
       let o = s.appendChild(document.createElement('ul'));

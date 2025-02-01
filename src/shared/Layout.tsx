@@ -6,13 +6,15 @@ const layoutStyle = css`
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
+  height: 100vh;
 `;
 
 const mainStyle = css`
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-  align-items: flex-start;
+  justify-content: center;
+  align-items: center;
   width: calc(100vw - 220px);
 `;
 

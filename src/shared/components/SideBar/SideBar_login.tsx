@@ -1,13 +1,5 @@
 import { Link } from 'react-router-dom';
-import {
-  Home,
-  Radio,
-  FileText,
-  User,
-  Settings,
-  Search,
-  LogOut,
-} from 'lucide-react';
+import { Home, Radio, FileText, User, Settings, Search, LogOut } from 'lucide-react';
 import styled from '@emotion/styled';
 
 import MiniProfile from './MiniProfile_login';

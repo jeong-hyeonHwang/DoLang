@@ -8,20 +8,9 @@ const onChange: PaginationProps['onChange'] = (pageNumber) => {
 
 const App: React.FC = () => (
   <>
-    <Pagination
-      showQuickJumper
-      defaultCurrent={2}
-      total={500}
-      onChange={onChange}
-    />
+    <Pagination showQuickJumper defaultCurrent={2} total={500} onChange={onChange} />
     <br />
-    <Pagination
-      showQuickJumper
-      defaultCurrent={2}
-      total={500}
-      onChange={onChange}
-      disabled
-    />
+    <Pagination showQuickJumper defaultCurrent={2} total={500} onChange={onChange} disabled />
   </>
 );
 

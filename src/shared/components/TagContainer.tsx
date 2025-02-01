@@ -17,13 +17,7 @@ const SelectableTag = ({
   </Tag>
 );
 
-const SelectedTagList = ({
-  selectedTags,
-  onRemove,
-}: {
-  selectedTags: string[];
-  onRemove: (tag: string) => void;
-}) => (
+const SelectedTagList = ({ selectedTags, onRemove }: { selectedTags: string[]; onRemove: (tag: string) => void }) => (
   <div>
     {selectedTags.map((tag) => (
       <Tag key={tag} color="green" closable onClose={() => onRemove(tag)}>
@@ -40,9 +34,7 @@ const TagSearchBar = ({
   inputValue: string;
   handleChange: React.ChangeEventHandler<HTMLInputElement>;
 }) => {
-  return (
-    <Input placeholder="태그 검색" value={inputValue} onChange={handleChange} />
-  );
+  return <Input placeholder="태그 검색" value={inputValue} onChange={handleChange} />;
 };
 
 export const TagContainer = () => {
@@ -64,11 +56,7 @@ export const TagContainer = () => {
   };
 
   const filteredTags =
-    inputValue.trim() === ''
-      ? []
-      : tagList.filter((tag) =>
-          tag.toLowerCase().includes(inputValue.toLowerCase())
-        );
+    inputValue.trim() === '' ? [] : tagList.filter((tag) => tag.toLowerCase().includes(inputValue.toLowerCase()));
 
   return (
     <>
@@ -78,12 +66,7 @@ export const TagContainer = () => {
       {/* 필터링된 태그 */}
       <div>
         {filteredTags.map((tag) => (
-          <SelectableTag
-            key={tag}
-            tag={tag}
-            isSelected={selectedTags.includes(tag)}
-            onSelect={handleTagAdd}
-          />
+          <SelectableTag key={tag} tag={tag} isSelected={selectedTags.includes(tag)} onSelect={handleTagAdd} />
         ))}
       </div>
 
