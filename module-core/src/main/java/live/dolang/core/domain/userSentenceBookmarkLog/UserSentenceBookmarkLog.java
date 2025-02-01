@@ -3,19 +3,17 @@ package live.dolang.core.domain.userSentenceBookmarkLog;
 import jakarta.persistence.*;
 import live.dolang.core.domain.user.User;
 import live.dolang.core.domain.userDateSentence.UserDateSentence;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Getter
+@Setter
 @Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "user_sentence_like_logs", schema = "dolang")
+@Table(name = "user_sentence_bookmark_logs", schema = "dolang")
 public class UserSentenceBookmarkLog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
