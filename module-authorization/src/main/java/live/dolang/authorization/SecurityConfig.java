@@ -219,11 +219,14 @@ public class SecurityConfig {
     }
 
     @Bean
-    public OAuth2TokenGenerator<?> tokenGenerator(JwtEncoder jwtEncoder) {
+    public OAuth2TokenGenerator<?> tokenGenerator(JwtEncoder jwtEncoder, JwtCustomizer jwtCustomizer) {
+
         OAuth2AccessTokenGenerator accessTokenGenerator = new OAuth2AccessTokenGenerator();
         OAuth2RefreshTokenGenerator refreshTokenGenerator = new OAuth2RefreshTokenGenerator();
+        JwtGenerator jwtGenerator = new JwtGenerator(jwtEncoder);
+        jwtGenerator.setJwtCustomizer(jwtCustomizer);
         return new DelegatingOAuth2TokenGenerator(
-                new JwtGenerator(jwtEncoder), accessTokenGenerator, refreshTokenGenerator);
+                jwtGenerator, accessTokenGenerator, refreshTokenGenerator);
     }
 
 

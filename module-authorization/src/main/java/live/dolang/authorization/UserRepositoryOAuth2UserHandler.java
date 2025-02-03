@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.function.Consumer;
 
 @AllArgsConstructor
@@ -17,12 +16,11 @@ public class UserRepositoryOAuth2UserHandler implements Consumer<OAuth2User> {
     @Override
     @Transactional
     public void accept(OAuth2User user) {
-        if (this.userRepository.findByGoogleId(user.getName()) == null) {
+        if (this.userRepository.findByGoogleId(user.getName()).isEmpty()) {
             this.userRepository.save(
                     User.builder()
                             .email(user.getAttribute("email"))
                             .googleId(user.getName())
-                            .createAt(LocalDateTime.now())
                             .build()
             );
         }
