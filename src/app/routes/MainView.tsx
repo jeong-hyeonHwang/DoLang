@@ -1,3 +1,7 @@
 export default function MainView() {
-  return <div>MainView</div>;
+  return (
+    <>
+      <div>MainView</div>;
+    </>
+  );
 }

@@ -1,9 +1,11 @@
 import { css } from '@emotion/react';
+import styled from '@emotion/styled';
 import { Link, useLocation } from 'react-router';
 import NameCard from '../nameCard/NameCard';
 import { useUserQuery } from '../../hooks/useUserQuery';
 import { useAuth } from '../../hooks/useAuth';
 import Logo from '../Logo/Logo';
+import { Home, Radio, FileText, User, Settings } from 'lucide-react';
 
 // ── 스타일링 ───────────────────────────────────────────────
 const sidebarStyle = css`
