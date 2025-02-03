@@ -1,4 +1,4 @@
-package live.dolang.core.domain.dateSentence;
+package live.dolang.core.domain.date_sentence;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

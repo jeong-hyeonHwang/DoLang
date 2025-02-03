@@ -1,14 +1,13 @@
-package live.dolang.core.domain.userSentenceBookmarkLog;
+package live.dolang.core.domain.user_sentence_bookmark_log;
 
 import jakarta.persistence.*;
 import live.dolang.core.domain.user.User;
-import live.dolang.core.domain.userDateSentence.UserDateSentence;
+import live.dolang.core.domain.user_date_sentence.UserDateSentence;
 import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Getter
-@Setter
 @Entity
 @Builder
 @NoArgsConstructor

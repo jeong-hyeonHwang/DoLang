@@ -1,8 +1,8 @@
-package live.dolang.core.domain.userSentenceLikeLog;
+package live.dolang.core.domain.user_sentence_like_log;
 
 import jakarta.persistence.*;
 import live.dolang.core.domain.user.User;
-import live.dolang.core.domain.userDateSentence.UserDateSentence;
+import live.dolang.core.domain.user_date_sentence.UserDateSentence;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

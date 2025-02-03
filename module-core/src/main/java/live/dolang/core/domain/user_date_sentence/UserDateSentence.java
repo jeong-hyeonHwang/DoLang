@@ -1,7 +1,7 @@
-package live.dolang.core.domain.userDateSentence;
+package live.dolang.core.domain.user_date_sentence;
 
 import jakarta.persistence.*;
-import live.dolang.core.domain.dateSentence.DateSentence;
+import live.dolang.core.domain.date_sentence.DateSentence;
 import live.dolang.core.domain.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

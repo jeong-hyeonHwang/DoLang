@@ -16,12 +16,13 @@ public class SchedulerConfig {
     private final JobLauncher jobLauncher;
     private final Job redisToDatabaseJob;
 
-    @Scheduled(cron = "0 */5 * * * ?")
+    @Scheduled(cron = "0 */1 * * * ?")
     public void runBatchJob() {
         try {
             jobLauncher.run(redisToDatabaseJob, new JobParametersBuilder()
                     .addLong("timestamp", System.currentTimeMillis())
                     .toJobParameters());
+            System.out.println("job success!!!");
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }

@@ -26,8 +26,6 @@ subprojects {
     dependencies {
         implementation("org.springframework.boot:spring-boot-starter")
         implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-        implementation("org.springframework.boot:spring-boot-starter-data-redis")
-        implementation("org.springframework.boot:spring-boot-starter-batch")
         compileOnly("org.projectlombok:lombok")
         testCompileOnly("org.projectlombok:lombok")
         annotationProcessor("org.projectlombok:lombok")

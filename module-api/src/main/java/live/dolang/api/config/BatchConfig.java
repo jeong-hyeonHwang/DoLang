@@ -2,14 +2,13 @@ package live.dolang.api.config;
 
 import live.dolang.core.domain.user.User;
 import live.dolang.core.domain.user.repository.UserRepository;
-import live.dolang.core.domain.userDateSentence.UserDateSentence;
-import live.dolang.core.domain.userDateSentence.repository.UserDateSentenceRepository;
-import live.dolang.core.domain.userSentenceBookmarkLog.UserSentenceBookmarkLog;
-import live.dolang.core.domain.userSentenceBookmarkLog.repository.UserSentenceBookmarkLogRepository;
+import live.dolang.core.domain.user_date_sentence.UserDateSentence;
+import live.dolang.core.domain.user_date_sentence.repository.UserDateSentenceRepository;
+import live.dolang.core.domain.user_sentence_bookmark_log.UserSentenceBookmarkLog;
+import live.dolang.core.domain.user_sentence_bookmark_log.repository.UserSentenceBookmarkLogRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
@@ -23,13 +22,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 @Configuration
-@EnableBatchProcessing
 @RequiredArgsConstructor
 public class BatchConfig {
 
@@ -74,57 +73,57 @@ public class BatchConfig {
         Set<String> keys = redisTemplate.keys(pattern);
         List<UserSentenceBookmarkLog> logs = new ArrayList<>();
 
-        if (keys != null) {
-            for (String key : keys) {
-                String userIdStr = key.split(":")[1];
-                Integer userId;
+        System.out.println(keys.size());
+        for (String key : keys) {
+            String userIdStr = key.split(":")[1];
+            int userId;
+
+            try {
+                userId = Integer.parseInt(userIdStr);
+            } catch (NumberFormatException e) {
+                System.err.println("Invalid user ID format: " + userIdStr);
+                continue;
+            }
+
+            // User 엔티티 조회
+            User user = userRepository.findById(userId).orElse(null);
+            if (user == null) {
+                System.err.println("User not found for ID: " + userId);
+                continue;
+            }
+
+            // Redis에서 해시 데이터 조회 (e.g., {"sentence1": true, "sentence2": false})
+            Map<Object, Object> likeData = redisTemplate.opsForHash().entries(key);
+
+            for (Map.Entry<Object, Object> entry : likeData.entrySet()) {
+                String sentenceIdStr = (String) entry.getKey();
+                int sentenceId;
 
                 try {
-                    userId = Integer.parseInt(userIdStr);
+                    sentenceId = Integer.parseInt(sentenceIdStr);
                 } catch (NumberFormatException e) {
-                    System.err.println("Invalid user ID format: " + userIdStr);
+                    System.err.println("Invalid sentence ID format: " + sentenceIdStr);
                     continue;
                 }
 
-                // User 엔티티 조회
-                User user = userRepository.findById(Long.valueOf(userId)).orElse(null);
-                if (user == null) {
-                    System.err.println("User not found for ID: " + userId);
+                // UserDateSentence 엔티티 조회
+                UserDateSentence userDateSentence = userDateSentenceRepository.findById(sentenceId).orElse(null);
+                if (userDateSentence == null) {
+                    System.err.println("UserDateSentence not found for ID: " + sentenceId);
                     continue;
                 }
 
-                // Redis에서 해시 데이터 조회 (e.g., {"sentence1": true, "sentence2": false})
-                Map<Object, Object> likeData = redisTemplate.opsForHash().entries(key);
+                // UserSentenceBookmarkLog 생성 및 설정
+                UserSentenceBookmarkLog log = UserSentenceBookmarkLog
+                        .builder()
+                        .id(null)
+                        .user(user)
+                        .userDateSentence(userDateSentence)
+                        .bookmarkYn((Boolean) entry.getValue())
+                        .createAt(LocalDateTime.now())
+                        .build();
 
-                for (Map.Entry<Object, Object> entry : likeData.entrySet()) {
-                    String sentenceIdStr = (String) entry.getKey();
-                    Integer sentenceId = null;
-
-                    try {
-                        sentenceId = Integer.parseInt(sentenceIdStr);
-                    } catch (NumberFormatException e) {
-                        System.err.println("Invalid sentence ID format: " + sentenceIdStr);
-                        continue;
-                    }
-
-                    // UserDateSentence 엔티티 조회
-                    UserDateSentence userDateSentence = userDateSentenceRepository.findById(sentenceId).orElse(null);
-                    if (userDateSentence == null) {
-                        System.err.println("UserDateSentence not found for ID: " + sentenceId);
-                        continue;
-                    }
-
-                    // UserSentenceBookmarkLog 생성 및 설정
-                    UserSentenceBookmarkLog log = UserSentenceBookmarkLog
-                            .builder()
-                            .id(null)
-                            .user(user)
-                            .userDateSentence(userDateSentence)
-                            .bookmarkYn((Boolean) entry.getValue())
-                            .build();
-
-                    logs.add(log);
-                }
+                logs.add(log);
             }
         }
         return new IteratorItemReader<>(logs);

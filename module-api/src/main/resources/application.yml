@@ -26,8 +26,8 @@ spring:
     redis:
       host: localhost
       port: 6379
-      post:
-        prefix: "post:"
+      user-sentence:
+        prefix: "userSentence:"
       user:
         prefix: "user:"
       bookmark:
@@ -35,9 +35,9 @@ spring:
         count:
           postfix: ":bookmarkCount:"
 
-batch:
-  jdbc:
-    initialize-schema: always
+  batch:
+    jdbc:
+      initialize-schema: always
 
 logging:
   level:

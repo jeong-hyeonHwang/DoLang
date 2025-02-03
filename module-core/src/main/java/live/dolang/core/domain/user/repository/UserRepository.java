@@ -8,5 +8,7 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Integer>, QuerydslPredicateExecutor<User> {
 
+
     Optional<User> findByGoogleId(String googleId);
+    boolean existsById(Integer id);
 }
