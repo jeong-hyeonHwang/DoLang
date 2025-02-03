@@ -141,11 +141,11 @@ public class SecurityConfig {
                     grantTypes.add(AuthorizationGrantType.REFRESH_TOKEN);
                 })
                 .redirectUris(uris -> {
-                    uris.add("http://localhost:3000/oauth2/code");
-                    uris.add("http://localhost:3000/oauth2/token");
+                    uris.add("http://localhost:5173/oauth2/code");
+                    uris.add("http://localhost:5173/oauth2/token");
                 })
                 .postLogoutRedirectUris(uris -> {
-                    uris.add("http://localhost:3000/logout");
+                    uris.add("http://localhost:5173/logout");
                 })
                 .scopes(scopes -> {
                     scopes.add("openid");
