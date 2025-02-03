@@ -1,12 +1,14 @@
 package live.dolang.core.domain.user;
 
 import jakarta.persistence.*;
+import live.dolang.core.domain.user_profile.UserProfile;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Getter
 @Entity
@@ -30,7 +32,11 @@ public class User {
     @Column(name = "google_id", columnDefinition = "VARCHAR(255)", unique = true, nullable = false)
     private String googleId;
 
-    @Column(name = "create_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", nullable = false)
-    private LocalDateTime createAt;
+    @CreationTimestamp
+    @Column(name = "create_at", columnDefinition = "TIMESTAMP", nullable = false)
+    private Instant createAt;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    private UserProfile userProfile;
 
 }
