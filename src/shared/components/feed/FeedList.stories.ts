@@ -8,7 +8,6 @@ const meta: Meta<typeof FeedList> = {
   argTypes: {},
 };
 export default meta;
-
 type Story = StoryObj<typeof FeedList>;
 
 export const Default: Story = {

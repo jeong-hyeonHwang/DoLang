@@ -1,5 +1,13 @@
 export type UserInfo = {
-  userName: string | null;
-  userFlag: string | null;
-  userImage: string | null;
+  profileImageUrl: string | null;
+  nickname: string;
+  countryId: string;
+  nativeLanguageId: string | null;
+  interestLanguageId: string | null;
+  interestingLanguageLevelId: string | null;
+  tags: Tag[];
+};
+
+export type Tag = {
+  text: string;
 };

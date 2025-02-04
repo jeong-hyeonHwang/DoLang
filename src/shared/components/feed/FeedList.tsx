@@ -1,13 +1,33 @@
 import type { FeedProps } from './Feed';
 import Feed from './Feed';
+import { css } from '@emotion/react';
 
 const FeedList = ({ feeds }: { feeds: FeedProps[] }) => {
+  const feedListLayoutStyle = css`
+    padding: 1rem;
+    margin: 0.6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 50vh;
+    overflow-y: scroll;
+    border: 1px solid #d1d1d1;
+    border-radius: 1rem;
+  `;
+
   return (
-    <div>
+    <section className="feed-list-section" css={feedListLayoutStyle}>
       {feeds.map((feed) => (
-        <Feed key={feed.content.id} {...feed} />
+        <Feed
+          key={feed.id}
+          {...feed}
+          userInfo={{
+            ...feed.userInfo,
+            interestingLanguageLevelId: '',
+          }}
+        />
       ))}
-    </div>
+    </section>
   );
 };
 

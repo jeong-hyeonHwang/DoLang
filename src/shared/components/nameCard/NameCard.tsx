@@ -3,33 +3,35 @@ import 'flag-icons/css/flag-icons.min.css';
 import { useUserQuery } from '../../hooks/useUserQuery';
 import { NameCardProps } from '../../types/NameCardProps.interface';
 import { useAuth } from '../../hooks/useAuth';
+import { UserInfo } from '../../types/UserInfo.types';
 
-const NameCard = ({ children, style }: NameCardProps) => {
-  const { data: userInfo, isLoading, error } = useUserQuery();
+const NameCard = ({ userInfo, style }: NameCardProps) => {
+  // const { data: user, isLoading, error } = useUserQuery();
   const { loginMutation } = useAuth();
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error loading user info</div>;
+  // if (isLoading) return <div>Loading...</div>;
+  // if (error) return <div>Error loading user info</div>;
 
   const nameCardStyle = css`
     display: flex;
-    padding: 10px;
     align-items: center;
     gap: 1rem;
     height: 3.2rem;
     font-weight: semibold;
     font-size: 1.2rem;
-    border: ${style?.border ?? '1px solid #cacaca'};
+    border: ${style === 'compact' ? 'none' : style === 'bordered' ? '1px solid #cacaca' : 'none'};
     border-radius: 10px;
     position: relative;
-    background-color: ${style?.backgroundColor ?? 'white'};
-    ${style && Object.entries(style).reduce((acc, [key, value]) => `${acc}${key}:${value};`, '')};
   `;
 
   const userInfoStyle = css`
     display: flex;
     align-items: center;
     gap: 1rem;
+  `;
+  const nameStyle = css`
+    ${style === 'compact' && 'display: none'};
+    white-space: nowrap;
   `;
 
   const userImageStyle = css`
@@ -49,13 +51,15 @@ const NameCard = ({ children, style }: NameCardProps) => {
     font-size: 1rem;
   `;
 
-  const LoggedInUser = () => {
+  const LoggedInUser = ({ userInfo }: { userInfo: UserInfo }) => {
     return (
       <div className="user-info" css={userInfoStyle}>
         <div className="user-image-wrapper" css={userImageStyle}>
-          {userInfo?.userFlag && <span className={`fi fi-${userInfo.userFlag}`} css={flagStyle} />}
+          {userInfo.countryId && <span className={`fi fi-${userInfo.countryId}`} css={flagStyle} />}
         </div>
-        <strong>{children || userInfo?.userName}</strong>
+        <div css={nameStyle}>
+          <strong>{userInfo.nickname}</strong>
+        </div>
       </div>
     );
   };
@@ -66,7 +70,7 @@ const NameCard = ({ children, style }: NameCardProps) => {
 
   return (
     <div className="name-card" css={nameCardStyle}>
-      {userInfo?.userName ? <LoggedInUser /> : <Guest />}
+      {userInfo?.nickname ? <LoggedInUser userInfo={userInfo} /> : <Guest />}
     </div>
   );
 };
