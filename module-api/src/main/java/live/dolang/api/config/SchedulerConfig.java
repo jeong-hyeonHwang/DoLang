@@ -19,7 +19,7 @@ public class SchedulerConfig {
     @Scheduled(cron = "0 */1 * * * ?")
     public void runBatchJob() {
         try {
-            jobLauncher.run(redisToDatabaseJob, new JobParametersBuilder()
+             jobLauncher.run(redisToDatabaseJob, new JobParametersBuilder()
                     .addLong("timestamp", System.currentTimeMillis())
                     .toJobParameters());
             System.out.println("job success!!!");
