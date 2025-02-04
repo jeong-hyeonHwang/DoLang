@@ -1,3 +1,4 @@
+import React from 'react';
 import { Routes, Route } from 'react-router';
 import Layout from './shared/Layout';
 import MainPage from './app/routes/MainView';
@@ -5,9 +6,8 @@ import FeedView from './app/routes/FeedView';
 import SavedContentsView from './app/routes/SavedContentsView';
 import UserProfileView from './app/routes/UserProfileView';
 import GoogleLoginView from './shared/components/Auth/GoogleLoginView';
-import SignUpView from './shared/components/Auth/SignUpView';
+import SignUpView from './shared/components/Auth/GoogleSignUpView';
 import { GlobalStyle } from './shared/globalStyle';
-import React from 'react';
 
 function App() {
   return (
@@ -19,9 +19,18 @@ function App() {
           <Route path="feed" element={<FeedView />} />
           <Route path="savedContents" element={<SavedContentsView />} />
           <Route path="profile" element={<UserProfileView />} />
-          {/* <Route path="oauth2" element={<GoogleLoginView />} /> modal 처리예정 */}
-          <Route path="oauth2/code" element={<GoogleLoginView />} /> {/* modal 처리예정 */}
-          <Route path="signup" element={<SignUpView />} />
+
+          {/* Auth */}
+          <Route path="oauth2" element={<GoogleLoginView />} />
+          <Route path="oauth2/code" element={<GoogleLoginView />} />
+          <Route path="/signup" element={<SignUpView />} />
+
+          {/* savedContetns */}
+          <Route path="savedContents/bookmark" element={<>북마크</>} />
+          <Route path="savedContents/calls" element={<>call</>} />
+          <Route path="savedContents/feed" element={<>feed</>} />
+
+          {/* User */}
         </Route>
       </Routes>
     </>
