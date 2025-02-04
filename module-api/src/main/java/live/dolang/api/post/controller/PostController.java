@@ -1,5 +1,6 @@
 package live.dolang.api.post.controller;
 
+import live.dolang.api.post.dto.BookmarkStatusDto;
 import live.dolang.api.post.service.UserDateSentenceService;
 import live.dolang.api.post.service.facade.BookmarkFacadeService;
 import live.dolang.core.exception.CustomException;
@@ -32,23 +33,7 @@ public class PostController {
             throw new CustomException(ErrorCode.RECORD_NOT_FOUND);
         }
 
-        bookmarkFacadeService.bookmarkUserDateSentence(userId, userDateSentenceId);
-        return ResponseEntity.ok(null);
-    }
-
-    // 북마크 취소
-    @DeleteMapping("/{userDateSentenceId}/bookmark")
-    public ResponseEntity<?> unbookmarkPost(@AuthenticationPrincipal Jwt jwt, @PathVariable Integer userDateSentenceId) {
-        Integer userId = Integer.parseInt(jwt.getId());
-        if (userService.isUserExists(userId)) {
-            throw new CustomException(ErrorCode.USER_NOT_FOUND);
-        }
-
-        if (userDateSentenceService.isUserDateSentenceExists(userDateSentenceId)) {
-            throw new CustomException(ErrorCode.RECORD_NOT_FOUND);
-        }
-
-        bookmarkFacadeService.unbookmarkUserDateSentence(userId, userDateSentenceId);
-        return ResponseEntity.ok(null);
+        BookmarkStatusDto bookmarkStatusDto = bookmarkFacadeService.bookmarkUserDateSentence(userId, userDateSentenceId);
+        return ResponseEntity.ok(bookmarkStatusDto);
     }
 }

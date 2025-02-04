@@ -1,5 +1,6 @@
 package live.dolang.api.config;
 
+import live.dolang.api.post.dto.BookmarkDataDto;
 import live.dolang.core.domain.user.User;
 import live.dolang.core.domain.user.repository.UserRepository;
 import live.dolang.core.domain.user_date_sentence.UserDateSentence;
@@ -73,7 +74,6 @@ public class BatchConfig {
         Set<String> keys = redisTemplate.keys(pattern);
         List<UserSentenceBookmarkLog> logs = new ArrayList<>();
 
-        System.out.println(keys.size());
         for (String key : keys) {
             String userIdStr = key.split(":")[1];
             int userId;
@@ -113,14 +113,26 @@ public class BatchConfig {
                     continue;
                 }
 
+                Object value = entry.getValue();
+                boolean bookmarkYn;
+                LocalDateTime createdAt;
+
+                if (value instanceof BookmarkDataDto bookmarkData) {
+                    bookmarkYn = bookmarkData.isBookmarked();
+                    createdAt = LocalDateTime.ofEpochSecond(bookmarkData.getTimestamp(), 0, java.time.ZoneOffset.UTC);
+                } else {
+                    System.err.println("Unexpected data type in Redis: " + value.getClass());
+                    continue;
+                }
+
                 // UserSentenceBookmarkLog 생성 및 설정
                 UserSentenceBookmarkLog log = UserSentenceBookmarkLog
                         .builder()
-                        .id(null)
                         .user(user)
                         .userDateSentence(userDateSentence)
-                        .bookmarkYn((Boolean) entry.getValue())
-                        .createAt(LocalDateTime.now())
+                        .bookmarkYn(bookmarkYn)
+
+                        .createAt(createdAt)
                         .build();
 
                 logs.add(log);

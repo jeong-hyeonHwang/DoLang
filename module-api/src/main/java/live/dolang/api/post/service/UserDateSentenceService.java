@@ -10,6 +10,6 @@ public class UserDateSentenceService {
     private final UserDateSentenceRepository userDateSentenceRepository;
 
     public boolean isUserDateSentenceExists(Integer userDateSentenceId) {
-        return userDateSentenceRepository.findByUserDateSentenceId(userDateSentenceId).isEmpty();
+        return userDateSentenceRepository.findById(userDateSentenceId).isEmpty();
     }
 }

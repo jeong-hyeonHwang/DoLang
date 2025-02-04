@@ -19,7 +19,7 @@ public class UserDateSentence {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_date_sentence_id", columnDefinition = "INT")
-    private Integer userDateSentenceId;
+    private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
