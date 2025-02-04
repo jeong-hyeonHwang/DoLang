@@ -33,8 +33,8 @@ public class User {
     private String googleId;
 
     @CreationTimestamp
-    @Column(name = "create_at", columnDefinition = "TIMESTAMP", nullable = false)
-    private Instant createAt;
+    @Column(name = "created_at", columnDefinition = "TIMESTAMP", nullable = false)
+    private Instant createdAt;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private UserProfile userProfile;
