@@ -48,10 +48,9 @@ public class CustomUserSentenceBookmarkLogRepositoryImpl implements CustomUserSe
                         log.user.id.eq(userId)
                                 .and(log.userDateSentence.id.eq(userDateSentenceId))
                 )
-                .orderBy(log.createAt.desc())
+                .orderBy(log.createdAt.desc())
                 .limit(1)
-                .fetchFirst(); // ✅ `fetchOne()` 대신 `fetchFirst()` 사용하여 안전성 향상
-
+                .fetchFirst();
         return Optional.ofNullable(isBookmark).orElse(false);
     }
 }

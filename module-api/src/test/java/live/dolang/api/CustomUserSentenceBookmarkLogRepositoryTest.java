@@ -49,7 +49,7 @@ class CustomUserSentenceBookmarkLogRepositoryTest {
         User testUser1 = User.builder()
                 .email("user1@example.com")
                 .googleId("google-1")
-                .createAt(Instant.from(LocalDateTime.now())) // TODO: Redis timestamp 값으로 수정
+                .createdAt(Instant.from(LocalDateTime.now())) // TODO: Redis timestamp 값으로 수정
                 .build();
         userRepository.save(testUser1);
 
@@ -57,7 +57,7 @@ class CustomUserSentenceBookmarkLogRepositoryTest {
         User testUser2 = User.builder()
                 .email("user2@example.com")
                 .googleId("google-2")
-                .createAt(Instant.from(LocalDateTime.now())) // TODO: Redis timestamp 값으로 수정
+                .createdAt(Instant.from(LocalDateTime.now())) // TODO: Redis timestamp 값으로 수정
                 .build();
         userRepository.save(testUser2);
 
@@ -98,7 +98,7 @@ class CustomUserSentenceBookmarkLogRepositoryTest {
                 .user(testUser1)
                 .userDateSentence(userDateSentence1)
                 .bookmarkYn(true)
-                .createAt(LocalDateTime.now())
+                .createdAt(LocalDateTime.now())
                 .build();
         userSentenceBookmarkLogRepository.save(bookmarkLog1);
 
@@ -107,7 +107,7 @@ class CustomUserSentenceBookmarkLogRepositoryTest {
                 .user(testUser2)
                 .userDateSentence(userDateSentence1)
                 .bookmarkYn(true)
-                .createAt(LocalDateTime.now())
+                .createdAt(LocalDateTime.now())
                 .build();
         userSentenceBookmarkLogRepository.save(bookmarkLog2);
 
@@ -116,7 +116,7 @@ class CustomUserSentenceBookmarkLogRepositoryTest {
                 .user(testUser2)
                 .userDateSentence(userDateSentence2)
                 .bookmarkYn(true)
-                .createAt(LocalDateTime.now())
+                .createdAt(LocalDateTime.now())
                 .build();
         userSentenceBookmarkLogRepository.save(bookmarkLog3);
 
@@ -125,7 +125,7 @@ class CustomUserSentenceBookmarkLogRepositoryTest {
                 .user(testUser1)
                 .userDateSentence(userDateSentence2)
                 .bookmarkYn(false) // ✅ false 처리
-                .createAt(LocalDateTime.now())
+                .createdAt(LocalDateTime.now())
                 .build();
         userSentenceBookmarkLogRepository.save(bookmarkLog4);
     }
@@ -148,10 +148,10 @@ class CustomUserSentenceBookmarkLogRepositoryTest {
 
         // 예시 검증
         Optional<BookmarkCountDTO> ds1 = results.stream()
-                .filter(r -> r.getPostId().equals(userDateSentence1.getUserDateSentenceId()))
+                .filter(r -> r.getPostId().equals(userDateSentence1.getId()))
                 .findFirst();
         Optional<BookmarkCountDTO> ds2 = results.stream()
-                .filter(r -> r.getPostId().equals(userDateSentence2.getUserDateSentenceId()))
+                .filter(r -> r.getPostId().equals(userDateSentence2.getId()))
                 .findFirst();
 
         assertThat(ds1).isPresent();

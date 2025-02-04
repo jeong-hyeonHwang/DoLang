@@ -33,6 +33,6 @@ public class UserSentenceLikeLog {
     @Column(name = "like_yn", columnDefinition = "TINYINT(1)", nullable = false)
     private boolean likeYn;
 
-    @Column(name = "create_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", nullable = false)
-    private LocalDateTime createAt;
+    @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", nullable = false)
+    private LocalDateTime createdAt;
 }

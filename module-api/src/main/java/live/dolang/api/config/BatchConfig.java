@@ -132,7 +132,7 @@ public class BatchConfig {
                         .userDateSentence(userDateSentence)
                         .bookmarkYn(bookmarkYn)
 
-                        .createAt(createdAt)
+                        .createdAt(createdAt)
                         .build();
 
                 logs.add(log);
