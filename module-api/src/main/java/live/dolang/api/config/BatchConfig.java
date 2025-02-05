@@ -75,9 +75,6 @@ public class BatchConfig {
         // 메인 데이터 키 패턴 (예: "user:*:bookmarks:")
         String pattern = userBookmarkPrefix + "*" + bookmarkPostfix;
         Set<String> dataKeys = redisTemplate.keys(pattern);
-        if (dataKeys == null) {
-            dataKeys = Set.of();
-        }
 
         for (String dataKey : dataKeys) {
             // 키 형식: "user:{userId}:{bookmarkPostfix}" — 여기서 userId를 추출
