@@ -14,7 +14,7 @@ spring:
       #      hibernate.generate_statistics: true
       hibernate.log_slow_query: 1000
       hibernate.highlight_sql: true
-      jakarta.persistence.schema-generation.database.action: create-drop
+      jakarta.persistence.schema-generation.database.action: none
   security:
     oauth2:
       resourceserver:
