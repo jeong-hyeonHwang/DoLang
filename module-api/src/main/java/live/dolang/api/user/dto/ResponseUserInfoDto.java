@@ -2,6 +2,8 @@ package live.dolang.api.user.dto;
 
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Builder
@@ -17,7 +19,6 @@ public class ResponseUserInfoDto {
     private String interestLanguageId;
     private String languageLevelId;
     private List<String> tags;
-
 }
 
 

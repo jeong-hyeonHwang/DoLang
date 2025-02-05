@@ -1,6 +1,7 @@
 package live.dolang.api.user.repository;
 
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import live.dolang.api.user.dto.ResponseUserInfoDto;
 import live.dolang.core.domain.tag.QTag;
@@ -13,13 +14,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Repository
 public class CustomUserRepository {
     private final JPAQueryFactory queryFactory;
 
-    public ResponseUserInfoDto getUserInfo(int userId) {
+    public Optional<ResponseUserInfoDto> getUserInfo(int userId) {
         QUser user = QUser.user;
         QUserProfile profile = QUserProfile.userProfile;
         QUserLanguageLevel userLanguageLevel = QUserLanguageLevel.userLanguageLevel;
@@ -29,36 +31,35 @@ public class CustomUserRepository {
         ResponseUserInfoDto dto = queryFactory
                 .select(Projections.bean(
                         ResponseUserInfoDto.class,
-                        profile.profileImageUrl.as("profileImage"),
+                        profile.profileImageUrl.as("profileImageUrl"),
                         profile.nickname.as("nickname"),
                         profile.countryId.as("countryId"),
                         profile.nativeLanguageId.as("nativeLanguageId"),
-                        profile.interestLanguageId.as("interestLanguageId")
+                        profile.interestLanguageId.as("interestLanguageId"),
+                        userLanguageLevel.languageLevelId.as("languageLevelId")
                 ))
-                .from(user)
-                .join(user.userProfile, profile)
+                .from(profile)
+                .join(user).on(profile.userId.eq(user.id))
+                .leftJoin(userLanguageLevel)
+                .on(userLanguageLevel.user.id.eq(user.id)
+                        .and(userLanguageLevel.languageId.eq(profile.interestLanguageId)))
                 .where(user.id.eq(userId))
                 .fetchOne();
         //TODO: dto null처리
+        return Optional.ofNullable(dto);
+    }
 
-        //관심언어 레벨 조회(interestLanguageID를 조건으로 조회)
-        String interestLanguageLevelId = queryFactory
-                .select(userLanguageLevel.languageLevelId)
-                .from(userLanguageLevel)
-                .where(userLanguageLevel.user.id.eq(userId)
-                        .and(userLanguageLevel.languageId.eq(dto.getInterestLanguageId())))
-                .fetchOne();
+    //관심사 태그 조회
+    public List<String> getUserTagList(int userId) {
+        QTag tag = QTag.tag;
+        QUserTag userTag = QUserTag.userTag;
 
-        //관심사 태그 조회
         List<String> tags = queryFactory
                 .select(tag.name)
                 .from(userTag)
                 .join(userTag.tag,tag)
                 .where(userTag.user.id.eq(userId))
                 .fetch();
-
-        dto.setInterestLanguageId(interestLanguageLevelId);
-        dto.setTags(tags);
-        return dto;
+        return tags;
     }
 }
