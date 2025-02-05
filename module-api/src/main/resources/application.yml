@@ -22,13 +22,30 @@ spring:
       #      hibernate.generate_statistics: true
       hibernate.log_slow_query: 1000
       hibernate.highlight_sql: true
-      jakarta.persistence.schema-generation.database.action: create-drop
+      jakarta.persistence.schema-generation.database.action: none #update
   security:
     oauth2:
       resourceserver:
         jwt:
           issuer-uri: http://localhost:8200
           jwk-set-uri: http://localhost:8200/oauth2/jwks
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      user-sentence:
+        prefix: "userSentence:"
+      user:
+        prefix: "user:"
+      bookmark:
+        postfix: ":bookmarks:"
+        count:
+          postfix: ":bookmarkCount:"
+
+  batch:
+    jdbc:
+      initialize-schema: always
 
 logging:
   level:
