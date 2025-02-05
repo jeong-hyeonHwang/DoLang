@@ -8,6 +8,14 @@ spring:
     url: jdbc:mysql://localhost:3306/dolang
     username: user
     password: password
+  elasticsearch:
+    uris: http://localhost:9200
+    username: elastic
+    password: password
+  data:
+    elasticsearch:
+      repositories:
+        enabled: true
   jpa:
     open-in-view: false
     properties:

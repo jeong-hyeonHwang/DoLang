@@ -7,4 +7,5 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.springframework.boot:spring-boot-starter-batch")
     implementation("org.springframework.batch:spring-batch-core:5.1.0")
+    implementation("org.springframework.boot:spring-boot-starter-data-elasticsearch")
 }
