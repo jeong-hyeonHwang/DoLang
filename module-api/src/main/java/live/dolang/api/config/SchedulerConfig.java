@@ -22,7 +22,6 @@ public class SchedulerConfig {
              jobLauncher.run(redisToDatabaseJob, new JobParametersBuilder()
                     .addLong("timestamp", System.currentTimeMillis())
                     .toJobParameters());
-            System.out.println("job success!!!");
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }

@@ -69,7 +69,7 @@ public class BatchConfig {
     }
 
     @Bean
-    @StepScope
+    @StepScope // Step 단위로 ItemReader를 생성하기 위함
     public ItemReader<UserSentenceBookmarkLog> redisItemReader() {
         List<UserSentenceBookmarkLog> logs = new ArrayList<>();
         // 메인 데이터 키 패턴 (예: "user:*:bookmarks:")
