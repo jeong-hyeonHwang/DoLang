@@ -1,31 +1,34 @@
-import { css } from '@emotion/react';
+// import { css } from '@emotion/react';
 import styled from '@emotion/styled';
-import { Outlet } from 'react-router';
+import { Outlet } from 'react-router-dom';
 import { NavBarContainer } from './components/navBar/NavBarContainer';
 
-const layoutStyle = css`
+const LayoutWrapper = styled.div`
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
   height: 100vh;
 `;
 
-const mainStyle = css`
+const MainContent = styled.main`
   display: flex;
-  flex-direction: column;
+  position: relative;
   flex-grow: 1;
+  overflow-y: auto;
+  padding: 2rem;
   justify-content: center;
-  align-items: center;
   width: calc(100vw - 220px);
+  margin-left: 14rem;
 `;
 
 export default function Layout() {
   return (
-    <div css={layoutStyle}>
+    <LayoutWrapper>
       <NavBarContainer />
-      <main css={mainStyle}>
+
+      <MainContent>
         <Outlet />
-      </main>
-    </div>
+      </MainContent>
+    </LayoutWrapper>
   );
 }

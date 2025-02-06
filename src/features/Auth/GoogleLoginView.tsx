@@ -1,3 +1,4 @@
+import { RecoilRoot } from 'recoil';
 import { useState, useEffect } from 'react';
 import GoogleLogin from '@/features/Auth/GoogleLogin';
 import GoogleLogout from '@/features//Auth/GoogleLogout';

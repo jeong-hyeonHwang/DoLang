@@ -15,6 +15,7 @@ function App() {
     <>
       <GlobalStyle />
       <Routes>
+        {/* <Route element={<Layout />}> */}
         <Route element={<Layout />}>
           <Route index element={<MainPage />} />
           <Route path="feed" element={<FeedView />} />
@@ -32,6 +33,7 @@ function App() {
           <Route path="savedContents/calls" element={<>call</>} />
           <Route path="savedContents/feed" element={<>feed</>} />
 
+          <Route path="guide" element={<>서비스 가이드</>} />
           {/* User */}
         </Route>
       </Routes>
