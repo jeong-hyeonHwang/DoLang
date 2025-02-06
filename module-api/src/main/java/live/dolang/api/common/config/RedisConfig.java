@@ -1,4 +1,4 @@
-package live.dolang.api.config;
+package live.dolang.api.common.config;
 
 import live.dolang.api.post.dto.BookmarkDataDto;
 import org.springframework.beans.factory.annotation.Value;

@@ -1,4 +1,4 @@
-package live.dolang.api.config;
+package live.dolang.api.common.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
