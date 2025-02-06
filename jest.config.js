@@ -1,4 +1,4 @@
 export default {
   preset: 'ts-jest',
-  testEnvironment: 'node',
+  testEnvironment: 'jest-fixed-jsdom',
 };
