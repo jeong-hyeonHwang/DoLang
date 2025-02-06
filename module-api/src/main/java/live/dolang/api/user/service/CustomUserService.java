@@ -1,7 +1,6 @@
 package live.dolang.api.user.service;
 
-import live.dolang.api.common.exception.UserNotFoundException;
-import live.dolang.api.common.exception.UserProfileNotFoundException;
+import live.dolang.api.common.exception.NotFoundException;
 import live.dolang.api.common.response.BaseResponseStatus;
 import live.dolang.api.user.dto.RequestUserProfileDto;
 import live.dolang.api.user.dto.ResponseUserInfoDto;
@@ -32,10 +31,10 @@ public class CustomUserService {
 
     public ResponseUserInfoDto getUserInfo(int userId) {
         if(!userService.isUserExists(userId)) {
-            throw new UserNotFoundException(BaseResponseStatus.NOT_EXIST_USER);
+            throw new NotFoundException(BaseResponseStatus.NOT_EXIST_USER);
         }
         ResponseUserInfoDto dto = customUserRepository.getUserInfo(userId)
-                .orElseThrow(() -> new UserProfileNotFoundException(BaseResponseStatus.NOT_EXIST_USER_PROFILE));
+                .orElseThrow(() -> new NotFoundException(BaseResponseStatus.NOT_EXIST_USER_PROFILE));
         List<String> tags = customUserRepository.getUserTagList(userId);
         dto.setTags(tags);
         return dto;
@@ -44,7 +43,7 @@ public class CustomUserService {
     @Transactional
     public void registerUserInfo(int userId, RequestUserProfileDto requestUserProfileDto) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(BaseResponseStatus.NOT_EXIST_USER));
+                .orElseThrow(() -> new NotFoundException(BaseResponseStatus.NOT_EXIST_USER));
         //유저 프로파일 저장
         UserProfile userProfile = requestUserProfileDto.toUserProfileEntity(userId);
         System.out.println(userProfile.toString());

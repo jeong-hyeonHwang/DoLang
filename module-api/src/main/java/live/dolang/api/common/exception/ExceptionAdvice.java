@@ -33,21 +33,14 @@ public class ExceptionAdvice {
         return new BaseResponse<>(exception.getStatus());
     }
 
-    @ExceptionHandler(UserProfileNotFoundException.class)
+    @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
-    public BaseResponse<BaseResponseStatus> UserProfileNotFoundExceptionHandler(UserProfileNotFoundException exception) {
-        log.warn("UserProfileNotFoundException has occurred. %s %s %s".formatted(exception.getMessage(), exception.getCause(), exception.getStackTrace()[0]));
+    public BaseResponse<BaseResponseStatus> UserProfileNotFoundExceptionHandler(NotFoundException exception) {
+        log.warn("NotFoundException has occurred. %s %s %s".formatted(exception.getMessage(), exception.getCause(), exception.getStackTrace()[0]));
         return new BaseResponse<>(exception.getStatus());
     }
 
-    @ExceptionHandler(UserNotFoundException.class)
-    @ResponseStatus(value = HttpStatus.NOT_FOUND)
-    public BaseResponse<BaseResponseStatus> UserNotFoundExceptionHandler(UserNotFoundException exception) {
-        log.warn("UserNotFoundException has occurred. %s %s %s".formatted(exception.getMessage(), exception.getCause(), exception.getStackTrace()[0]));
-        return new BaseResponse<>(exception.getStatus());
-    }
-
-    @ExceptionHandler(ForbiddenException.class)
+    @ExceptionHandler(InternalServerException.class)
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     public BaseResponse<BaseResponseStatus> InternalServerExceptionHandler(InternalServerException exception) {
         log.warn("InternalServerException has occurred. %s %s %s".formatted(exception.getMessage(), exception.getCause(), exception.getStackTrace()[0]));
