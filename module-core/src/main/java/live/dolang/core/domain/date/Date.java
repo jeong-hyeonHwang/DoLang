@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Entity
 @Builder
@@ -17,5 +19,5 @@ public class Date {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "date_id", columnDefinition = "TIMESTAMP")
-    private String id;
+    private LocalDateTime id;
 }
