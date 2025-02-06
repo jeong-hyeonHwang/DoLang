@@ -1,9 +1,27 @@
+import React from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
 import { describe, test, expect, beforeAll, afterAll, afterEach, jest } from '@jest/globals';
-import { useMatching } from '../features/Matching/hooks/useMatching';
+import { useMatching } from '../hooks/useMatching';
 import { setupServer } from 'msw/node';
-import { createWrapper } from './useMatchingTest';
-import { handlers } from '../mocks/handlers';
+import { handlers } from './handlers';
+
+export const createWrapper = () => {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+        refetchOnWindowFocus: false,
+      },
+    },
+  });
+
+  const QueryClientWrapper = ({ children }: { children: React.ReactNode }) => (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  );
+
+  return QueryClientWrapper;
+};
 
 const server = setupServer(...handlers);
 

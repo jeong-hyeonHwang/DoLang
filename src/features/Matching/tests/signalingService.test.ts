@@ -1,7 +1,7 @@
 import { setupServer } from 'msw/node';
-import { handlers } from '../mocks/handlers';
 import { describe, test, expect, beforeAll, afterAll, afterEach } from '@jest/globals';
-import { getMatchResult, matchRequest, handleMatchCancel } from '../features/Matching/services/signalingService';
+import { getMatchResult, matchRequest, handleMatchCancel } from '../services/signalingService';
+import { handlers } from './handlers';
 
 const server = setupServer(...handlers);
 

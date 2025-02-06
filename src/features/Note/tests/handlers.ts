@@ -1,19 +1,6 @@
 import { http, HttpResponse } from 'msw';
-import { setupServer } from 'msw/node';
-import { noteService } from '../features/Note/services/noteService';
-import { describe, expect, test, beforeAll, afterEach, afterAll } from '@jest/globals';
-import { Note } from '../features/Note/types/Note.type';
 
-const newNote: Note = {
-  nativeNote: 'Hello',
-  interestNote: '안녕하세요',
-  nativeLanguageId: 'en',
-  interestLanguageId: 'ko',
-  userId: 1,
-};
-
-const { saveNote, getNoteList, getNoteListWithKeyword } = noteService();
-const server = setupServer(
+export const handlers = [
   // API 호출 시, 북마크 여부 확인 로직 상세
   // try-catch와 Transactional를 통해 데이터 무결성을 보장
   // (MySQL부터 저장을 시도, ElasticSearch 저장 시도하는 방식으로 구현 (ES는 ACID 보장 X), User의 존재 여부 확인)
@@ -49,25 +36,5 @@ const server = setupServer(
       message: 'Note list fetched successfully',
       status: 200,
     });
-  })
-);
-
-describe('useNote', () => {
-  beforeAll(() => server.listen());
-  afterEach(() => server.resetHandlers());
-  afterAll(() => server.close());
-  test('요청 시 문장or단어를 저장해야 한다', async () => {
-    const response = await saveNote(newNote);
-    expect(response.status).toBe(200);
-  });
-
-  test('사용자 아이디 기반으로 문장or단어를 리스트에 담아 보내야 한다', async () => {
-    const response = await getNoteList(1);
-    expect(response.status).toBe(200);
-  });
-
-  test('GET 요청 시 userId, keyword 기반으로 문장or단어들 중 접두가 포함된 결과들을 List에 담아 보낸다.', async () => {
-    const response = await getNoteListWithKeyword(1, '안녕');
-    expect(response.status).toBe(200);
-  });
-});
+  }),
+];
