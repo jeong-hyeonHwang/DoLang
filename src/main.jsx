@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import App from './App.tsx';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { initMockAPI } from './mocks/index.ts';
+import { RecoilRoot } from 'recoil';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -20,9 +21,11 @@ initMockAPI().then(() => {
     <StrictMode>
       <QueryClientProvider client={queryClient}>
         <ReactQueryDevtools initialIsOpen={false} position="bottom-right" />
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
+        <RecoilRoot>
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </RecoilRoot>
       </QueryClientProvider>
     </StrictMode>
   );
