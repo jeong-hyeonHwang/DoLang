@@ -36,7 +36,11 @@ public class User {
     @Column(name = "created_at", columnDefinition = "TIMESTAMP", nullable = false)
     private Instant createdAt;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "fk_user_profile_user_id_to_user_id"))
     private UserProfile userProfile;
 
+    public void updateProfile(UserProfile profile) {
+        this.userProfile = profile;
+    }
 }
