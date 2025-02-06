@@ -1,4 +1,4 @@
-import type { FeedProps } from './Feed';
+import type { FeedProps } from '../types/feedSentence.type';
 import Feed from './Feed';
 import { css } from '@emotion/react';
 

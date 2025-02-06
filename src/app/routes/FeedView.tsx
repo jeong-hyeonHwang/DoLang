@@ -1,8 +1,14 @@
-import FeedList from '../../shared/components/feed/FeedList';
+import FeedList from '../../features/Feed/components/FeedList';
+import { useEffect, useState } from 'react';
 import { css } from '@emotion/react';
 import { Mic } from 'lucide-react';
-import { feedTestData } from '../../shared/components/feed/feedTestData';
-import { FeedProps } from '../../shared/components/feed/Feed';
+import {
+  nativeFeedTestData,
+  learningLanguageFeedTestData,
+  nativeFeedSentenceTestData,
+} from '../../features/Feed/tests/feedTestData';
+import { FeedParticipation } from '../../features/Feed/types/feedParticipation.type';
+import Waveform from '@/shared/components/waveform/Waveform';
 
 const FeedView = () => {
   const feedContainerStyle = css`
@@ -39,8 +45,12 @@ const FeedView = () => {
     align-items: center;
     justify-content: center;
   `;
+  const [feedListData, setFeedListData] = useState<FeedParticipation[]>([]);
 
-  const testFeedContents = feedTestData;
+  useEffect(() => {
+    setFeedListData(nativeFeedTestData);
+  }, []);
+
   return (
     <>
       <div className="feed-container" css={feedContainerStyle}>
@@ -49,12 +59,12 @@ const FeedView = () => {
           <span>Language Picker</span>
         </div>
         <div className="feed-sentence-section" css={feedSentenceSectionStyle}>
-          <p>Feed sentence</p>
+          <p>{nativeFeedSentenceTestData.sentenceInfo.sentence}</p>
           <div className="feed-sentence-record-button" css={feedRecordButtonStyle}>
             <Mic size={32} stroke="#fff" />
           </div>
         </div>
-        <FeedList feeds={testFeedContents as FeedProps[]} />
+        <FeedList feeds={feedListData} />
       </div>
     </>
   );

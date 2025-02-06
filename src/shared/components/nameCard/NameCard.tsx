@@ -1,11 +1,9 @@
 import { css } from '@emotion/react';
 import 'flag-icons/css/flag-icons.min.css';
-import { useUserQuery } from '../../hooks/useUserQuery';
-import { NameCardProps } from '../../types/NameCardProps.interface';
 import { useAuth } from '../../hooks/useAuth';
-import { UserInfo } from '../../types/UserInfo.types';
+import { NameCardProps } from '../../types/NameCardProps.interface';
 
-const NameCard = ({ userInfo, style }: NameCardProps) => {
+const NameCard = ({ userCountry, userNickname, style }: NameCardProps) => {
   // const { data: user, isLoading, error } = useUserQuery();
   const { loginMutation } = useAuth();
 
@@ -51,14 +49,14 @@ const NameCard = ({ userInfo, style }: NameCardProps) => {
     font-size: 1rem;
   `;
 
-  const LoggedInUser = ({ userInfo }: { userInfo: UserInfo }) => {
+  const LoggedInUser = () => {
     return (
       <div className="user-info" css={userInfoStyle}>
         <div className="user-image-wrapper" css={userImageStyle}>
-          {userInfo.countryId && <span className={`fi fi-${userInfo.countryId}`} css={flagStyle} />}
+          {userCountry && <span className={`fi fi-${userCountry}`} css={flagStyle} />}
         </div>
         <div css={nameStyle}>
-          <strong>{userInfo.nickname}</strong>
+          <strong>{userNickname}</strong>
         </div>
       </div>
     );
@@ -70,7 +68,7 @@ const NameCard = ({ userInfo, style }: NameCardProps) => {
 
   return (
     <div className="name-card" css={nameCardStyle}>
-      {userInfo?.nickname ? <LoggedInUser userInfo={userInfo} /> : <Guest />}
+      {userNickname ? <LoggedInUser /> : <Guest />}
     </div>
   );
 };

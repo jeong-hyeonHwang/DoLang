@@ -34,5 +34,4 @@ export const handlers = [
       message: 'Logged in successfully',
     });
   }),
-
 ];

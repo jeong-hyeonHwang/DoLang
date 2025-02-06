@@ -1,8 +1,12 @@
 import { ReactNode } from 'react';
-import { UserInfo } from './UserInfo.type';
 
 export interface NameCardProps {
-  userInfo: UserInfo;
+  userImage: string;
+  userNickname: string;
+  userCountry: string;
+  userNativeLanguage: string;
+  userInterestLanguage: string;
+  userInterestingLanguageLevel: string;
   children?: ReactNode;
   style?: string;
 }

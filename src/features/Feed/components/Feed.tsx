@@ -1,20 +1,14 @@
-import WaveIndicator from './WaveIndicator';
+import Waveform from '../../../shared/components/waveform/Waveform';
 import { css } from '@emotion/react';
 import { Heart, Bookmark, Volume1 } from 'lucide-react';
-import NameCard from '../nameCard/NameCard';
-import { UserInfo } from '../../types/UserInfo.types';
+import NameCard from '../../../shared/components/nameCard/NameCard';
 import { useRef, useState } from 'react';
-
-export type FeedProps = {
-  id: number;
-  userInfo: Partial<UserInfo>;
-  src: string;
-  createdAt: Date;
-};
+import { FeedParticipation } from '../types/feedParticipation.type';
 
 const feedStyle = css`
   display: flex;
   flex-direction: row;
+  align-items: center;
   gap: 1rem;
 `;
 
@@ -29,16 +23,16 @@ const feedContentStyle = css`
   gap: 1rem;
 `;
 
-const Feed = ({ userInfo, src }: FeedProps) => {
+const Feed = (feedProps: FeedParticipation) => {
   // 모국어 여부 확인
   const isMotherTongue = useRef(false);
   const [isChecked, setIsChecked] = useState(false);
   return (
     <div css={feedStyle}>
-      <NameCard userInfo={userInfo} style="compact" />
+      <NameCard userCountry={feedProps.country} userNickname={feedProps.profileImage} style="compact" />
       <div className="feed-content" css={feedContentStyle}>
         <Volume1 />
-        <WaveIndicator audioSrc={src} />
+        <Waveform audioSrc={feedProps.voiceUrl} />
 
         {isMotherTongue.current ? (
           <Bookmark

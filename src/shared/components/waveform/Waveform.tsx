@@ -2,11 +2,7 @@ import { useEffect, useRef } from 'react';
 import WaveSurfer from 'wavesurfer.js';
 import { css } from '@emotion/react';
 
-interface WaveIndicatorProps {
-  audioSrc: string;
-}
-
-const WaveIndicator = ({ audioSrc }: WaveIndicatorProps) => {
+const Waveform = ({ audioSrc }: { audioSrc: string }) => {
   const waveContainerRef = useRef<HTMLDivElement>(null);
   const waveRef = useRef<WaveSurfer | null>(null);
 
@@ -15,9 +11,9 @@ const WaveIndicator = ({ audioSrc }: WaveIndicatorProps) => {
       waveRef.current = WaveSurfer.create({
         container: waveContainerRef.current,
         waveColor: '#959595',
-        width: 240,
+        width: 80,
+        height: 48,
         progressColor: '#000000',
-        url: audioSrc,
         barWidth: 5,
         barGap: 1,
         barRadius: 5,
@@ -26,12 +22,14 @@ const WaveIndicator = ({ audioSrc }: WaveIndicatorProps) => {
         cursorColor: '#ffffff0',
       });
     }
-    return () => waveRef.current?.destroy();
+
+    waveRef.current?.load(audioSrc);
   }, [audioSrc]);
 
   const waveIndicatorStyle = css`
     display: flex;
     align-items: center;
+    flex-grow: 1;
     gap: 1rem;
   `;
 
@@ -42,4 +40,4 @@ const WaveIndicator = ({ audioSrc }: WaveIndicatorProps) => {
   );
 };
 
-export default WaveIndicator;
+export default Waveform;
