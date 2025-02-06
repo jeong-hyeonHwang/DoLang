@@ -1,5 +1,6 @@
 package live.dolang.api.user.controller;
 
+import live.dolang.api.common.response.BaseResponse;
 import live.dolang.api.user.dto.ResponseUserInfoDto;
 import live.dolang.api.user.service.CustomUserService;
 import lombok.RequiredArgsConstructor;
@@ -15,9 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
     private final CustomUserService userService;
     @GetMapping()
-    public ResponseUserInfoDto getUserInfo(@AuthenticationPrincipal Jwt jwt) {
+    public BaseResponse<ResponseUserInfoDto> getUserInfo(@AuthenticationPrincipal Jwt jwt) {
         int userId = Integer.parseInt(jwt.getId());
-        return userService.getUserInfo(userId);
+        return new BaseResponse<>(userService.getUserInfo(userId));
     }
 
 }
