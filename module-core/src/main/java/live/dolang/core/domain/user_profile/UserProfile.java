@@ -2,10 +2,7 @@ package live.dolang.core.domain.user_profile;
 
 import jakarta.persistence.*;
 import live.dolang.core.domain.user.User;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -23,9 +20,7 @@ public class UserProfile {
     @Column(name = "user_id")
     private Integer userId;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @MapsId
-    @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "fk_user_profile_user_id_to_user_id"))
+    @OneToOne(mappedBy = "userProfile", fetch = FetchType.LAZY)
     private User user;
 
     @Enumerated(EnumType.STRING)
