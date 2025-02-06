@@ -18,10 +18,14 @@ public enum BaseResponseStatus {
     ALREADY_EXIST_EMAIL(false, HttpStatus.BAD_REQUEST.value(), "이미 존재하는 이메일입니다."),
     NOT_EXIST_EMAIL(false, HttpStatus.BAD_REQUEST.value(), "존재하지 않는 이메일입니다."),
     NOT_CORRECT_PASSWORD(false, HttpStatus.BAD_REQUEST.value(), "일치하지 않는 비밀번호입니다."),
-    NOT_EXIST_USER(false, HttpStatus.NOT_FOUND.value(), "존재하지 않는 사용자입니다."),
+
     WITHDRAW_USER(false, HttpStatus.BAD_REQUEST.value(), "탈퇴한 사용자입니다."),
 
-
+    /**
+     * 유저 에러
+     */
+    NOT_EXIST_USER_PROFILE(false,4004, "저장된 유저정보를 찾을 수 없습니다."),
+    NOT_EXIST_USER(false, HttpStatus.NOT_FOUND.value(), "존재하지 않는 사용자입니다."),
     /**
      * 자유롭게 에러코드 추가
      */

@@ -45,7 +45,6 @@ public class CustomUserRepository {
                         .and(userLanguageLevel.languageId.eq(profile.interestLanguageId)))
                 .where(user.id.eq(userId))
                 .fetchOne();
-        //TODO: dto null처리
         return Optional.ofNullable(dto);
     }
 

@@ -11,14 +11,17 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 @RestControllerAdvice
 public class ExceptionAdvice {
-    @ExceptionHandler(ExampleException.class)
-    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public BaseResponse<BaseResponseStatus> BadRequestExceptionHandle(ExampleException exception) {
-        log.warn("BadRequestExceptionHandle has occurred. %s %s %s".formatted(exception.getMessage(), exception.getCause(), exception.getStackTrace()[0]));
-
-
-
+    @ExceptionHandler(UserProfileNotFoundException.class)
+    @ResponseStatus(value = HttpStatus.NOT_FOUND)
+    public BaseResponse<BaseResponseStatus> UserProfileNotFoundExceptionHandler(UserProfileNotFoundException exception) {
+        log.warn("UserProfileNotFoundException has occurred. %s %s %s".formatted(exception.getMessage(), exception.getCause(), exception.getStackTrace()[0]));
         return new BaseResponse<>(exception.getStatus());
     }
 
+    @ExceptionHandler(UserNotFoundException.class)
+    @ResponseStatus(value = HttpStatus.NOT_FOUND)
+    public BaseResponse<BaseResponseStatus> UserNotFoundExceptionHandler(UserNotFoundException exception) {
+        log.warn("UserNotFoundException has occurred. %s %s %s".formatted(exception.getMessage(), exception.getCause(), exception.getStackTrace()[0]));
+        return new BaseResponse<>(exception.getStatus());
+    }
 }
