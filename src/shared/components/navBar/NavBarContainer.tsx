@@ -5,6 +5,7 @@ import NameCard from '../nameCard/NameCard';
 import { useUserQuery } from '../../hooks/useUserQuery';
 import { useAuth } from '../../hooks/useAuth';
 import Logo from '../Logo/Logo';
+import GoogleLogout from '@/features/Auth/GoogleLogout';
 import { Home, Radio, FileText, User, Settings } from 'lucide-react';
 
 // ── 스타일링 ───────────────────────────────────────────────
@@ -137,6 +138,7 @@ export const NavBarContainer = () => {
           <div>{userInfo?.userName && <div onClick={() => logoutMutation.mutate()}>로그아웃</div>}</div>
         )}
       </div>
+      <GoogleLogout />
     </div>
   );
 };

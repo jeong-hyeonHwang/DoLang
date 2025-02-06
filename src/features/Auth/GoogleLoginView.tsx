@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import GoogleLogin from '@/shared/components/Auth/GoogleLogin';
-import GoogleLogout from '@/shared/components/Auth/GoogleLogout';
+import GoogleLogin from '@/features/Auth/GoogleLogin';
+import GoogleLogout from '@/features//Auth/GoogleLogout';
 
 function GoogleLoginView() {
   const [accessToken, setAccessToken] = useState(sessionStorage.getItem('access_token'));

@@ -5,8 +5,8 @@ import MainPage from './app/routes/MainView';
 import FeedView from './app/routes/FeedView';
 import SavedContentsView from './app/routes/SavedContentsView';
 import UserProfileView from './app/routes/UserProfileView';
-import GoogleLoginView from './shared/components/Auth/GoogleLoginView';
-import SignUpView from './shared/components/Auth/GoogleSignUpView';
+import GoogleLoginView from './features/Auth/GoogleLoginView';
+import GoogleSignupView from './features/Auth/GoogleSignUpView';
 import { GlobalStyle } from './shared/globalStyle';
 
 function App() {
@@ -23,7 +23,7 @@ function App() {
           {/* Auth */}
           <Route path="oauth2" element={<GoogleLoginView />} />
           <Route path="oauth2/code" element={<GoogleLoginView />} />
-          <Route path="/signup" element={<SignUpView />} />
+          <Route path="/signup" element={<GoogleSignupView />} />
 
           {/* savedContetns */}
           <Route path="savedContents/bookmark" element={<>북마크</>} />
