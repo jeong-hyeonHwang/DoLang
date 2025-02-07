@@ -24,6 +24,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -124,7 +125,7 @@ public class BatchConfig {
                         .user(user)
                         .userDateSentence(userDateSentence)
                         .bookmarkYn(bookmarkData.isBookmarked())
-                        .createdAt(createdAt)
+                        .createdAt(Instant.from(createdAt))
                         .build();
                 logs.add(log);
             }
