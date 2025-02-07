@@ -51,8 +51,7 @@ public class CustomUserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(BaseResponseStatus.NOT_EXIST_USER));
         //유저 프로파일 저장
-        UserProfile userProfile = requestUserProfileDto.toUserProfileEntity(userId);
-        System.out.println(userProfile.toString());
+        UserProfile userProfile = requestRegisterUserProfileDto.toUserProfileEntity(userId);
         userProfileRepository.save(userProfile);
 
         //유저 관심사 태그저장
