@@ -30,6 +30,11 @@ public enum BaseResponseStatus {
      * 자유롭게 에러코드 추가
      */
 
+    NOT_EXIST_LANGUAGE(false, HttpStatus.NOT_FOUND.value(), "저장된 언어를 찾을 수 없습니다."),
+
+    NOT_EXIST_DATE(false, HttpStatus.NOT_FOUND.value(), "저장된 날짜를 찾을 수 없습니다."),
+
+    NOT_EXIST_FEED(false, HttpStatus.NOT_FOUND.value(), "피드 정보를 찾을 수 없습니다"),
     ;
 
 
