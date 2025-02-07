@@ -4,9 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import live.dolang.core.domain.user_profile.UserProfile;
 import live.dolang.core.domain.user_profile.repository.UserProfileRepository;
-import live.dolang.matching.reqeust.MatchedResponse;
 import live.dolang.matching.reqeust.MatchingStartRequest;
 import live.dolang.matching.reqeust.MatchingStopRequest;
+import live.dolang.matching.response.MatchedResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -34,17 +34,17 @@ public class MatchingService {
     /**
      * 사용자에게 매칭이 됬음을 통보합니다.
      *
-     * @param userId   사용자 id
+     * @param username jwt subject
      * @param response 매칭 성공 응답 객체
      */
-    public void sendMessageToUser(String userId, MatchedResponse response) {
-        simpMessagingTemplate.convertAndSendToUser(userId, "/queue/matched", response);
+    public void sendMessageToUser(String username, MatchedResponse response) {
+        simpMessagingTemplate.convertAndSendToUser(username, "/queue/matched", response);
     }
 
     /**
-     * 매 5초 마다 매칭 알고리즘을 수행합니다.
+     * 1초의 간격을 두고 실행합니다.
      */
-    @Scheduled(cron = "*/5 * * * * *")
+    @Scheduled(fixedDelay = 3000)
     private void match() {
         log.info("Match started");
 
@@ -64,8 +64,17 @@ public class MatchingService {
             removeUserFromQueue("ko", userK);
             removeUserFromQueue("en", userE);
 
-            sendMessageToUser(userK.getUserId().toString(), new MatchedResponse(userE.getPeerId()));
-            sendMessageToUser(userE.getUserId().toString(), new MatchedResponse(userK.getPeerId()));
+            MatchedResponse responseE = MatchedResponse.builder()
+                    .matchedUser(userE)
+                    .me(userK)
+                    .ownerYN(true).build();
+            MatchedResponse responseK = MatchedResponse.builder()
+                    .matchedUser(userK)
+                    .me(userE)
+                    .ownerYN(false).build();
+
+            sendMessageToUser(userK.getUsername(), responseE);
+            sendMessageToUser(userE.getUsername(), responseK);
         }
     }
 
@@ -129,11 +138,12 @@ public class MatchingService {
      * 모든 대기열 큐에서 사용자를 빼냅니다.
      *
      * @param userId           사용자 ID
+     * @param username         jwt subject
      * @param peerId           피어링 ID
      * @param nativeLanguageId 모국어
      */
-    private void removeUserFromAllQueues(Integer userId, String peerId, String nativeLanguageId) {
-        MatchedUser user = new MatchedUser(userId, peerId, nativeLanguageId);
+    private void removeUserFromAllQueues(Integer userId, String username, String peerId, String nativeLanguageId) {
+        MatchedUser user = new MatchedUser(userId, username, peerId, nativeLanguageId);
         removeUserFromQueue("ko", user);
         removeUserFromQueue("en", user);
     }
@@ -160,11 +170,12 @@ public class MatchingService {
      */
     public void enrollUser(MatchingStartRequest request, StompHeaderAccessor accessor, JwtAuthenticationToken principal) {
         Integer userId = getUserId(principal);
+        String username = principal.getName();
         String peerId = request.getPeerId();
         UserProfile userProfile = userProfileRepository.findById(userId).orElseThrow();
         String interestLanguageId = userProfile.getInterestLanguageId();
         String nativeLanguageId = userProfile.getNativeLanguageId();
-        MatchedUser user = new MatchedUser(userId, peerId, nativeLanguageId);
+        MatchedUser user = new MatchedUser(userId, username, peerId, nativeLanguageId);
         try {
             String userJson = objectMapper.writeValueAsString(user);
             redisTemplate.opsForSet().add("matching:queue:" + interestLanguageId, userJson);
@@ -182,10 +193,11 @@ public class MatchingService {
      */
     public void dropOutUser(MatchingStopRequest request, StompHeaderAccessor accessor, JwtAuthenticationToken principal) {
         Integer userId = getUserId(principal);
+        String username = principal.getName();
         String peerId = request.getPeerId();
         UserProfile userProfile = userProfileRepository.findById(userId).orElseThrow();
         String nativeLanguageId = userProfile.getNativeLanguageId();
-        removeUserFromAllQueues(userId, peerId, nativeLanguageId);
+        removeUserFromAllQueues(userId, username, peerId, nativeLanguageId);
     }
 
 }
