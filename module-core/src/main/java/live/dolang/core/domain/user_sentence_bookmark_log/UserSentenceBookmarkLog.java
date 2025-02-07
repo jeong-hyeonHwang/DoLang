@@ -5,7 +5,7 @@ import live.dolang.core.domain.user.User;
 import live.dolang.core.domain.user_date_sentence.UserDateSentence;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Getter
 @Entity
@@ -39,5 +39,5 @@ public class UserSentenceBookmarkLog {
     private boolean bookmarkYn;
 
     @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", nullable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 }
