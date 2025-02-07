@@ -7,8 +7,8 @@ import java.util.Arrays;
 import java.util.List;
 
 @Builder
-@Getter
 @Setter
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class ResponseUserInfoDto {
@@ -18,7 +18,11 @@ public class ResponseUserInfoDto {
     private String nativeLanguageId;
     private String interestLanguageId;
     private String languageLevelId;
-    private List<String> tags;
+    private List<TagDto> tags;
+
+    public void updateTags(List<TagDto> tags) {
+        this.tags = tags;
+    }
 }
 
 

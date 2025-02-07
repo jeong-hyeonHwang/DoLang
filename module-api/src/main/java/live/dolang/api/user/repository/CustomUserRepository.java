@@ -4,6 +4,7 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import live.dolang.api.user.dto.ResponseUserInfoDto;
+import live.dolang.api.user.dto.TagDto;
 import live.dolang.core.domain.tag.QTag;
 import live.dolang.core.domain.tag.Tag;
 import live.dolang.core.domain.user.QUser;
@@ -49,12 +50,15 @@ public class CustomUserRepository {
     }
 
     //관심사 태그 조회
-    public List<String> getUserTagList(int userId) {
+    public List<TagDto> getUserTagList(int userId) {
         QTag tag = QTag.tag;
         QUserTag userTag = QUserTag.userTag;
 
-        List<String> tags = queryFactory
-                .select(tag.name)
+        List<TagDto> tags = queryFactory
+                .select(Projections.bean(TagDto.class,
+                        tag.id.as("tagId"),
+                        tag.name.as("tagName")
+                ))
                 .from(userTag)
                 .join(userTag.tag,tag)
                 .where(userTag.user.id.eq(userId))

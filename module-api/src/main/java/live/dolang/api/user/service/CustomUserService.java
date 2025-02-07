@@ -2,9 +2,7 @@ package live.dolang.api.user.service;
 
 import live.dolang.api.common.exception.NotFoundException;
 import live.dolang.api.common.response.BaseResponseStatus;
-import live.dolang.api.user.dto.RequestRegisterUserProfileDto;
-import live.dolang.api.user.dto.RequestUpdateUserInfoDto;
-import live.dolang.api.user.dto.ResponseUserInfoDto;
+import live.dolang.api.user.dto.*;
 import live.dolang.api.user.repository.CustomUserRepository;
 import live.dolang.core.domain.tag.Tag;
 import live.dolang.core.domain.user.User;
@@ -36,14 +34,15 @@ public class CustomUserService {
     private final UserLanguageLevelRepository userLanguageLevelRepository;
 
     public ResponseUserInfoDto getUserInfo(int userId) {
-        if(!userService.isUserExists(userId)) {
-            throw new NotFoundException(BaseResponseStatus.NOT_EXIST_USER);
-        }
-        ResponseUserInfoDto dto = customUserRepository.getUserInfo(userId)
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException(BaseResponseStatus.NOT_EXIST_USER));
+
+        ResponseUserInfoDto responseUserInfoDto = customUserRepository.getUserInfo(userId)
                 .orElseThrow(() -> new NotFoundException(BaseResponseStatus.NOT_EXIST_USER_PROFILE));
-        List<String> tags = customUserRepository.getUserTagList(userId);
-        dto.setTags(tags);
-        return dto;
+
+        List<TagDto> tags = customUserRepository.getUserTagList(userId);
+        responseUserInfoDto.updateTags(tags);
+        return responseUserInfoDto;
     }
 
     @Transactional
@@ -113,6 +112,17 @@ public class CustomUserService {
                 .findFirst()
                 .orElse(null);
         return existingUserLanguageLevel;
+    }
+
+    public List<ResponseUserTagIdDto> getUserTagIds(int userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException(BaseResponseStatus.NOT_EXIST_USER));
+        List<ResponseUserTagIdDto> userTagList = customUserRepository.getUserTagList(userId).stream()
+                .map(tag -> ResponseUserTagIdDto.builder()
+                        .tagId(tag.getTagId())
+                        .build())
+                .toList();
+        return userTagList;
     }
 
 }
