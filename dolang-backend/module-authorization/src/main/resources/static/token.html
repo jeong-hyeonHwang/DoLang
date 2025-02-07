@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OAuth2 Token Request</title>
+    <style>
+        /* 기존 CSS 유지 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        body {
+            background: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .param-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            text-align: left;
+        }
+
+        label {
+            font-weight: 500;
+            color: #24292e;
+        }
+
+        input, textarea {
+            padding: 10px;
+            border: 1px solid #e1e4e8;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .auth-button {
+            padding: 12px 24px;
+            background: #0366d6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.2s;
+        }
+
+        .auth-button:hover {
+            background: #0356b6;
+        }
+
+        .reset-button {
+            background: #6c757d;
+            margin-top: 10px;
+        }
+
+        .reset-button:hover {
+            background: #5a6268;
+        }
+
+        .response {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f1f8ff;
+            border: 1px solid #cce5ff;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #0056b3;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <form class="param-form" id="tokenForm">
+        <div class="form-group">
+            <label for="grant_type">Grant Type:</label>
+            <input type="text" id="grant_type" name="grant_type" value="authorization_code" required>
+        </div>
+
+        <div class="form-group">
+            <label for="code">Authorization Code:</label>
+            <textarea id="code" name="code" rows="2" required></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="redirect_uri">Redirect URI:</label>
+            <input type="url" id="redirect_uri" name="redirect_uri" value="http://localhost:5173/oauth2/code" required>
+        </div>
+
+        <div class="form-group">
+            <label for="authorization">Authorization Header:</label>
+            <input type="text" id="authorization" name="authorization" value="Basic b2lkYy1jbGllbnQ6c2VjcmV0" required>
+        </div>
+
+        <button type="submit" class="auth-button">Request Token</button>
+        <button type="button" class="auth-button reset-button" onclick="resetDefaults()">Reset to Defaults</button>
+    </form>
+    <div class="response" id="response"></div>
+</div>
+
+<script>
+    document.getElementById('tokenForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const grantType = document.getElementById('grant_type').value;
+        const code = document.getElementById('code').value;
+        const redirectUri = document.getElementById('redirect_uri').value;
+        const authorization = document.getElementById('authorization').value;
+
+        const responseElement = document.getElementById('response');
+        responseElement.textContent = 'Sending request...';
+
+        try {
+            const response = await fetch('/oauth2/token', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Authorization': authorization
+                },
+                body: new URLSearchParams({
+                    grant_type: grantType,
+                    code: code,
+                    redirect_uri: redirectUri
+                })
+            });
+
+            const result = await response.json();
+            responseElement.textContent = JSON.stringify(result, null, 2);
+        } catch (error) {
+            responseElement.textContent = `Error: ${error.message}`;
+        }
+    });
+
+    function resetDefaults() {
+        document.getElementById('grant_type').value = 'authorization_code';
+        document.getElementById('code').value = '';
+        document.getElementById('redirect_uri').value = 'http://localhost:5173/oauth2/code';
+        document.getElementById('authorization').value = 'Basic b2lkYy1jbGllbnQ6c2VjcmV0';
+        document.getElementById('response').textContent = '';
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>401 Unauthorized</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        body {
+            background: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            padding: 40px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .error-code {
+            font-size: 80px;
+            color: #2d333b;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        h1 {
+            font-size: 24px;
+            color: #24292e;
+            margin-bottom: 16px;
+        }
+
+        p {
+            color: #586069;
+            font-size: 16px;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .home-button {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #2d333b;
+            color: white !important;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .home-button:hover {
+            background: #1c2128;
+        }
+
+        .octicon {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 24px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <svg class="octicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+    </svg>
+    <div class="error-code">401</div>
+    <h1>Unauthorized Access</h1>
+    <p>
+        You must be authenticated to view this page.<br>
+        Please sign in or contact the administrator.
+    </p>
+    <a href="/dolang-backend/module-authorization/src/main/resources/static" class="home-button">Return to Home</a>
+</div>
+</body>
+</html>
