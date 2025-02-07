@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Getter
 @Entity
@@ -24,7 +24,7 @@ public class DateSentence {
     private String sentence;
 
     @Column(name = "date_id", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", nullable = false)
-    private LocalDateTime dateId;
+    private Instant dateId;
 
     @Column(name = "level", columnDefinition = "CHAR(2)", nullable = false)
     private String level;
