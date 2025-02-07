@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Getter
 @Entity
@@ -19,5 +19,5 @@ public class Date {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "date_id", columnDefinition = "TIMESTAMP")
-    private LocalDateTime id;
+    private Instant id;
 }

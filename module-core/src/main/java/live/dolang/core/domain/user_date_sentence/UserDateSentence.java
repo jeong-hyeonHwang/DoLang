@@ -7,6 +7,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.Instant;
 
 @Getter
 @Entity
@@ -32,4 +35,7 @@ public class UserDateSentence {
     @Column(name = "user_date_sentences_url", columnDefinition = "VARCHAR(255)")
     private String userDateSentencesUrl;
 
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false, nullable = false)
+    private Instant createdAt;
 }
