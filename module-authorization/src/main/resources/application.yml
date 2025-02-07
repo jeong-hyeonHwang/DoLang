@@ -16,7 +16,7 @@ spring:
       hibernate.highlight_sql: true
 
       # 데이터베이스에 대해 어떤 schema tooling Action 이 수행될 건지.
-      jakarta.persistence.schema-generation.database.action: update
+      jakarta.persistence.schema-generation.database.action: updatet
       # 데이터베이스에 스키마 생성시 어떤 걸 기반으로 할 건지.
       jakarta.persistence.schema-generation.create-source: metadata_then_script
       jakarta.persistence.schema-generation.create-script-source: classpath:create-schema.sql
