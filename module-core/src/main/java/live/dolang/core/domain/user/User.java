@@ -40,7 +40,7 @@ public class User {
     @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "fk_user_profile_user_id_to_user_id"))
     private UserProfile userProfile;
 
-    public void updateProfile(UserProfile profile) {
-        this.userProfile = profile;
+    public void updateProfile(UserProfile newProfile) {
+        this.userProfile.updateUserProfile(newProfile);
     }
 }

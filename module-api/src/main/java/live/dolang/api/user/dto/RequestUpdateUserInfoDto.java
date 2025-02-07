@@ -11,23 +11,23 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class RequestUserProfileDto {
+public class RequestUpdateUserInfoDto {
     private String nickname;
     private String nationality;
     private String nativeLanguage;
     private String targetLanguage;
     private String proficiencyLevel;
     private List<Integer> interests;
+    private String profileImageUrl;
 
     public UserProfile toUserProfileEntity(int userid) {
         return UserProfile.builder()
-                .user(User.builder().id(userid).build())
                 .userId(userid)
                 .nickname(this.nickname)
                 .countryId(this.nationality)
                 .nativeLanguageId(this.nativeLanguage)
                 .interestLanguageId(this.targetLanguage)
+                .profileImageUrl(this.profileImageUrl)
                 .build();
     }
-
 }

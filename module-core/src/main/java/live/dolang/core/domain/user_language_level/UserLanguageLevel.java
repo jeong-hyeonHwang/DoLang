@@ -29,5 +29,8 @@ public class UserLanguageLevel {
     @Column(name = "language_id", length = 2, nullable = false, columnDefinition = "CHAR(2)")
     private String languageId;
 
+    public void updateLanguageLevelId(String newLanguageLevelId) {
+        this.languageLevelId = newLanguageLevelId;
+    }
 }
 

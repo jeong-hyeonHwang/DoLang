@@ -53,4 +53,11 @@ public class UserProfile {
     public enum Gender {
         M, F
     }
+    public void updateUserProfile(UserProfile newProfile) {
+        this.profileImageUrl = newProfile.getProfileImageUrl();
+        this.nickname = newProfile.getNickname();
+        this.countryId = newProfile.getCountryId();
+        this.interestLanguageId = newProfile.getInterestLanguageId();
+        this.nativeLanguageId = newProfile.getNativeLanguageId();
+    }
 }

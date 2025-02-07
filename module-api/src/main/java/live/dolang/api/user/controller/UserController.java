@@ -2,7 +2,8 @@ package live.dolang.api.user.controller;
 
 import live.dolang.api.common.response.BaseResponse;
 import live.dolang.api.common.response.BaseResponseStatus;
-import live.dolang.api.user.dto.RequestUserProfileDto;
+import live.dolang.api.user.dto.RequestRegisterUserProfileDto;
+import live.dolang.api.user.dto.RequestUpdateUserInfoDto;
 import live.dolang.api.user.dto.ResponseUserInfoDto;
 import live.dolang.api.user.service.CustomUserService;
 import lombok.RequiredArgsConstructor;
@@ -23,10 +24,17 @@ public class UserController {
 
     @PostMapping()
     public BaseResponse<BaseResponseStatus> registerUserInfo(@AuthenticationPrincipal Jwt jwt,
-                                                                @RequestBody RequestUserProfileDto requestUserProfileDto) {
+                                                                @RequestBody RequestRegisterUserProfileDto requestRegisterUserProfileDto) {
         int userId = Integer.parseInt(jwt.getId());
-        userService.registerUserInfo(userId, requestUserProfileDto);
+        userService.registerUserInfo(userId, requestRegisterUserProfileDto);
         return new BaseResponse<>(BaseResponseStatus.SUCCESS);
     }
 
+    @PutMapping()
+    public BaseResponse<BaseResponseStatus> updateUserInfo(@AuthenticationPrincipal Jwt jwt,
+                                                           @RequestBody RequestUpdateUserInfoDto requestUpdateUserInfoDto) {
+        int userId = Integer.parseInt(jwt.getId());
+        userService.updateUserInfo(userId, requestUpdateUserInfoDto);
+        return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+    }
 }
