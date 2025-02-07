@@ -17,7 +17,6 @@ import java.time.Instant;
 public class Date {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "date_id", columnDefinition = "TIMESTAMP")
     private Instant id;
 }
