@@ -14,9 +14,9 @@ export interface FeedParticipationMeta {
 }
 
 export interface FeedParticipation {
-  profileImage: string;
+  profileImageUrl: string;
   country: string;
-  countryImageUrl: string;
+  nativeLanguage: string;
   voiceUrl: string;
   voiceCreatedAt: string;
   heartCount?: number;

@@ -48,7 +48,7 @@ const FeedView = () => {
   const [feedListData, setFeedListData] = useState<FeedParticipation[]>([]);
 
   useEffect(() => {
-    setFeedListData(nativeFeedTestData);
+    setFeedListData(nativeFeedTestData.result);
   }, []);
 
   return (
@@ -59,7 +59,7 @@ const FeedView = () => {
           <span>Language Picker</span>
         </div>
         <div className="feed-sentence-section" css={feedSentenceSectionStyle}>
-          <p>{nativeFeedSentenceTestData.sentenceInfo.sentence}</p>
+          <p>{nativeFeedSentenceTestData.result.sentenceInfo.sentence}</p>
           <div className="feed-sentence-record-button" css={feedRecordButtonStyle}>
             <Mic size={32} stroke="#fff" />
           </div>
