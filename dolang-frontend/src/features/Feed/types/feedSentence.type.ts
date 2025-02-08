@@ -1,4 +1,11 @@
-import { FeedParticipation } from './feedParticipation.type.ts';
+import { FeedParticipation } from './feedParticipation.type';
+export interface FeedSentenceResponse {
+  isSuccess: boolean;
+  message: '성공' | '실패';
+  code: number;
+  result: FeedSentence;
+}
+
 export interface FeedSentence {
   date: string;
   feedId: number;
