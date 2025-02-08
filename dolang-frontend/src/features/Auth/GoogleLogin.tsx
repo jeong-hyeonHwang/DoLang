@@ -74,7 +74,7 @@ const GoogleLogin = () => {
       // console.log('Token Response: ', data);
 
       if (data.access_token && data.refresh_token) {
-        // console.log('access_token: ', data.access_token);
+        console.log('access_token: ', data.access_token);
         // console.log('refresh_token success: ', data.refresh_token);
         saveAccessTokenToCookie(data.access_token);
         saveRefreshTokenToCookie(data.refresh_token);
