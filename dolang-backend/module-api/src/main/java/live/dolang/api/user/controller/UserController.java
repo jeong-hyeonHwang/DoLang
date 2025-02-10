@@ -32,7 +32,7 @@ public class UserController {
             description = "현재 로그인된 사용자의 정보(프로파일)를 조회합니다.",
             security = @SecurityRequirement(name = "BearerAuth") // JWT 인증 적용
     )
-    @GetMapping("/")
+    @GetMapping()
     public BaseResponse<ResponseUserInfoDto> getUserInfo(@AuthenticationPrincipal Jwt jwt) {
         int userId = Integer.parseInt(jwt.getId());
         return new BaseResponse<>(userService.getUserInfo(userId));
@@ -46,7 +46,7 @@ public class UserController {
             description = "현재 로그인된 사용자의 정보(프로파일)를 등록합니다.",
             security = @SecurityRequirement(name = "BearerAuth") // JWT 인증 적용
     )
-    @PostMapping("/")
+    @PostMapping()
     public BaseResponse<BaseResponseStatus> registerUserInfo(@AuthenticationPrincipal Jwt jwt,
                                                              @RequestBody RequestRegisterUserProfileDto requestRegisterUserProfileDto) {
         int userId = Integer.parseInt(jwt.getId());
@@ -62,7 +62,7 @@ public class UserController {
             description = "현재 로그인된 사용자의 정보(프로파일)를 수정합니다.",
             security = @SecurityRequirement(name = "BearerAuth") // JWT 인증 적용
     )
-    @PutMapping("/")
+    @PutMapping()
     public BaseResponse<BaseResponseStatus> updateUserInfo(@AuthenticationPrincipal Jwt jwt,
                                                            @RequestBody RequestUpdateUserInfoDto requestUpdateUserInfoDto) {
         int userId = Integer.parseInt(jwt.getId());
