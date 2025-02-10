@@ -3,11 +3,11 @@ package live.dolang.api.note.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import live.dolang.api.common.response.BaseResponse;
 import live.dolang.api.note.document.UserNoteDocument;
 import live.dolang.api.note.dto.UserNoteRequestDto;
 import live.dolang.api.note.service.UserNoteService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
@@ -29,14 +29,10 @@ public class UserNoteController {
             security = @SecurityRequirement(name = "BearerAuth") // JWT 인증 적용
     )
     @PostMapping
-    public ResponseEntity<Boolean> createUserNote(@AuthenticationPrincipal Jwt jwt, @RequestBody UserNoteRequestDto requestDto) {
+    public BaseResponse<?> createUserNote(@AuthenticationPrincipal Jwt jwt, @RequestBody UserNoteRequestDto requestDto) {
         int userId = Integer.parseInt(jwt.getId());
-        boolean success = userNoteService.saveUserNote(userId, requestDto);
-        if (success) {
-            return ResponseEntity.ok(true); // 저장 성공
-        } else {
-            return ResponseEntity.status(500).body(false); // 저장 실패
-        }
+        userNoteService.saveUserNote(userId, requestDto);
+        return BaseResponse.ok(); // 저장 성공
     }
 
     // 기록 조회 (Elasticsearch 에서 ID로 조회, 실패 시 MySQL)
@@ -46,9 +42,9 @@ public class UserNoteController {
             security = @SecurityRequirement(name = "BearerAuth") // JWT 인증 적용
     )
     @GetMapping
-    public ResponseEntity<List<UserNoteDocument>> getUserNotes(@AuthenticationPrincipal Jwt jwt) {
+    public BaseResponse<List<UserNoteDocument>> getUserNotes(@AuthenticationPrincipal Jwt jwt) {
         int userId = Integer.parseInt(jwt.getId());
-        return ResponseEntity.ok(userNoteService.getUserNoteById(userId));
+        return BaseResponse.ok(userNoteService.getUserNoteById(userId));
     }
 
     // 기록 검색 (Elasticsearch 에서 키워드 검색)
@@ -58,8 +54,8 @@ public class UserNoteController {
             security = @SecurityRequirement(name = "BearerAuth") // JWT 인증 적용
     )
     @GetMapping("/search")
-    public ResponseEntity<List<UserNoteDocument>> searchNotes(@AuthenticationPrincipal Jwt jwt, @RequestParam String keyword) {
+    public BaseResponse<List<UserNoteDocument>> searchNotes(@AuthenticationPrincipal Jwt jwt, @RequestParam String keyword) {
         int userId = Integer.parseInt(jwt.getId());
-        return ResponseEntity.ok(userNoteService.searchUserNotes(userId, keyword));
+        return BaseResponse.ok(userNoteService.searchUserNotes(userId, keyword));
     }
 }
