@@ -14,11 +14,12 @@ export interface FeedParticipationMeta {
 }
 
 export interface FeedParticipation {
+  postId: number;
   profileImageUrl: string;
   country: string;
   nativeLanguage: string;
   voiceUrl: string;
-  voiceCreatedAt: string;
   heartCount?: number;
   bookmarkCount?: number;
+  voiceCreatedAt: string;
 }
