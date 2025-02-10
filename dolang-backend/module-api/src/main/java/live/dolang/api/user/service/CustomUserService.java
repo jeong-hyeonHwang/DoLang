@@ -1,5 +1,6 @@
 package live.dolang.api.user.service;
 
+import jakarta.persistence.EntityManager;
 import live.dolang.api.common.exception.NotFoundException;
 import live.dolang.api.common.response.BaseResponseStatus;
 import live.dolang.api.user.dto.*;
@@ -33,6 +34,9 @@ public class CustomUserService {
     private final UserTagRepository userTagRepository;
     private final UserLanguageLevelRepository userLanguageLevelRepository;
 
+    /**
+     * 유저 정보 조회
+     */
     public ResponseUserInfoDto getUserInfo(int userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(BaseResponseStatus.NOT_EXIST_USER));
@@ -45,6 +49,9 @@ public class CustomUserService {
         return responseUserInfoDto;
     }
 
+    /**
+     * 유저 정보 등록
+     */
     @Transactional
     public void registerUserInfo(int userId, RequestRegisterUserProfileDto requestRegisterUserProfileDto) {
         User user = userRepository.findById(userId)
@@ -77,6 +84,9 @@ public class CustomUserService {
         userLanguageLevelRepository.saveAll(userLanguageLevelsList);
     }
 
+    /**
+     * 유저 정보 수정
+     */
     @Transactional
     public void updateUserInfo(int userId, RequestUpdateUserInfoDto requestUpdateUserInfoDto) {
         User user = userRepository.findById(userId)
@@ -104,6 +114,16 @@ public class CustomUserService {
         else {
             existingUserLanguageLevel.updateLanguageLevelId(newInterestLanguageLevelId);
         }
+
+        //사용자 관심사 태그 수정(기존 태그삭제 후 새로운 태그 저장)
+        userTagRepository.deleteAllByUserId(userId);
+        userTagRepository.flush();
+        List<Integer> tags = requestUpdateUserInfoDto.getInterests();
+        List<UserTag> userTags = tags.stream()
+                .map(tagId -> new UserTag(null, user, new Tag(tagId, null)))
+                .toList();
+        userTagRepository.saveAll(userTags);
+
     }
 
     private UserLanguageLevel isExistUserLanguageLevel(Set<UserLanguageLevel> originUserLanguageLevelSet, String languageId) {
@@ -114,6 +134,9 @@ public class CustomUserService {
         return existingUserLanguageLevel;
     }
 
+    /**
+     * 유저 관심사ID 리스트 조회
+     */
     public List<ResponseUserTagIdDto> getUserTagIds(int userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(BaseResponseStatus.NOT_EXIST_USER));
