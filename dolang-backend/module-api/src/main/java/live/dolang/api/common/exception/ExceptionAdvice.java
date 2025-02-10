@@ -40,6 +40,12 @@ public class ExceptionAdvice {
         return BaseResponse.status(exception.getStatus());
     }
 
+    @ExceptionHandler(DuplicateException.class)
+    public BaseResponse<BaseResponseStatus> internalServerExceptionHandler(DuplicateException exception) {
+        log.error("DuplicateException has occurred. {} {} {}", exception.getMessage(), exception.getCause(), exception.getStackTrace()[0]);
+        return BaseResponse.status(exception.getStatus());
+    }
+
     @ExceptionHandler(Exception.class)
     public BaseResponse<BaseResponseStatus> exceptionHandler(Exception exception) {
         log.error(exception.getMessage(), exception);
