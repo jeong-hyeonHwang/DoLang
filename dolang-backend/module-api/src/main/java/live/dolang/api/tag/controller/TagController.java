@@ -3,6 +3,7 @@ package live.dolang.api.tag.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import live.dolang.api.common.response.BaseResponse;
 import live.dolang.api.tag.document.TagDocument;
 import live.dolang.api.tag.dto.TagRequestDto;
@@ -22,8 +23,9 @@ public class TagController {
 
     @Operation(hidden = true)
     @PostMapping
-    public BaseResponse<Boolean> addTag(@RequestBody TagRequestDto requestDto) {
-        return BaseResponse.ok(tagService.addTag(requestDto));
+    public BaseResponse<?> addTag(@RequestBody @Valid TagRequestDto requestDto) {
+        tagService.addTag(requestDto);
+        return BaseResponse.ok();
     }
 
     @Operation(

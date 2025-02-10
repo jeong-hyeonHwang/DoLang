@@ -17,9 +17,6 @@ public class TagDocument {
     @Schema(description = "Elasticsearch 에서 사용할 문서 ID")
     private String id;  // Elasticsearch 에서 사용할 문서 ID
 
-    @Schema(description = "프론트에서 쓸 Tag ID")
-    @Field(type = FieldType.Integer, name = "tag_id")
-    private Integer tagId; // 프론트에서 쓸 tagId
 
     @Schema(description = "모국어 언어 코드", example = "en")
     @Field(type = FieldType.Keyword, name = "native_language_id")
