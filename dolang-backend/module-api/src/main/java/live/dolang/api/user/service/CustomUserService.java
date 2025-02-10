@@ -1,6 +1,5 @@
 package live.dolang.api.user.service;
 
-import jakarta.persistence.EntityManager;
 import live.dolang.api.common.exception.DuplicateException;
 import live.dolang.api.common.exception.NotFoundException;
 import live.dolang.api.common.response.BaseResponseStatus;
@@ -15,9 +14,7 @@ import live.dolang.core.domain.user_profile.UserProfile;
 import live.dolang.core.domain.user_profile.repository.UserProfileRepository;
 import live.dolang.core.domain.user_tag.UserTag;
 import live.dolang.core.domain.user_tag.repository.UserTagRepository;
-import live.dolang.core.service.UserService;
 import lombok.AllArgsConstructor;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,7 +25,6 @@ import java.util.Set;
 @Service
 @AllArgsConstructor
 public class CustomUserService {
-    private final UserService userService;
     private final CustomUserRepository customUserRepository;
     private final UserRepository userRepository;
     private final UserProfileRepository userProfileRepository;
@@ -39,7 +35,7 @@ public class CustomUserService {
      * 유저 정보 조회
      */
     public ResponseUserInfoDto getUserInfo(int userId) {
-        User user = userRepository.findById(userId)
+        userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(BaseResponseStatus.NOT_EXIST_USER));
 
         ResponseUserInfoDto responseUserInfoDto = customUserRepository.getUserInfo(userId)
@@ -57,7 +53,7 @@ public class CustomUserService {
     public void registerUserInfo(int userId, RequestRegisterUserProfileDto requestRegisterUserProfileDto) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(BaseResponseStatus.NOT_EXIST_USER));
-        if(userProfileRepository.existsById(userId)) {
+        if (userProfileRepository.existsById(userId)) {
             throw new DuplicateException(BaseResponseStatus.DUPLICATE_USER);
         }
 
@@ -107,7 +103,7 @@ public class CustomUserService {
         //수정하려는 관심언어의 수준이 기존에 저장되어 있던 언어인지 확인
         UserLanguageLevel existingUserLanguageLevel = isExistUserLanguageLevel(originLanguageLevelSet, newInterestLanguageId);
         //수정된 관심언어가 언어수준 테이블에 저장이 안되어있다면 새롭게 저장
-        if(existingUserLanguageLevel==null) {
+        if (existingUserLanguageLevel == null) {
             UserLanguageLevel newUserLanguageLevel = UserLanguageLevel.builder()
                     .user(user)
                     .languageId(newInterestLanguageId)
@@ -132,25 +128,23 @@ public class CustomUserService {
     }
 
     private UserLanguageLevel isExistUserLanguageLevel(Set<UserLanguageLevel> originUserLanguageLevelSet, String languageId) {
-        UserLanguageLevel existingUserLanguageLevel =  originUserLanguageLevelSet.stream()
+        return originUserLanguageLevelSet.stream()
                 .filter(userLanguageLevel -> userLanguageLevel.getLanguageId().equals(languageId))
                 .findFirst()
                 .orElse(null);
-        return existingUserLanguageLevel;
     }
 
     /**
      * 유저 관심사ID 리스트 조회
      */
     public List<ResponseUserTagIdDto> getUserTagIds(int userId) {
-        User user = userRepository.findById(userId)
+        userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(BaseResponseStatus.NOT_EXIST_USER));
-        List<ResponseUserTagIdDto> userTagList = customUserRepository.getUserTagList(userId).stream()
+        return customUserRepository.getUserTagList(userId).stream()
                 .map(tag -> ResponseUserTagIdDto.builder()
                         .tagId(tag.getTagId())
                         .build())
                 .toList();
-        return userTagList;
     }
 
 }
