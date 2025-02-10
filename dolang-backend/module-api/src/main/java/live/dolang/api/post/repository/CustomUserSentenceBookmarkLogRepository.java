@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface CustomUserSentenceBookmarkLogRepository {
     List<BookmarkCountDTO> findAllPostBookmarkCountsRaw();
-    Boolean getLatestBookmarkYn(Integer userId, Integer userDateSentenceId);
+    Boolean getLatestBookmarkYn(Integer userId, Integer feedId, Integer userDateSentenceId);
 }

@@ -1,6 +1,7 @@
 package live.dolang.core.domain.user_sentence_bookmark_log;
 
 import jakarta.persistence.*;
+import live.dolang.core.domain.date_sentence.DateSentence;
 import live.dolang.core.domain.user.User;
 import live.dolang.core.domain.user_date_sentence.UserDateSentence;
 import lombok.*;
@@ -30,6 +31,10 @@ public class UserSentenceBookmarkLog {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "date_sentence_id", nullable = false)
+    private DateSentence dateSentence;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_date_sentence_id", nullable = false)
