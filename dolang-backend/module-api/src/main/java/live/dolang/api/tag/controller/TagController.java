@@ -3,11 +3,11 @@ package live.dolang.api.tag.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import live.dolang.api.common.response.BaseResponse;
 import live.dolang.api.tag.document.TagDocument;
 import live.dolang.api.tag.dto.TagRequestDto;
 import live.dolang.api.tag.service.TagService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,8 +22,8 @@ public class TagController {
 
     @Operation(hidden = true)
     @PostMapping
-    public ResponseEntity<Boolean> addTag(@RequestBody TagRequestDto requestDto) {
-        return ResponseEntity.ok(tagService.addTag(requestDto));
+    public BaseResponse<Boolean> addTag(@RequestBody TagRequestDto requestDto) {
+        return BaseResponse.ok(tagService.addTag(requestDto));
     }
 
     @Operation(
@@ -31,8 +31,8 @@ public class TagController {
             security = @SecurityRequirement(name = "BearerAuth")
     )
     @GetMapping("/all")
-    public ResponseEntity<List<TagDocument>> getAllTags(@RequestParam String nativeLanguageId) {
-        return ResponseEntity.ok(tagService.allTags(nativeLanguageId));
+    public BaseResponse<List<TagDocument>> getAllTags(@RequestParam String nativeLanguageId) {
+        return BaseResponse.ok(tagService.allTags(nativeLanguageId));
     }
 
     // 기록 검색 (Elasticsearch 에서 키워드 검색)
@@ -41,7 +41,7 @@ public class TagController {
             security = @SecurityRequirement(name = "BearerAuth")
     )
     @GetMapping("/search")
-    public ResponseEntity<List<TagDocument>> searchNotes(@RequestParam String name) {
-        return ResponseEntity.ok(tagService.searchTags(name));
+    public BaseResponse<List<TagDocument>> searchNotes(@RequestParam String name) {
+        return BaseResponse.ok(tagService.searchTags(name));
     }
 }

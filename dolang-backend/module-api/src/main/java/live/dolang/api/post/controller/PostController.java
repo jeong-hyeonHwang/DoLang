@@ -6,11 +6,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import live.dolang.api.common.exception.NotFoundException;
 import live.dolang.api.common.response.BaseResponse;
 import live.dolang.api.common.response.BaseResponseStatus;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import live.dolang.api.common.response.BaseResponse;
-import live.dolang.api.common.response.BaseResponseStatus;
 import live.dolang.api.post.dto.BookmarkStatusDto;
 import live.dolang.api.post.service.CustomDateSentenceService;
 import live.dolang.api.post.service.CustomUserDateSentenceService;
@@ -35,6 +30,7 @@ public class PostController {
 
     /**
      * 북마크 추가
+     *
      * @param feedId: 발음 문장 아이디
      * @param postId: 사용자가 발음한 문장 아이디
      */
@@ -44,8 +40,8 @@ public class PostController {
     )
     @PostMapping("{feedId}/{postId}/bookmark")
     public BaseResponse<BookmarkStatusDto> bookmarkPost(@AuthenticationPrincipal Jwt jwt,
-                                        @PathVariable Integer feedId,
-                                        @PathVariable Integer postId) {
+                                                        @PathVariable Integer feedId,
+                                                        @PathVariable Integer postId) {
         Integer userId = Integer.parseInt(jwt.getId());
         if (!userService.isUserExists(userId)) {
             throw new NotFoundException(BaseResponseStatus.NOT_EXIST_USER);
@@ -59,7 +55,7 @@ public class PostController {
         }
 
         BookmarkStatusDto bookmarkStatusDto = bookmarkFacadeService.bookmarkUserDateSentence(userId, feedId, postId);
-        return new BaseResponse<>(bookmarkStatusDto);
+        return BaseResponse.ok(bookmarkStatusDto);
     }
 
     //S3업로드 테스트 API
@@ -67,12 +63,12 @@ public class PostController {
             hidden = true
     )
     @PostMapping("/uploadTest")
-    public BaseResponse<BaseResponseStatus> uploadTest(@RequestPart("file")MultipartFile file) throws IllegalAccessException {
+    public BaseResponse<BaseResponseStatus> uploadTest(@RequestPart("file") MultipartFile file) throws IllegalAccessException {
         long start = System.currentTimeMillis();
         String fileUrl = customUserDateSentenceService.uploadTest(file);
         long end = System.currentTimeMillis();
-        System.out.println("결과 : "+fileUrl);
+        System.out.println("결과 : " + fileUrl);
         System.out.println("걸린 시간 :" + (end - start));
-        return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+        return BaseResponse.ok();
     }
 }

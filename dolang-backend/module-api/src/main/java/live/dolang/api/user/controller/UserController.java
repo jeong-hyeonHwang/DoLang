@@ -35,7 +35,7 @@ public class UserController {
     @GetMapping()
     public BaseResponse<ResponseUserInfoDto> getUserInfo(@AuthenticationPrincipal Jwt jwt) {
         int userId = Integer.parseInt(jwt.getId());
-        return new BaseResponse<>(userService.getUserInfo(userId));
+        return BaseResponse.ok(userService.getUserInfo(userId));
     }
 
     /**
@@ -51,7 +51,7 @@ public class UserController {
                                                              @RequestBody RequestRegisterUserProfileDto requestRegisterUserProfileDto) {
         int userId = Integer.parseInt(jwt.getId());
         userService.registerUserInfo(userId, requestRegisterUserProfileDto);
-        return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+        return BaseResponse.ok(BaseResponseStatus.SUCCESS);
     }
 
     /**
@@ -67,7 +67,7 @@ public class UserController {
                                                            @RequestBody RequestUpdateUserInfoDto requestUpdateUserInfoDto) {
         int userId = Integer.parseInt(jwt.getId());
         userService.updateUserInfo(userId, requestUpdateUserInfoDto);
-        return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+        return BaseResponse.ok(BaseResponseStatus.SUCCESS);
     }
 
     /**
@@ -82,7 +82,7 @@ public class UserController {
     public BaseResponse<List<ResponseUserTagIdDto>> getUserTagIds(@AuthenticationPrincipal Jwt jwt) {
         int userId = Integer.parseInt(jwt.getId());
         List<ResponseUserTagIdDto> userTagIdList = userService.getUserTagIds(userId);
-        return new BaseResponse<>(userTagIdList);
+        return BaseResponse.ok(userTagIdList);
     }
 }
 
