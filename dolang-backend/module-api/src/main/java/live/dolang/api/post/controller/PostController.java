@@ -6,6 +6,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import live.dolang.api.common.exception.NotFoundException;
 import live.dolang.api.common.response.BaseResponse;
 import live.dolang.api.common.response.BaseResponseStatus;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import live.dolang.api.common.response.BaseResponse;
+import live.dolang.api.common.response.BaseResponseStatus;
 import live.dolang.api.post.dto.BookmarkStatusDto;
 import live.dolang.api.post.service.CustomDateSentenceService;
 import live.dolang.api.post.service.CustomUserDateSentenceService;
@@ -15,8 +20,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-@Tag(name = "FEED")
+@Tag(name = "2. POST")
 @RestController
 @RequestMapping("/api/post")
 @RequiredArgsConstructor
@@ -55,4 +61,18 @@ public class PostController {
         BookmarkStatusDto bookmarkStatusDto = bookmarkFacadeService.bookmarkUserDateSentence(userId, feedId, postId);
         return new BaseResponse<>(bookmarkStatusDto);
     }
+
+//    //S3업로드 테스트 API
+//    @Operation(
+//            hidden = true
+//    )
+//    @PostMapping("/uploadTest")
+//    public BaseResponse<BaseResponseStatus> uploadTest(@RequestPart("file")MultipartFile file) throws IllegalAccessException {
+//        long start = System.currentTimeMillis();
+//        String fileUrl = customUserDateSentenceService.uploadTest(file);
+//        long end = System.currentTimeMillis();
+//        System.out.println("결과 : "+fileUrl);
+//        System.out.println("걸린 시간 :" + (end - start));
+//        return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+//    }
 }
