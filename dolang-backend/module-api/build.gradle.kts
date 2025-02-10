@@ -8,4 +8,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-batch")
     implementation("org.springframework.batch:spring-batch-core:5.1.0")
     implementation("org.springframework.boot:spring-boot-starter-data-elasticsearch")
+    implementation("io.awspring.cloud:spring-cloud-aws-starter-s3:3.0.2")
+    implementation("software.amazon.awssdk:s3:2.20.0")
 }

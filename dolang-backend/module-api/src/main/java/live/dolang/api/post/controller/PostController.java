@@ -62,17 +62,17 @@ public class PostController {
         return new BaseResponse<>(bookmarkStatusDto);
     }
 
-//    //S3업로드 테스트 API
-//    @Operation(
-//            hidden = true
-//    )
-//    @PostMapping("/uploadTest")
-//    public BaseResponse<BaseResponseStatus> uploadTest(@RequestPart("file")MultipartFile file) throws IllegalAccessException {
-//        long start = System.currentTimeMillis();
-//        String fileUrl = customUserDateSentenceService.uploadTest(file);
-//        long end = System.currentTimeMillis();
-//        System.out.println("결과 : "+fileUrl);
-//        System.out.println("걸린 시간 :" + (end - start));
-//        return new BaseResponse<>(BaseResponseStatus.SUCCESS);
-//    }
+    //S3업로드 테스트 API
+    @Operation(
+            hidden = true
+    )
+    @PostMapping("/uploadTest")
+    public BaseResponse<BaseResponseStatus> uploadTest(@RequestPart("file")MultipartFile file) throws IllegalAccessException {
+        long start = System.currentTimeMillis();
+        String fileUrl = customUserDateSentenceService.uploadTest(file);
+        long end = System.currentTimeMillis();
+        System.out.println("결과 : "+fileUrl);
+        System.out.println("걸린 시간 :" + (end - start));
+        return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+    }
 }

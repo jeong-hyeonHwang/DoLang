@@ -45,6 +45,28 @@ spring:
     jdbc:
       initialize-schema: always
 
+  # Spring Cloud AWS 설정 명시적으로 추가
+  cloud:
+    aws:
+      region:
+        static: ap-northeast-2  # ✅ Spring Cloud AWS 전용 설정
+      credentials:
+        access-key: ${aws.s3.accessKey}
+        secret-key: ${aws.s3.secretKey}
+
+  #서버로 넘어오는 파일 크기제한
+  servlet:
+    multipart:
+      max-file-size: 50MB   # 개별 파일 최대 크기 (32MB보다 큰 값)
+      max-request-size: 50MB  # 전체 요청 최대 크기
+# AWS S3 설정
+aws:
+  region: ap-northeast-2
+  s3:
+    bucket: dolang
+    accessKey: ${AWS_S3_ACCESS_KEY}
+    secretKey: ${AWS_S3_SECRET_KEY}
+
 logging:
   level:
     live.dolang: trace
