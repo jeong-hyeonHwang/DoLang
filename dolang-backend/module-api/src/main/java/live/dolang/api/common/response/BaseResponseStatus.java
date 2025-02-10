@@ -26,11 +26,18 @@ public enum BaseResponseStatus {
 
     /**
      * 유저 에러
-     * 자유롭게 작성
      */
     NOT_EXIST_USER_PROFILE(false, 4004, "저장된 유저정보를 찾을 수 없습니다."),
     NOT_EXIST_USER(false, HttpStatus.NOT_FOUND.value(), "존재하지 않는 사용자입니다."),
+    DUPLICATE_USER(false, HttpStatus.CONFLICT.value(), "이미 존재하는 사용자입니다."),
+    /**
+     * 피드 에러
+     */
     NOT_EXIST_FEED(false, HttpStatus.NOT_FOUND.value(), "존재하지 않는 피드입니다."),
+
+    /**
+     * 포스트 에러
+     */
     NOT_EXIST_POST(false, HttpStatus.NOT_FOUND.value(), "존재하지 않는 기록입니다."),
     ;
 
