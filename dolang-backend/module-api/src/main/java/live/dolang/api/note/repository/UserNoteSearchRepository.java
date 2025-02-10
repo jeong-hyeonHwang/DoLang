@@ -18,20 +18,20 @@ public interface UserNoteSearchRepository extends ElasticsearchRepository<UserNo
         현재는 접두를 기준으로 검색 결과 제공.
      */
     @Query("""
-{
-  "bool": {
-    "filter": [
-      { "term": { "user_id": "?0" } }
-    ],
-    "must": [
-      { "multi_match": {
-        "query": "?1",
-        "fields": ["native_note", "interest_note"],
-        "type": "phrase_prefix"
-      }}
-    ]
-  }
-}
-""")
+            {
+              "bool": {
+                "filter": [
+                  { "term": { "user_id": "?0" } }
+                ],
+                "must": [
+                  { "multi_match": {
+                    "query": "?1",
+                    "fields": ["native_note", "interest_note"],
+                    "type": "phrase_prefix"
+                  }}
+                ]
+              }
+            }
+            """)
     List<UserNoteDocument> searchNotesByUserIdAndKeyword(Integer userId, String keyword);
 }
