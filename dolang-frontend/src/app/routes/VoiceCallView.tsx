@@ -1,38 +1,46 @@
-import { useEffect } from 'react';
-import VoiceCallStartMenu from '../../features/VoiceCall/components/VoiceCallStartMenu.tsx';
-import { useQuery } from '@tanstack/react-query';
-
+import { StompClientProvider } from '../../features/Matching/hooks/useClientContext.tsx';
+import MatchingComponent from '../../features/Matching/components/MatchingComponent.tsx';
+import { Modal, Button } from 'antd';
+import { useState } from 'react';
+import { useStompClientContext } from '../../features/Matching/hooks/useClientContext.tsx';
+import { useNavigate } from 'react-router';
 interface MatchResultResponse {
   id: number;
   message: string;
 }
 
-const fetchMatchResult = async (): Promise<MatchResultResponse> => {
-  const response = await axios.get('/api/voice-call/match/result');
-  return response.data;
-};
+const VoiceCallView = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { isConnected, isMatching, matchedUser, connectionError, connect, disconnect, startMatching, cancelMatching } =
+    useStompClientContext();
+  const navigate = useNavigate();
 
-const MatchedPage = () => {
-  const { data, isPending, error } = useQuery(['matchResult'], fetchMatchResult);
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
 
-  if (isPending) {
-    return <div>Loading match result...</div>;
-  }
+  const handleOk = () => {
+    if (matchedUser) {
+      console.log('matchedUser', matchedUser);
+      navigate('/incall');
+      setIsModalOpen(false);
+    }
+  };
 
-  if (error) {
-    return <div>Error fetching match result: {error.message}</div>;
-  }
+  const handleCancel = () => {
+    disconnect();
+    cancelMatching();
+    setIsModalOpen(false);
+  };
 
   return (
     <div>
-      <h1>매칭 완료!</h1>
-      <p>{data?.message}</p>
+      <Button onClick={openModal}>대화 상대 매칭</Button>
+      <Modal title="대화 상대 매칭" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+        <MatchingComponent />
+      </Modal>
     </div>
   );
-};
-
-const VoiceCallView = () => {
-  return <VoiceCallStartMenu />;
 };
 
 export default VoiceCallView;
