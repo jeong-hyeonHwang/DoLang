@@ -23,12 +23,16 @@ afterAll(() => server.close());
 
 describe('Feed', () => {
   test('모국어 피드 문장 페칭', async () => {
-    const data = await getNativeFeedSentence();
+    const data = await getNativeFeedSentence({
+      lang: 'en',
+    });
     expect(data).toEqual(nativeFeedSentenceTestData);
   });
 
   test('학습 언어 피드 문장 페칭', async () => {
-    const data = await getLearningLanguageFeedSentence();
+    const data = await getLearningLanguageFeedSentence({
+      lang: 'en',
+    });
     expect(data).toEqual(learningLanguageFeedSentenceTestData);
   });
 });
