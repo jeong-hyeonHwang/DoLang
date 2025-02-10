@@ -1,5 +1,8 @@
 package live.dolang.api.post.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import live.dolang.api.common.exception.NotFoundException;
 import live.dolang.api.common.response.BaseResponse;
 import live.dolang.api.common.response.BaseResponseStatus;
@@ -13,6 +16,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "FEED")
 @RestController
 @RequestMapping("/api/post")
 @RequiredArgsConstructor
@@ -28,6 +32,10 @@ public class PostController {
      * @param feedId: 발음 문장 아이디
      * @param postId: 사용자가 발음한 문장 아이디
      */
+    @Operation(
+            summary = "북마크 추가",
+            security = @SecurityRequirement(name = "BearerAuth")
+    )
     @PostMapping("{feedId}/{postId}/bookmark")
     public BaseResponse<BookmarkStatusDto> bookmarkPost(@AuthenticationPrincipal Jwt jwt,
                                         @PathVariable Integer feedId,
