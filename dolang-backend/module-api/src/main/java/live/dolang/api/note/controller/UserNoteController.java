@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Tag(name = "2. USER 단어장")
+@Tag(name = "USER 단어장")
 @RestController
 @RequestMapping("/api/note")
 @RequiredArgsConstructor

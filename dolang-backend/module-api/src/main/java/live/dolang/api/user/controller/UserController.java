@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Tag(name = "1. USER")
+@Tag(name = "USER 정보")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/user")
@@ -79,10 +79,10 @@ public class UserController {
             security = @SecurityRequirement(name = "BearerAuth") // JWT 인증 적용
     )
     @GetMapping("/tags")
-    public BaseResponse<ResponseUserTagIdDto> getUserTagIds(@AuthenticationPrincipal Jwt jwt) {
+    public BaseResponse<List<ResponseUserTagIdDto>> getUserTagIds(@AuthenticationPrincipal Jwt jwt) {
         int userId = Integer.parseInt(jwt.getId());
         List<ResponseUserTagIdDto> userTagIdList = userService.getUserTagIds(userId);
-        return new BaseResponse(userTagIdList);
+        return new BaseResponse<>(userTagIdList);
     }
 }
 

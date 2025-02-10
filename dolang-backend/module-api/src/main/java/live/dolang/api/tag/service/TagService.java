@@ -19,31 +19,23 @@ public class TagService {
     private final TagSearchRepository tagSearchRepository;
     private final TagRepository tagRepository;
 
-    // Elasticsearch에서 키워드 검색
-    public List<TagDocument> searchTags(String name) {
-        return tagSearchRepository.searchByNameStartingWith(name);
-    }
-
-    public List<TagDocument> allTags(String nativeLanguageId) {
-        return tagSearchRepository.findByNativeLanguageId(nativeLanguageId);
-    }
-
     @Transactional
     public boolean addTag(TagRequestDto requestDto) {
 
-        // try-catch로 데이터 무결성 검증
+        // try-catch 로 데이터 무결성 검증
         try {
             // MySQL 저장
-            if (!tagRepository.existsById(requestDto.getTagId().toString())) {
+            Integer tagId = requestDto.getTagId();
+            if (!tagRepository.existsById(tagId)) {
             Tag tag = Tag.builder()
-                    .id(requestDto.getTagId())
+                    .id(tagId)
                     .name(requestDto.getName())
                     .build();
             tagRepository.save(tag);
             }
-            // Elasticsearch에 저장 (UserNoteDocument 변환)
+            // Elasticsearch 에 저장 (UserNoteDocument 변환)
             TagDocument tagDocument = TagDocument.builder()
-                    .tagId(requestDto.getTagId())
+                    .tagId(tagId)
                     .nativeLanguageId(requestDto.getNativeLanguageId())
                     .name(requestDto.getName())
                     .build();
@@ -54,5 +46,13 @@ public class TagService {
         }
     }
 
+    public List<TagDocument> allTags(String nativeLanguageId) {
+        return tagSearchRepository.findByNativeLanguageId(nativeLanguageId);
+    }
+
+    // Elasticsearch 에서 키워드 검색
+    public List<TagDocument> searchTags(String name) {
+        return tagSearchRepository.searchByNameStartingWith(name);
+    }
 
 }
