@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class BookmarkCountDTO {
+    Integer feedId;
     Integer postId;
     Integer bookmarkCount;
-
 }

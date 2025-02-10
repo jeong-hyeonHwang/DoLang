@@ -19,14 +19,14 @@ spring:
     redis:
       host: localhost
       port: 6379
-      user-sentence:
-        prefix: "userSentence:"
-      user:
-        prefix: "user:"
+      feed:
+        prefix: "feed"
       bookmark:
-        postfix: ":bookmarks:"
-        count:
-          postfix: ":bookmarkCount:"
+        postfix: "bookmark"
+      user:
+        prefix: "user"
+      count:
+        postfix: "count"
   jpa:
     open-in-view: false
     properties:

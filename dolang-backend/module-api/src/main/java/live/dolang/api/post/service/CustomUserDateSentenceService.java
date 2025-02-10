@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @AllArgsConstructor
-public class UserDateSentenceService {
+public class CustomUserDateSentenceService {
     private final UserDateSentenceRepository userDateSentenceRepository;
 
     public boolean isUserDateSentenceExists(Integer userDateSentenceId) {
