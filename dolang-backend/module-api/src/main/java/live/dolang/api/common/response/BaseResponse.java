@@ -23,10 +23,11 @@ public class BaseResponse<T> {
     }
 
     // 성공 이외
-    private BaseResponse(BaseResponseStatus status) {
+    private BaseResponse(BaseResponseStatus status, T result) {
         this.isSuccess = status.isSuccess();
         this.message = status.getMessage();
         this.code = status.getCode();
+        this.result = result;
     }
 
     public static <T> BaseResponse<T> ok() {
@@ -38,6 +39,6 @@ public class BaseResponse<T> {
     }
 
     public static <T> BaseResponse<T> status(BaseResponseStatus status) {
-        return new BaseResponse<>(status);
+        return new BaseResponse<>(status, null);
     }
 }

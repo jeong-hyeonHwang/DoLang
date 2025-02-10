@@ -4,4 +4,5 @@ import live.dolang.core.domain.tag.Tag;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface TagRepository extends JpaRepository<Tag, Integer> {
+    boolean existsByNameAndNativeLanguageId(String name, String nativeLanguageId);
 }

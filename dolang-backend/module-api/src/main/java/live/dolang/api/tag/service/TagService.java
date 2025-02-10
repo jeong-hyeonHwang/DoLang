@@ -20,30 +20,29 @@ public class TagService {
     private final TagRepository tagRepository;
 
     @Transactional
-    public boolean addTag(TagRequestDto requestDto) {
+    public void addTag(TagRequestDto requestDto) {
 
-        // try-catch 로 데이터 무결성 검증
-        try {
-            // MySQL 저장
-            Integer tagId = requestDto.getTagId();
-            if (!tagRepository.existsById(tagId)) {
+        String nativeLanguageId = requestDto.getNativeLanguageId();
+        String name = requestDto.getName();
+
+        // MySQL 저장
+        if (!tagRepository.existsByNameAndNativeLanguageId(name, nativeLanguageId)) {
             Tag tag = Tag.builder()
-                    .id(tagId)
-                    .name(requestDto.getName())
+                    .name(name)
+                    .nativeLanguageId(nativeLanguageId)
                     .build();
             tagRepository.save(tag);
-            }
-            // Elasticsearch 에 저장 (UserNoteDocument 변환)
+        }
+
+        // ES 저장
+        if (!tagSearchRepository.existsByNameAndNativeLanguageId(name, nativeLanguageId)) {
             TagDocument tagDocument = TagDocument.builder()
-                    .tagId(tagId)
-                    .nativeLanguageId(requestDto.getNativeLanguageId())
-                    .name(requestDto.getName())
+                    .nativeLanguageId(nativeLanguageId)
+                    .name(name)
                     .build();
             tagSearchRepository.save(tagDocument);
-            return true;
-        } catch (Exception e) {
-            return false;
         }
+
     }
 
     public List<TagDocument> allTags(String nativeLanguageId) {
