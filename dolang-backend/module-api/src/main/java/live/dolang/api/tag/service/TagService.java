@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -26,17 +27,23 @@ public class TagService {
         String name = requestDto.getName();
 
         // MySQL 저장
-        if (!tagRepository.existsByNameAndNativeLanguageId(name, nativeLanguageId)) {
+        Optional<Tag> optionalTag = tagRepository.findByNameAndNativeLanguageId(name, nativeLanguageId);
+        Tag save;
+
+        if (optionalTag.isEmpty()) {
             Tag tag = Tag.builder()
                     .name(name)
                     .nativeLanguageId(nativeLanguageId)
                     .build();
-            tagRepository.save(tag);
+            save = tagRepository.save(tag);
+        } else {
+            save = optionalTag.get();
         }
 
         // ES 저장
         if (!tagSearchRepository.existsByNameAndNativeLanguageId(name, nativeLanguageId)) {
             TagDocument tagDocument = TagDocument.builder()
+                    .tagId(save.getId())
                     .nativeLanguageId(nativeLanguageId)
                     .name(name)
                     .build();
