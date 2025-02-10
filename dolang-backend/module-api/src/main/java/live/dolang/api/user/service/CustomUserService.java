@@ -1,6 +1,7 @@
 package live.dolang.api.user.service;
 
 import jakarta.persistence.EntityManager;
+import live.dolang.api.common.exception.DuplicateException;
 import live.dolang.api.common.exception.NotFoundException;
 import live.dolang.api.common.response.BaseResponseStatus;
 import live.dolang.api.user.dto.*;
@@ -56,6 +57,10 @@ public class CustomUserService {
     public void registerUserInfo(int userId, RequestRegisterUserProfileDto requestRegisterUserProfileDto) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(BaseResponseStatus.NOT_EXIST_USER));
+        if(userProfileRepository.existsById(userId)) {
+            throw new DuplicateException(BaseResponseStatus.DUPLICATE_USER);
+        }
+
         //유저 프로파일 저장
         UserProfile userProfile = requestRegisterUserProfileDto.toUserProfileEntity(userId);
         userProfileRepository.save(userProfile);
