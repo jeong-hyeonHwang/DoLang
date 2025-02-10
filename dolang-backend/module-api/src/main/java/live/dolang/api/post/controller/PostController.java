@@ -9,6 +9,7 @@ import live.dolang.api.common.response.BaseResponseStatus;
 import live.dolang.api.post.dto.BookmarkStatusDto;
 import live.dolang.api.post.service.CustomDateSentenceService;
 import live.dolang.api.post.service.CustomUserDateSentenceService;
+import live.dolang.api.post.service.PostService;
 import live.dolang.api.post.service.facade.BookmarkFacadeService;
 import live.dolang.core.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ public class PostController {
     private final CustomDateSentenceService customDatesentenceService;
     private final CustomUserDateSentenceService customUserDateSentenceService;
     private final BookmarkFacadeService bookmarkFacadeService;
+    private final PostService postService;
 
     /**
      * 북마크 추가
@@ -56,6 +58,18 @@ public class PostController {
 
         BookmarkStatusDto bookmarkStatusDto = bookmarkFacadeService.bookmarkUserDateSentence(userId, feedId, postId);
         return BaseResponse.ok(bookmarkStatusDto);
+    }
+
+
+    @PostMapping("{feedId}/upload")
+    public BaseResponse<BaseResponseStatus> uploadTest(@RequestPart("file") MultipartFile file,
+                                                       @AuthenticationPrincipal Jwt jwt,
+                                                       @PathVariable Integer feedId) throws IllegalAccessException {
+        Integer userId = Integer.parseInt(jwt.getId());
+        String fileUrl = customUserDateSentenceService.uploadTest(file);
+        System.out.println("결과 : " + fileUrl);
+        postService.createUserDateSentence(userId, feedId, fileUrl);
+        return BaseResponse.ok();
     }
 
     //S3업로드 테스트 API
