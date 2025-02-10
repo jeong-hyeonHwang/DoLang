@@ -34,10 +34,10 @@ public class CustomUserRepository {
                         ResponseUserInfoDto.class,
                         profile.profileImageUrl.as("profileImageUrl"),
                         profile.nickname.as("nickname"),
-                        profile.countryId.as("countryId"),
-                        profile.nativeLanguageId.as("nativeLanguageId"),
-                        profile.interestLanguageId.as("interestLanguageId"),
-                        userLanguageLevel.languageLevelId.as("languageLevelId")
+                        profile.countryId.as("nationality"),
+                        profile.nativeLanguageId.as("nativeLanguage"),
+                        profile.interestLanguageId.as("targetLanguage"),
+                        userLanguageLevel.languageLevelId.as("proficiencyLevel")
                 ))
                 .from(profile)
                 .join(user).on(profile.userId.eq(user.id))
