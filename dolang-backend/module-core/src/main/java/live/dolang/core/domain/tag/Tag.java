@@ -11,7 +11,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "tags", schema = "dolang")
+@Table(name = "tags", schema = "dolang",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"name", "native_language_id"}))
 public class Tag {
 
     @Id
@@ -21,5 +22,8 @@ public class Tag {
 
     @Column(name = "name", nullable = false, length = 100)
     private String name;
+
+    @Column(name = "native_language_id", length = 2, columnDefinition = "CHAR(2)")
+    private String nativeLanguageId;
 
 }

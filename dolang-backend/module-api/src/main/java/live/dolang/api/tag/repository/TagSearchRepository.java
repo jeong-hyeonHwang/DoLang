@@ -17,6 +17,13 @@ public interface TagSearchRepository extends ElasticsearchRepository<TagDocument
         특정 유저의 기록에서 특정 단어나 문장이 포함된 데이터 검색
         현재는 접두를 기준으로 검색 결과 제공.
      */
-    @SourceFilters(includes = "name")
     List<TagDocument> searchByNameStartingWith(String name);
+
+    /**
+     * 이미 존재하는지 확인
+     * @param name 태그 이름
+     * @param nativeLanguageId 태그 언어
+     * @return 존재 여부
+     */
+    boolean existsByNameAndNativeLanguageId(String name, String nativeLanguageId);
 }

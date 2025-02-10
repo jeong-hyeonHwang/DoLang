@@ -14,14 +14,14 @@ import java.util.List;
 public class ResponseUserInfoDto {
     private String profileImageUrl;
     private String nickname;
-    private String countryId;
-    private String nativeLanguageId;
-    private String interestLanguageId;
-    private String languageLevelId;
-    private List<TagDto> tags;
+    private String nationality;
+    private String nativeLanguage;
+    private String targetLanguage;
+    private String proficiencyLevel;
+    private List<TagDto> interests;
 
-    public void updateTags(List<TagDto> tags) {
-        this.tags = tags;
+    public void updateTags(List<TagDto> interests) {
+        this.interests = interests;
     }
 }
 
