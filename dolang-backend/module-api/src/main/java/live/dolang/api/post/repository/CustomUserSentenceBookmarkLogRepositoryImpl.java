@@ -18,27 +18,31 @@ public class CustomUserSentenceBookmarkLogRepositoryImpl implements CustomUserSe
 
     private final JPAQueryFactory queryFactory;
 
+    // 피드별, 포스트별 북마크 수를 집계
     @Override
     public List<BookmarkCountDTO> findAllPostBookmarkCountsRaw() {
         QUserSentenceBookmarkLog log = QUserSentenceBookmarkLog.userSentenceBookmarkLog;
 
         List<Tuple> logTuples = queryFactory
-                .select(log.userDateSentence.id, log.count())
+                .select(log.dateSentence.id, log.userDateSentence.id, log.count())
                 .from(log)
                 .where(log.bookmarkYn.isTrue())
-                .groupBy(log.userDateSentence.id)
+                .groupBy(log.dateSentence.id, log.userDateSentence.id)
                 .fetch();
 
         return logTuples.stream()
                 .map(tuple -> new BookmarkCountDTO(
-                        tuple.get(log.userDateSentence.id),
-                        Objects.requireNonNull(tuple.get(log.count())).intValue()
+                        tuple.get(log.dateSentence.id),              // feedId
+                        tuple.get(log.userDateSentence.id),            // postId
+                        Objects.requireNonNull(tuple.get(log.count())).intValue() // bookmarkCount
                 ))
                 .collect(Collectors.toList());
     }
 
+    // 사용자가 특정 피드 내에서 특정 포스트에 대해 가장 최신의 북마크 상태를 조회합니다.
+     // feedId 조건을 추가하여 해당 피드에 속한 데이터만 조회하도록 합니다.
     @Override
-    public Boolean getLatestBookmarkYn(Integer userId, Integer userDateSentenceId) {
+    public Boolean getLatestBookmarkYn(Integer userId, Integer feedId, Integer userDateSentenceId) {
         QUserSentenceBookmarkLog log = QUserSentenceBookmarkLog.userSentenceBookmarkLog;
 
         Boolean isBookmark = queryFactory
@@ -47,6 +51,7 @@ public class CustomUserSentenceBookmarkLogRepositoryImpl implements CustomUserSe
                 .where(
                         log.user.id.eq(userId)
                                 .and(log.userDateSentence.id.eq(userDateSentenceId))
+                                .and(log.dateSentence.id.eq(feedId))
                 )
                 .orderBy(log.createdAt.desc())
                 .limit(1)

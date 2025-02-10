@@ -26,6 +26,8 @@ public enum BaseResponseStatus {
      */
     NOT_EXIST_USER_PROFILE(false,4004, "저장된 유저정보를 찾을 수 없습니다."),
     NOT_EXIST_USER(false, HttpStatus.NOT_FOUND.value(), "존재하지 않는 사용자입니다."),
+    NOT_EXIST_FEED(false, HttpStatus.NOT_FOUND.value(), "존재하지 않는 피드입니다."),
+    NOT_EXIST_POST(false, HttpStatus.NOT_FOUND.value(), "존재하지 않는 기록입니다."),
     /**
      * 자유롭게 에러코드 추가
      */

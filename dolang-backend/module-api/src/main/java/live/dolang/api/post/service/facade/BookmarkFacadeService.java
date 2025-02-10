@@ -15,12 +15,12 @@ public class BookmarkFacadeService {
     private final PostBookmarkService postBookmarkService;
 
     @Transactional
-    public BookmarkStatusDto bookmarkUserDateSentence(Integer userId, Integer userDateSentenceId) {
-        boolean isBookmarked = userBookmarkService.setUserBookmark(userId, userDateSentenceId);
+    public BookmarkStatusDto bookmarkUserDateSentence(Integer userId, Integer feedId, Integer postId) {
+        boolean isBookmarked = userBookmarkService.setUserBookmark(userId, feedId, postId);
         if (isBookmarked) {
-            postBookmarkService.incrementPostBookmarkCount(userDateSentenceId);
+            postBookmarkService.incrementPostBookmarkCount(feedId, postId);
         } else {
-            postBookmarkService.decrementPostBookmarkCount(userDateSentenceId);
+            postBookmarkService.decrementPostBookmarkCount(feedId, postId);
         }
         return new BookmarkStatusDto(isBookmarked);
     }

@@ -1,90 +1,157 @@
 package live.dolang.api.post.service;
 
+import jakarta.annotation.PostConstruct;
 import live.dolang.api.post.dto.BookmarkCountDTO;
 import live.dolang.api.post.repository.CustomUserSentenceBookmarkLogRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class PostBookmarkService {
 
-    @Value("${spring.data.redis.user-sentence.prefix}")
+    @Value("${spring.data.redis.feed.prefix}")
+    private String feedPrefix;
+
+    @Value("${spring.data.redis.bookmark.postfix}")
     private String userSentenceBookmarkCountPrefix;
 
-    @Value("${spring.data.redis.bookmark.count.postfix}")
+    @Value("${spring.data.redis.count.postfix}")
     private String userSentenceBookmarkCountPostfix;
 
-    private final ValueOperations<String, Object> valueOperations;
+    // 기존 Hash를 통한 관리
+    private final RedisTemplate<String, Object> redisTemplate;
+    private HashOperations<String, Object, Object> hashOperations;
+
+    // 정렬 조회를 위한 Sorted Set 사용
+    private ZSetOperations<String, Object> zSetOperations;
+
     private final CustomUserSentenceBookmarkLogRepository userSentenceBookmarkLogRepository;
 
-    /**
-     * 1) Redis에 카운트 키가 없으면 -> DB 풀 스캔 (findAllPostLikeCounts)
-     * 2) 게시글별로 키 생성 & Redis에 영구 저장(만료 없음)
-     */
-    public void recoverAllPostBookmarkCountsFromDB() {
-        // DB 풀 스캔으로 게시글별 좋아요 수 조회
-        List<BookmarkCountDTO> likeCountList = getAllPostBookmarkCounts();
-
-        // 조회 결과를 Redis에 저장 (키가 없다면 새로 만듦)
-        for (BookmarkCountDTO dto : likeCountList) {
-            String key = getUserSentenceBookmarkKey(dto.getPostId());
-            // 영구 보관 -> TTL 미설정
-            valueOperations.set(key, dto.getBookmarkCount());
-        }
+    @PostConstruct
+    public void init() {
+        hashOperations = redisTemplate.opsForHash();
+        zSetOperations = redisTemplate.opsForZSet();
     }
 
     /**
-     * Redis에 게시글 북마크 카운트가 있는지 확인 -> 없으면 recoverAllPostBookmarkCountsFromDB()
+     * DB 풀 스캔으로 게시글별 북마크 수 조회 후,
+     * 피드별로 Redis의 Hash와 Sorted Set에 동시에 저장.
      */
-    public void getPostBookmarkCount(Integer userSentenceId) {
-        String key = getUserSentenceBookmarkKey(userSentenceId);
-        Object bookmarkCount = valueOperations.get(key);
+    public void recoverAllPostBookmarkCountsFromDB() {
+        List<BookmarkCountDTO> bookmarkCountList = getAllPostBookmarkCounts();
 
-        if (bookmarkCount == null) {
-            // 극히 드문 케이스: Redis 장애 등으로 키가 전부 사라진 상황
-            recoverAllPostBookmarkCountsFromDB();
-            // 다시 읽기
-            bookmarkCount = valueOperations.get(key);
-            // 여전히 null일 수 있으므로 0 처리
-            if (bookmarkCount == null) {
-                bookmarkCount = 0L;
-                valueOperations.set(key, bookmarkCount);
+        // 피드별로 저장할 해시 및 sorted set 데이터를 준비
+        Map<String, Map<Object, Object>> feedHashMap = new HashMap<>();
+
+        for (BookmarkCountDTO dto : bookmarkCountList) {
+            String feedKey = getFeedBookmarkKey(dto.getFeedId());
+            feedHashMap.computeIfAbsent(feedKey, k -> new HashMap<>())
+                    .put(dto.getPostId().toString(), dto.getBookmarkCount());
+        }
+
+        // 각 피드별로 Redis 해시와 Sorted Set에 저장 (TTL은 미설정: 영구 보관)
+        for (Map.Entry<String, Map<Object, Object>> entry : feedHashMap.entrySet()) {
+            String hashKey = entry.getKey();
+            Map<Object, Object> hashData = entry.getValue();
+            // Hash에 저장
+            hashOperations.putAll(hashKey, hashData);
+
+            // Sorted Set에 저장: key는 별도로 생성 (예, 기존 key에 ":sorted" 접미사를 추가)
+            String sortedKey = getFeedBookmarkSortedKey(getFeedIdFromKey(hashKey));
+            for (Map.Entry<Object, Object> e : hashData.entrySet()) {
+                // score는 북마크 수(Double 타입)로 변환
+                double score = Double.parseDouble(e.getValue().toString());
+                zSetOperations.add(sortedKey, e.getKey(), score);
             }
         }
     }
 
     /**
-     * Redis에 이미 게시글 카운트가 저장되어 있다고 가정 -> 값만 증가
-     * 만약(매우 드물게) 키가 없으면 getPostBookmarkCount()로 fallback
+     * 특정 피드의 특정 포스트 북마크 수 조회
+     * - Redis에 값이 없으면 DB에서 전체 복구 후 값 반환
      */
-    public void incrementPostBookmarkCount(Integer userSentenceId) {
-        String key = getUserSentenceBookmarkKey(userSentenceId);
-        if (valueOperations.get(key) == null) {
-            // Redis 키가 없으면 전체 초기화 후 다시 카운트 가져오기
-            getPostBookmarkCount(userSentenceId);
+    public void getPostBookmarkCount(Integer feedId, Integer postId) {
+        String hashKey = getFeedBookmarkKey(feedId);
+        Object countObj = hashOperations.get(hashKey, postId.toString());
+
+        if (countObj == null) {
+            recoverAllPostBookmarkCountsFromDB();
+            countObj = hashOperations.get(hashKey, postId.toString());
+            if (countObj == null) {
+                countObj = 0L;
+                hashOperations.put(hashKey, postId.toString(), countObj);
+                // Sorted Set에도 추가
+                String sortedKey = getFeedBookmarkSortedKey(feedId);
+                zSetOperations.add(sortedKey, postId.toString(), 0);
+            }
         }
-        // 이제 키가 있다고 가정 -> +1
-        valueOperations.increment(key, 1);
     }
 
-    public void decrementPostBookmarkCount(Integer userSentenceId) {
-        String key = getUserSentenceBookmarkKey(userSentenceId);
-        if (valueOperations.get(key) == null) {
-            getPostBookmarkCount(userSentenceId);
+    /**
+     * 특정 피드의 특정 포스트 북마크 수 1 증가 (Hash와 Sorted Set 모두 업데이트)
+     */
+    public void incrementPostBookmarkCount(Integer feedId, Integer postId) {
+        String hashKey = getFeedBookmarkKey(feedId);
+        if (hashOperations.get(hashKey, postId.toString()) == null) {
+            // 값이 없으면 먼저 복구
+            getPostBookmarkCount(feedId, postId);
         }
-        valueOperations.increment(key, -1);
+        // Hash 업데이트
+        hashOperations.increment(hashKey, postId.toString(), 1);
+        // Sorted Set 업데이트
+        String sortedKey = getFeedBookmarkSortedKey(feedId);
+
+        zSetOperations.incrementScore(sortedKey, postId.toString(), 1);
+    }
+
+    // 특정 피드의 특정 포스트 북마크 수 1 감소 (Hash와 Sorted Set 모두 업데이트)
+    public void decrementPostBookmarkCount(Integer feedId, Integer postId) {
+        String hashKey = getFeedBookmarkKey(feedId);
+        if (hashOperations.get(hashKey, postId.toString()) == null) {
+            getPostBookmarkCount(feedId, postId);
+        }
+        // Hash 업데이트
+        hashOperations.increment(hashKey, postId.toString(), -1);
+        // Sorted Set 업데이트
+        String sortedKey = getFeedBookmarkSortedKey(feedId);
+        zSetOperations.incrementScore(sortedKey, postId.toString(), -1);
     }
 
     private List<BookmarkCountDTO> getAllPostBookmarkCounts() {
         return userSentenceBookmarkLogRepository.findAllPostBookmarkCountsRaw();
     }
 
-    private String getUserSentenceBookmarkKey(Integer postId) {
-        return userSentenceBookmarkCountPrefix + postId + userSentenceBookmarkCountPostfix;
+    // Hash 자료구조에 사용될 피드별 key 생성
+    private String getFeedBookmarkKey(Integer feedId) {
+        return feedPrefix + ":" +
+                userSentenceBookmarkCountPrefix + ":" +
+                feedId + ":" + userSentenceBookmarkCountPostfix;
+    }
+
+    /**
+     * Sorted Set에 사용될 key 생성
+     * 기존 해시 key와는 별개로, ":sorted" 접미사를 붙여 구분
+     */
+    private String getFeedBookmarkSortedKey(Integer feedId) {
+        return getFeedBookmarkKey(feedId) + ":sorted";
+    }
+
+    /**
+     * 해시 key에서 피드 아이디를 추출하는 헬퍼 메서드 (필요에 따라 구현)
+     */
+    private Integer getFeedIdFromKey(String key) {
+        // 예시: key가 "feed:bookmark:123:count" 형태라면, "123"을 추출
+        String withoutPrefix = key.replace(feedPrefix + userSentenceBookmarkCountPrefix, "");
+        String idStr = withoutPrefix.split(userSentenceBookmarkCountPostfix)[0];
+        return Integer.valueOf(idStr);
     }
 }
