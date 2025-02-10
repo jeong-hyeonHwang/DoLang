@@ -33,10 +33,8 @@ public enum BaseResponseStatus {
      */
 
     NOT_EXIST_LANGUAGE(false, HttpStatus.NOT_FOUND.value(), "저장된 언어를 찾을 수 없습니다."),
-
     NOT_EXIST_DATE(false, HttpStatus.NOT_FOUND.value(), "저장된 날짜를 찾을 수 없습니다."),
-
-    NOT_EXIST_FEED(false, HttpStatus.NOT_FOUND.value(), "피드 정보를 찾을 수 없습니다"),
+    NOT_EXIST_LANGUAGE_LEVEL(false, HttpStatus.NOT_FOUND.value(), "저장된 언어 레벨을 찾을 수 없습니다.")
     ;
 
 

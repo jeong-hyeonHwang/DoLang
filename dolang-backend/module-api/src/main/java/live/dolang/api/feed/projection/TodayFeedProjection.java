@@ -1,22 +1,25 @@
 package live.dolang.api.feed.projection;
 
 import live.dolang.api.feed.dto.TodayFeedResponseDto;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
+
+import java.time.Instant;
 
 @Getter
+@Setter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class TodayFeedProjection {
     private TodayFeedResponseDto.Feed feed;
 
-    private String date;
-    private Long feedId;
+    private Instant date;
+    private Integer feedId;
     private String lang;
-    private boolean isNativeFeed;
-    private Long sentenceId;
+    private Boolean isNativeFeed;
     private String sentence;
     private String level;
+    private Integer postId;
     private String voiceUrl;
-    private int count;
-    private String voiceCreatedAt;
+    private Instant voiceCreatedAt;
 }

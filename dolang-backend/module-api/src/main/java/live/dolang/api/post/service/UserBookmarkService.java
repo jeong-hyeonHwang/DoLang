@@ -75,7 +75,7 @@ public class UserBookmarkService {
      * 특정 포스트의 북마크 여부 조회 메서드
      * Redis에 값이 있으면 반환, 없으면 DB 조회
      */
-    private boolean isBookmarked(Integer userId, Integer feedId, Integer postId) {
+    public boolean isBookmarked(Integer userId, Integer feedId, Integer postId) {
         String dataKey = getDataKey(userId, feedId);
         String field = postId.toString();
         BookmarkDataDto data = bookmarkHashOperations.get(dataKey, field);

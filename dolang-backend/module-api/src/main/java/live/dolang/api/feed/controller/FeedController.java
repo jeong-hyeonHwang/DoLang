@@ -1,6 +1,5 @@
 package live.dolang.api.feed.controller;
 
-import live.dolang.api.common.response.BaseResponse;
 import live.dolang.api.feed.dto.FeedParticipantsResponseDto;
 import live.dolang.api.feed.dto.TodayFeedResponseDto;
 import live.dolang.api.feed.service.FeedService;
@@ -23,22 +22,19 @@ public class FeedController {
     // TODO: 오늘의 피드
     @GetMapping("/today")
     public ResponseEntity<TodayFeedResponseDto> getTodayPost(@AuthenticationPrincipal Jwt jwt,
-                                                             @RequestParam(value = "lang")String lang,
-                                                             @RequestParam(value = "langLevel")String langLevel) {
-        int userId = Integer.parseInt(jwt.getId());
+                                                             @RequestParam(value = "lang", defaultValue = "ko")String lang,
+                                                             @RequestParam(value = "langLevel", defaultValue = "B1")String langLevel) {
+        Integer userId = jwt == null ? null : Integer.parseInt(jwt.getId());
         return feedService.getTodayFeed(userId, lang, langLevel);
     }
 
     @GetMapping("/today/participants")
     public ResponseEntity<FeedParticipantsResponseDto> getTodayFeedParticipants(
-            @RequestParam(value = "feedId") Integer feedId,         // 필수 값
-            @RequestParam(value = "sort") String sort,              // 필수 값
-            @RequestParam(value = "length") Integer length,         // 필수 값
+            @RequestParam(value = "feedId") Integer feedId,
+            @RequestParam(value = "sort") String sort,
+            @RequestParam(value = "length") Integer length,
             @RequestParam(value = "nextCursor", required = false) Integer nextCursor // 선택적(Optional)
     ) {
         return feedService.getTodayFeedParticipants(feedId, sort, length, nextCursor);
     }
-
-
-
 }

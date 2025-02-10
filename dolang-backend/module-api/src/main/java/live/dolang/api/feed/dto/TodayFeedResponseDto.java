@@ -1,21 +1,23 @@
 package live.dolang.api.feed.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import java.time.LocalDateTime;
 
 @Getter
 @Builder
+@AllArgsConstructor
 public class TodayFeedResponseDto {
     private Feed feed;
 
     @Getter
     @Builder
     public static class Feed {
-        private LocalDateTime date;
-        private Long feedId;
+        private String date;
+        private Integer feedId;
         private String lang;
-        private boolean isNativeFeed;
+        private Boolean isNativeFeed;
         private SentenceInfo sentenceInfo;
         private UserParticipation userParticipation;
     }
@@ -23,16 +25,31 @@ public class TodayFeedResponseDto {
     @Getter
     @Builder
     public static class SentenceInfo {
-        private Long sentenceId;
         private String sentence;
         private String level;
     }
 
     @Getter
     @Builder
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class UserParticipation {
+        private Integer postId;
         private String voiceUrl;
-        private int count;
-        private LocalDateTime voiceCreatedAt;
+        private Integer bookmarkCount;
+        private Integer heartCount;
+        private Boolean isSelfBookmarked;
+        private String voiceCreatedAt;
+
+        public void setBookmarkCount(Integer bookmarkCount) {
+            this.bookmarkCount = bookmarkCount;
+        }
+
+        public void setHeartCount(Integer heartCount) {
+            this.heartCount = heartCount;
+        }
+
+        public void setIsSelfBookmarked(Boolean isSelfBookmarked) {
+            this.isSelfBookmarked = isSelfBookmarked;
+        }
     }
 }

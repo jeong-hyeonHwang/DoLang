@@ -74,37 +74,45 @@ public class PostBookmarkService {
             }
         }
     }
-
     /**
      * 특정 피드의 특정 포스트 북마크 수 조회
      * - Redis에 값이 없으면 DB에서 전체 복구 후 값 반환
      */
-    public void getPostBookmarkCount(Integer feedId, Integer postId) {
+    public Integer getPostBookmarkCount(Integer feedId, Integer postId) {
         String hashKey = getFeedBookmarkKey(feedId);
-        Object countObj = hashOperations.get(hashKey, postId.toString());
 
-        if (countObj == null) {
+        Integer count = (Integer) hashOperations.get(hashKey, postId.toString());
+
+        if (count == null) {
+            // 데이터가 없으면 DB에서 전체 복구
             recoverAllPostBookmarkCountsFromDB();
-            countObj = hashOperations.get(hashKey, postId.toString());
-            if (countObj == null) {
-                countObj = 0L;
-                hashOperations.put(hashKey, postId.toString(), countObj);
-                // Sorted Set에도 추가
+            // 다시 조회
+            count = (Integer) hashOperations.get(hashKey, postId.toString());
+
+            // 그래도 null이면 (=DB에 해당 postId가 없다고 간주)
+            if (count == null) {
+                count = 0; // 기본값 0
+                // 해시에 정수만 put
+                hashOperations.put(hashKey, postId.toString(), count);
+
+                // Sorted Set에도 0으로 추가
                 String sortedKey = getFeedBookmarkSortedKey(feedId);
                 zSetOperations.add(sortedKey, postId.toString(), 0);
             }
         }
+
+        return count;
     }
+
+
 
     /**
      * 특정 피드의 특정 포스트 북마크 수 1 증가 (Hash와 Sorted Set 모두 업데이트)
      */
     public void incrementPostBookmarkCount(Integer feedId, Integer postId) {
         String hashKey = getFeedBookmarkKey(feedId);
-        if (hashOperations.get(hashKey, postId.toString()) == null) {
-            // 값이 없으면 먼저 복구
-            getPostBookmarkCount(feedId, postId);
-        }
+        getPostBookmarkCount(feedId, postId);
+
         // Hash 업데이트
         hashOperations.increment(hashKey, postId.toString(), 1);
         // Sorted Set 업데이트
