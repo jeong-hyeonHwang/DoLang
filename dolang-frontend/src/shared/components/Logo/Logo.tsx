@@ -1,3 +1,4 @@
+import React from 'react';
 import { css } from '@emotion/react';
 import logoImage from '@/assets/doLangLogo.png';
 
@@ -13,8 +14,13 @@ const logoStyle = css`
   height: 100%;
 `;
 
-const Logo = () => (
-  <div css={logoContainerStyle}>
+interface LogoProps {
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+const Logo: React.FC<LogoProps> = ({ className, style }) => (
+  <div css={logoContainerStyle} className={className} style={style}>
     <img className="LogoImage" src={logoImage} css={logoStyle} alt="Logo" />
   </div>
 );

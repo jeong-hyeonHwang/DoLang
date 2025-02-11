@@ -3,6 +3,9 @@ import React, { useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
 import { authState } from './authState.ts';
 import { useNavigate } from 'react-router';
+import GoogleAuthModal from './GoogleAuthModal.tsx';
+import LogInModal from './LoginModal.tsx';
+import { userGet } from '../../api/utils/user_get.ts';
 
 interface ImportMetaEnv {
   readonly VITE_GOOGLE_CLIENT_ID: string;
@@ -65,7 +68,7 @@ const GoogleLogin = () => {
         body: body.toString(),
         credentials: 'include', //refresh token 쿠키로 저장
       });
-
+      // console.log(response);
       if (!response.ok) {
         throw new Error(`Token request failed: ${response.status} ${response.statusText}`);
       }
@@ -74,7 +77,7 @@ const GoogleLogin = () => {
       // console.log('Token Response: ', data);
 
       if (data.access_token && data.refresh_token) {
-        // console.log('access_token: ', data.access_token);
+        console.log('access_token: ', data.access_token);
         // console.log('refresh_token success: ', data.refresh_token);
         saveAccessTokenToCookie(data.access_token);
         saveRefreshTokenToCookie(data.refresh_token);
@@ -82,9 +85,7 @@ const GoogleLogin = () => {
         setIsLoggedIn(true);
         setAccessToken(data.access_token);
 
-        alert('로그인 되었습니다.');
-        console.log('LogIn not_HttpOnly');
-        navigate('/');
+        await userGet(navigate);
       }
     } catch (err) {
       console.error('Error code for Token: ', err);
@@ -147,6 +148,31 @@ const GoogleLogin = () => {
     }
   };
 
-  return <>{isLoggedIn ? <p>로그인 되었습니다.</p> : <button onClick={handleGoogleLogin}>Google 로그인</button>}</>;
+  // return <>{isLoggedIn ? <p>로그인 되었습니다.</p> : <button onClick={handleGoogleLogin}>Google 로그인</button>}</>;
+
+  return (
+    <>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          height: '80vh',
+        }}
+      >
+        <div
+          style={{
+            width: '400px',
+            height: '450px',
+            border: '1px solid #eee',
+            borderRadius: '8px',
+            boxShadow: '0 4px 4px rgba(0, 0, 0, 0.2)',
+          }}
+        >
+          <GoogleAuthModal onLoginClick={handleGoogleLogin} />
+        </div>
+      </div>
+      {/* <LogInModal onLoginClick={handleGoogleLogin} /> */}
+    </>
+  );
 };
 export default GoogleLogin;
