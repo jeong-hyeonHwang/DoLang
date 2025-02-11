@@ -26,6 +26,7 @@ export interface StompContextValue {
   isConnected: boolean;
   isMatching: boolean;
   matchedUser: MatchedUser | null;
+  matchingResult: MatchingResult | null;
   connectionError: string;
 
   connect: (token: string) => void;
@@ -49,6 +50,7 @@ export const StompClientProvider = ({ children }: StompClientProviderProps) => {
   const stompClientRef = useRef<Client | null>(null);
   const [token, setToken] = useState('');
 
+  const [matchingResult, setMatchingResult] = useState<MatchingResult | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [isMatching, setIsMatching] = useState(false);
   const [matchedUser, setMatchedUser] = useState<MatchedUser | null>(null);
@@ -94,8 +96,10 @@ export const StompClientProvider = ({ children }: StompClientProviderProps) => {
 
         stompClient.subscribe(`/user/queue/matched`, (message) => {
           const matchingResult = JSON.parse(message.body);
+          setMatchingResult(matchingResult);
           setMatchedUser(matchingResult.matchedUser);
           setIsMatching(false);
+          console.log(matchingResult);
           console.log('Matched with user:', matchingResult.matchedUser);
         });
       },
@@ -146,6 +150,7 @@ export const StompClientProvider = ({ children }: StompClientProviderProps) => {
     }
   }, [isMatching, sendMessage]);
 
+
   useEffect(() => {
     return () => {
       console.log('unmount');
@@ -160,6 +165,7 @@ export const StompClientProvider = ({ children }: StompClientProviderProps) => {
     peerId,
     isConnected,
     isMatching,
+    matchingResult, 
     matchedUser,
     connectionError,
     connect,

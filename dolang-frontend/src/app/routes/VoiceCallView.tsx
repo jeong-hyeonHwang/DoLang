@@ -1,46 +1,54 @@
-import { StompClientProvider } from '../../features/Matching/hooks/useClientContext.tsx';
-import MatchingComponent from '../../features/Matching/components/MatchingComponent.tsx';
-import { Modal, Button } from 'antd';
-import { useState } from 'react';
+import React, { useEffect } from 'react';
 import { useStompClientContext } from '../../features/Matching/hooks/useClientContext.tsx';
-import { useNavigate } from 'react-router';
-interface MatchResultResponse {
-  id: number;
-  message: string;
-}
+import { useCallContext } from '../../features/VoiceCall/hooks/useCallContext.tsx';
 
-const VoiceCallView = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const { isConnected, isMatching, matchedUser, connectionError, connect, disconnect, startMatching, cancelMatching } =
-    useStompClientContext();
-  const navigate = useNavigate();
+function VoiceCallView() {
+  const { matchingResult } = useStompClientContext();
+  const { localStream, remoteStream, startCall, endCall } = useCallContext();
 
-  const openModal = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleOk = () => {
-    if (matchedUser) {
-      console.log('matchedUser', matchedUser);
-      navigate('/incall');
-      setIsModalOpen(false);
+  // 매칭 완료 후 바로 startCall을 자동 시작하고 싶다면:
+  useEffect(() => {
+    if (matchingResult) {
+      // 매칭 결과가 들어오면 오너 여부를 확인해서 바로 호출
+      startCall();
     }
-  };
+  }, [matchingResult, startCall]);
 
-  const handleCancel = () => {
-    disconnect();
-    cancelMatching();
-    setIsModalOpen(false);
-  };
-
+  // 오디오 태그에 localStream, remoteStream을 바인딩
   return (
     <div>
-      <Button onClick={openModal}>대화 상대 매칭</Button>
-      <Modal title="대화 상대 매칭" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-        <MatchingComponent />
-      </Modal>
+      <h1>Matching & Call Page</h1>
+      <button onClick={startCall}>Start Call (Offer 생성)</button>
+      <button onClick={endCall}>End Call</button>
+
+      {/* 로컬 오디오 */}
+      {localStream && (
+        <video
+          autoPlay
+          controls
+          muted
+          ref={(video) => {
+            if (video && localStream) {
+              video.srcObject = localStream;
+            }
+          }}
+        />
+      )}
+
+      {/* 리모트 오디오 */}
+      {remoteStream && (
+        <video
+          autoPlay
+          controls
+          ref={(video) => {
+            if (video && remoteStream) {
+              video.srcObject = remoteStream;
+            }
+          }}
+        />
+      )}
     </div>
   );
-};
+}
 
 export default VoiceCallView;
