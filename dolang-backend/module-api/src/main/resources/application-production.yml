@@ -23,8 +23,8 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://host.docker.internal:8200
-          jwk-set-uri: http://host.docker.internal:8200/oauth2/jwks
+          issuer-uri: https://host.docker.internal:8200
+          jwk-set-uri: https://host.docker.internal:8200/oauth2/jwks
   ssl:
     bundle:
       jks:
