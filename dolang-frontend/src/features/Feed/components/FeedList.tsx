@@ -8,7 +8,6 @@ const FeedList = ({ feeds }: { feeds: FeedProps[] }) => {
     margin: 0.6rem;
     display: flex;
     flex-direction: column;
-    align-items: center;
     gap: 0.5rem;
     max-height: 50vh;
     overflow-y: scroll;

@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { css } from '@emotion/react';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import { authState } from '../../../features/Auth/authState.ts';
 import { Link, useLocation } from 'react-router-dom';
 import NameCard from '../nameCard/NameCard.tsx';
 import { useUserQuery } from '../../hooks/useUserQuery.ts';
 import { useAuth } from '../../hooks/useAuth.ts';
 import Logo from '../Logo/Logo.tsx';
 import { Home, Radio, FileText, User, Settings, Check, ChevronUp, ChevronDown } from 'lucide-react';
-// import GoogleLogout from '@/features/Auth/GoogleLogout.tsx';
+import LogInModal from '../../../features/Auth/LoginModal.tsx';
+import SignUpModal from '../../../features/Auth/SignupModal.tsx';
+import GoogleLogout from '../../../features/Auth/GoogleLogout.tsx';
 
 const sidebarStyle = css`
   height: 100vh;
@@ -263,7 +267,9 @@ const linkItems: LinkItem[] = [
 const BottomLinkItems: LinkItem[] = [{ key: '1', href: '/guide', title: '서비스 가이드', icon: <Settings /> }];
 
 export const NavBarContainer = () => {
-  const { logoutMutation } = useAuth();
+  const auth = useRecoilState(authState);
+  const isLoggedIn = JSON.parse(sessionStorage.getItem('isLoggedIn') || 'false');
+  console.log('login: ', auth);
   const { data: userInfo, isLoading } = useUserQuery();
 
   return (
@@ -273,9 +279,33 @@ export const NavBarContainer = () => {
           <Logo />
         </Link>
 
-        <div css={nameCardContainerStyle}>
-          <NameCard style={{ border: 'none', backgroundColor: 'transparent' }} />
-        </div>
+        {isLoggedIn ? (
+          <div css={nameCardContainerStyle}>
+            <NameCard style={{ border: 'none', backgroundColor: 'transparent' }} />
+          </div>
+        ) : (
+          <div
+            css={nameCardContainerStyle}
+            style={{ display: 'flex', justifyContent: 'space-evenly', marginTop: '2.2rem', marginBottom: '1rem' }}
+          >
+            <SignUpModal />
+            {/* <LogInModal /> */}
+            <Link to="oauth2/code">
+              <button
+                style={{
+                  backgroundColor: '#202022',
+                  color: '#ffffff',
+                  width: '80px',
+                  height: '35px',
+                  border: '1px solid #a0a0a0',
+                  borderRadius: '6px',
+                }}
+              >
+                Login
+              </button>
+            </Link>
+          </div>
+        )}
       </div>
 
       <div css={middleSectionStyle}>
@@ -285,14 +315,7 @@ export const NavBarContainer = () => {
         <NavLinks linkItems={BottomLinkItems} customLinkStyle={bottomLinkStyle} />
       </div>
 
-      <div css={bottomSectionStyle}>
-        {isLoading ? (
-          <div>Loading...</div>
-        ) : (
-          <div>{userInfo?.userName && <div onClick={() => logoutMutation.mutate()}>로그아웃</div>}</div>
-        )}
-      </div>
-      {/* <GoogleLogout /> */}
+      <div css={bottomSectionStyle}>{isLoading ? <div>Loading...</div> : isLoggedIn ? <GoogleLogout /> : null}</div>
     </div>
   );
 };

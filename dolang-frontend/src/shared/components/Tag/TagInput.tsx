@@ -1,5 +1,3 @@
-'use client';
-
 import type React from 'react';
 import { useState, useRef, useEffect, type KeyboardEvent } from 'react';
 import styled from '@emotion/styled';
@@ -15,8 +13,9 @@ interface TagInputProps {
 }
 
 interface SearchResult {
-  tag: string;
-  count: number;
+  id: number;
+  nativeLanguageId: string;
+  name: string;
 }
 
 const InputContainer = styled.div`
@@ -142,17 +141,27 @@ export default function TagInput({ value, onChange, maxTags = 10, minTags = 3, e
   const [suggestions, setSuggestions] = useState<SearchResult[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // // API 호출 관련
-  // const searchTags = async (query: string): Promise<SearchResult[]> => {
-  //   try {
-  //     const response = await fetch(`/api/tags/search?q=${encodeURIComponent(query)}`);
-  //     if (!response.ok) throw new Error('Failed to fetch tags');
-  //     return await response.json();
-  //   } catch (error) {
-  //     console.error('Tag search error:', error);
-  //     return [];
-  //   }
-  // };
+  const fetchRandomTags = async () => {
+    try {
+      const response = await fetch('/api/tag/all');
+      if (!response.ok) throw new Error('Failed to fetch random tags');
+      const tags = await response.json();
+      setSuggestions(tags.slice(0, 10));
+    } catch (error) {
+      console.error('Error fetching random tags:', error);
+    }
+  };
+
+  const searchTags = async (query: string): Promise<SearchResult[]> => {
+    try {
+      const response = await fetch(`/api/tag/search?name=${encodeURIComponent(query)}`);
+      if (!response.ok) throw new Error('Failed to fetch tags');
+      return await response.json();
+    } catch (error) {
+      console.error('Tag search error:', error);
+      return [];
+    }
+  };
 
   const debouncedSearch = debounce(async (query: string) => {
     if (query.length >= 2) {
@@ -171,6 +180,21 @@ export default function TagInput({ value, onChange, maxTags = 10, minTags = 3, e
       debouncedSearch.cancel();
     };
   }, [inputValue, debouncedSearch]);
+
+  useEffect(() => {
+    const handleFocus = () => {
+      fetchRandomTags();
+    };
+    const inputElement = inputRef.current;
+    if (inputElement) {
+      inputElement.addEventListener('focus', handleFocus);
+    }
+    return () => {
+      if (inputElement) {
+        inputElement.removeEventListener('focus', handleFocus);
+      }
+    };
+  }, []);
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' || e.key === ',') {

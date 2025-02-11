@@ -13,7 +13,7 @@ const accessToken = Cookies.get('access_token');
 
 const token = accessToken;
 
-export const tagsGet = async (navigate: ReturnType<typeof useNavigate>) => {
+export const tagsSearchGet = async (navigate: ReturnType<typeof useNavigate>) => {
   try {
     const response = await fetch(`${SERVER_URL}/api/user/tags`, {
       method: 'GET',

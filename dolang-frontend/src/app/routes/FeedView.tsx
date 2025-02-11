@@ -2,10 +2,13 @@ import FeedList from '../../features/Feed/components/FeedList.tsx';
 import { useEffect, useState } from 'react';
 import { css } from '@emotion/react';
 import { Mic } from 'lucide-react';
-import { nativeFeedTestData, nativeFeedSentenceTestData } from '../../features/Feed/tests/feedTestData.ts';
-import useFeedParticipation from '@/features/Feed/hooks/useFeedParticipation.ts';
+import {
+  nativeFeedTestData,
+  learningLanguageFeedTestData,
+  nativeFeedSentenceTestData,
+} from '../../features/Feed/tests/feedTestData.ts';
 import { FeedParticipation } from '../../features/Feed/types/feedParticipation.type.ts';
-import Recorder from '@/features/Feed/components/Recorder.tsx';
+import Waveform from '@/shared/components/waveform/Waveform.tsx';
 
 const FeedView = () => {
   const feedContainerStyle = css`
@@ -22,31 +25,30 @@ const FeedView = () => {
 
   const feedSentenceSectionStyle = css`
     display: flex;
-    background-color: #e7e7e7;
+    background-color: #d1d1d1;
     padding: 1rem;
-    border-radius: 0.8rem;
-    width: 100%;
+    border-radius: 1rem;
     height: 100%;
-    max-height: 4rem;
+    max-height: 3rem;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
   `;
 
-  const userParticipationSectionStyle = css`
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
+  const feedRecordButtonStyle = css`
+    background-color: #a11800;
+    border-radius: 50%;
+    cursor: pointer;
     padding: 0.5rem;
-    gap: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   `;
   const [feedListData, setFeedListData] = useState<FeedParticipation[]>([]);
-  // const { startRecording, stopRecording, isRecording } = useFeedParticipation();
 
   useEffect(() => {
-    setFeedListData(nativeFeedTestData.result);
+    setFeedListData(nativeFeedTestData);
   }, []);
 
   return (
@@ -57,10 +59,10 @@ const FeedView = () => {
           <span>Language Picker</span>
         </div>
         <div className="feed-sentence-section" css={feedSentenceSectionStyle}>
-          <p>{nativeFeedSentenceTestData.result.sentenceInfo.sentence}</p>
-        </div>
-        <div className="user-participation-section" css={userParticipationSectionStyle}>
-          <Recorder />
+          <p>{nativeFeedSentenceTestData.sentenceInfo.sentence}</p>
+          <div className="feed-sentence-record-button" css={feedRecordButtonStyle}>
+            <Mic size={32} stroke="#fff" />
+          </div>
         </div>
         <FeedList feeds={feedListData} />
       </div>

@@ -2,19 +2,30 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import styled from '@emotion/styled';
 import { useForm, Controller } from 'react-hook-form';
-import CountryPicker from '@/shared/components/Picker/CountryPicker';
-import LanguagePicker from '@/shared/components/Picker/LanguagePicker';
-import ProficiencyLevelPicker from '@/shared/components/Picker/ProficiencyLevelPicker';
-import TagInput from '@/shared/components/Tag/TagInput';
+import CountryPicker from '../../shared/components/Picker/CountryPicker';
+import LanguagePicker from '../../shared/components/Picker/LanguagePicker';
+import ProficiencyLevelPicker from '../../shared/components/Picker/ProficiencyLevelPicker';
+import TagInput from '../../shared/components/Tag/TagInput';
+import { userPost } from '../../api/utils/user_post';
+import { useRecoilState } from 'recoil';
+import { authState } from './authState';
+import { userState } from './userState';
+import type { User } from '../../shared/types/UserInfo.type';
 
+type Interest = {
+  id: number;
+  nativeLanguageId: string;
+  name: string;
+};
 interface SignupFormData {
   nickname: string;
   nationality: string;
   nativeLanguage: string;
   targetLanguage: string;
   proficiencyLevel: string;
-  interests: string[];
+  interests: Interest[];
   agreement: boolean;
+  profileImageUrl?: string;
 }
 
 const PageContainer = styled.div`
@@ -152,6 +163,8 @@ function SignupForm() {
   const [isNicknameChecked, setIsNicknameChecked] = useState(false);
   const [nicknameErrorMessage, setNicknameErrorMessage] = useState('');
   const [nicknameSuccessMessage, setNicknameSuccessMessage] = useState('');
+  const [auth, setAuth] = useRecoilState(authState);
+  const [user, setUser] = useRecoilState(userState);
 
   const navigate = useNavigate();
 
@@ -172,20 +185,36 @@ function SignupForm() {
       proficiencyLevel: '',
       interests: [],
       agreement: false,
+      profileImageUrl: '',
     },
   });
 
-  const onSubmit = (data: SignupFormData) => {
+  const onSubmit = async (data: SignupFormData) => {
     if (!isNicknameChecked) {
       setNicknameErrorMessage('닉네임 중복 확인이 필요합니다.');
       return;
     }
 
-    // API 호출 로직 (data 전달 예정)
-    console.log('data: ', data);
+    try {
+      const response = await userPost(data);
+      console.log('Userdata: ', response);
+      if (response.status === 200) {
+        setAuth((prevAuth) => ({
+          ...prevAuth,
+          user: response.data,
+          isLoggedIn: true,
+        }));
 
-    alert('회원가입이 완료되었습니다!');
-    navigate('/signin');
+        setUser(userData);
+        alert('회원가입이 완료되었습니다!');
+        sessionStorage.setItem('isLoggedIn', JSON.stringify(true));
+        navigate('/');
+      } else {
+        throw new Error('회원가입 실패');
+      }
+    } catch (error) {
+      alert(`회원가입을 다시 시도해주세요. ${error}`);
+    }
   };
 
   const checkNickname = () => {

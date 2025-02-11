@@ -9,7 +9,7 @@ const feedStyle = css`
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 2rem;
+  gap: 1rem;
 `;
 
 const feedContentStyle = css`
@@ -17,7 +17,7 @@ const feedContentStyle = css`
   border: 1px solid #c1c1c1;
   border-radius: 0.6rem;
   padding: 0.6rem;
-  width: 300px;
+  justify-content: space-between;
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -29,12 +29,7 @@ const Feed = (feedProps: FeedParticipation) => {
   const [isChecked, setIsChecked] = useState(false);
   return (
     <div css={feedStyle}>
-      <NameCard
-        userCountry={feedProps.country}
-        userNickname={feedProps.profileImageUrl}
-        style="compact"
-        userImage={feedProps.profileImageUrl}
-      />
+      <NameCard userCountry={feedProps.country} userNickname={feedProps.profileImage} style="compact" />
       <div className="feed-content" css={feedContentStyle}>
         <Volume1 />
         <Waveform audioSrc={feedProps.voiceUrl} />

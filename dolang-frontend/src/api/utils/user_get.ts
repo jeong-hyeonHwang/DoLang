@@ -1,43 +1,45 @@
-import { useNavigate } from 'react-router';
+import axios from 'axios';
 import Cookies from 'js-cookie';
-
-const accessToken = Cookies.get('access_token');
+import { useNavigate } from 'react-router';
+import { useEffect } from 'react';
 
 interface ImportMetaEnv {
-  readonly VITE_USER_REDIRECT_URI: string;
+  readonly VITE_USER_SERVER_URL: string;
 }
 
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
 
-const REDIRECT_URI = import.meta.env.VITE_USER_REDIRECT_URI;
-const token = accessToken;
+const SERVER_URL = import.meta.env.VITE_USER_SERVER_URL;
+const accessToken = Cookies.get('access_token');
 
-export const userGet = async (navigate: ReturnType<typeof useNavigate>) => {
+export const userGet = async (access_token?: string) => {
+  const token = access_token || accessToken;
+
+  // if (!token) {
+  //   console.error('No access token found');
+  //   throw new Error('Access token is missing');
+  // }
+
   try {
-    const response = await fetch(`${REDIRECT_URI}/api/user`, {
-      method: 'GET',
+    const response = await axios.get(`${SERVER_URL}/api/user`, {
       headers: {
         accept: '*/*',
         Authorization: `Bearer ${token}`,
       },
     });
 
-    const responseText = await response.text(); // 응답 내용을 텍스트로 확인
-    console.log('Response Status:', response.status);
-    console.log('Response Body:', responseText);
+    const responseData = response.data;
+    console.log('response', response);
 
-    if (response.ok) {
-      alert('로그인 되었습니다.');
-      navigate('/');
-    } else if (response.status === 404) {
-      navigate('/signup/register');
+    if (response.status === 200) {
+      return responseData;
     } else {
-      alert('다시 시도해주세요.');
+      throw new Error('Failed to fetch user data');
     }
-  } catch (error) {
-    console.log('Error', error);
-    alert('잠시 후 다시 시도해주세요.');
+  } catch (error: any) {
+    console.error('Error fetching user data:', error);
+    throw error;
   }
 };

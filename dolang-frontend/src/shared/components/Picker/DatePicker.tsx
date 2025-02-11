@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, forwardRef } from 'react';
 import { DatePicker as AntdDatePicker } from 'antd';
 import styled from '@emotion/styled';
 import moment, { Moment } from 'moment';
@@ -21,7 +21,7 @@ interface DatePickerProps {
   selectedDate?: Moment | null;
 }
 
-const DatePicker: React.FC<DatePickerProps> = ({ selectedDate }) => {
+const DatePicker = forwardRef<any, DatePickerProps>(({ selectedDate }, ref) => {
   const [date, setDate] = useState<Moment | null>(null);
 
   const handleChange = (date: Moment | null, dateString: string) => {
@@ -30,16 +30,14 @@ const DatePicker: React.FC<DatePickerProps> = ({ selectedDate }) => {
   };
 
   return (
-    // <DatePickerWrapper>
     <StyledDatePicker
+      ref={ref}
       placeholder="Pick a date"
       value={selectedDate}
       onChange={handleChange}
       format="YYYY-MM-DD"
-      //   popupClassName="custom-dropdown"
     />
-    // </DatePickerWrapper>
   );
-};
+});
 
 export default DatePicker;

@@ -1,39 +1,39 @@
+import axios from 'axios';
 import { useNavigate } from 'react-router';
 import Cookies from 'js-cookie';
 
-const accessToken = Cookies.get('access_token');
-
 interface ImportMetaEnv {
-  readonly VITE_USER_REDIRECT_URI: string;
+  readonly VITE_USER_SERVER_URL: string;
 }
 
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
 
-const REDIRECT_URI = import.meta.env.VITE_USER_REDIRECT_URI;
+const SERVER_URL = import.meta.env.VITE_USER_SERVER_URL;
+const accessToken = Cookies.get('access_token');
 const token = accessToken;
 
-export const userPost = async (data: object, navigate: ReturnType<typeof useNavigate>) => {
+export const userPost = async (data: object) => {
+  console.log('token: ', accessToken);
   try {
-    const response = await fetch(`${REDIRECT_URI}/api/user`, {
-      method: 'POST',
+    const response = await axios.post(`${SERVER_URL}/api/user`, data, {
       headers: {
         accept: '*/*',
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(data),
     });
 
-    if (response.ok) {
-      alert('회원가입이 완료되었습니다!');
-      navigate('/signin');
+    const responseData = response.data;
+    if (responseData.code === 200) {
+      return response;
     } else {
-      alert('회원가입을 다시 시도해주세요.');
+      alert('다시 회원가입을 시도해주세요.');
     }
-  } catch (error) {
+  } catch (error: any) {
     console.log('Error', error);
-    alert('회원가입을 다시 시도해주세요.');
+    const errorMessage = error.response?.data?.message || '회원가입을 다시 시도해주세요.';
+    alert(errorMessage);
   }
 };

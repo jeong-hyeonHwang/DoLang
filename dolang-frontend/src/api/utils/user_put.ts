@@ -1,23 +1,24 @@
+import axios from 'axios';
 import { useNavigate } from 'react-router';
 import Cookies from 'js-cookie';
 
 const accessToken = Cookies.get('access_token');
 
 interface ImportMetaEnv {
-  readonly VITE_USER_REDIRECT_URI: string;
+  readonly VITE_USER_SERVER_URL: string;
 }
 
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
 
-const REDIRECT_URI = import.meta.env.VITE_USER_REDIRECT_URI;
+const SERVER_URL = import.meta.env.VITE_USER_SERVER_URL;
 const token = accessToken;
 
 export const userPut = async (data: string, navigate: ReturnType<typeof useNavigate>) => {
   try {
-    const response = await fetch(`${REDIRECT_URI}/api/user`, {
-      method: 'GET',
+    const response = await fetch(`${SERVER_URL}/api/user`, {
+      method: 'PUT',
       headers: {
         accept: '*/*',
         'Content-Type': 'application/json',

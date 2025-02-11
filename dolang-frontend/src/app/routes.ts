@@ -6,6 +6,5 @@ export default [
     route('feed', 'routes/FeedView.tsx'),
     route('savedContents', 'routes/SavedContentsView.tsx'),
     route('profile', 'routes/UserProfileView.tsx'),
-    route('voiceCall', 'routes/VoiceCallView.tsx'),
   ]),
 ];

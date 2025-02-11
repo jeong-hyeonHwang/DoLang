@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, forwardRef } from 'react';
 import { Select } from 'antd';
 import 'flag-icons/css/flag-icons.min.css';
 import countries from '../Picker/countries.json';
@@ -8,26 +8,26 @@ interface CountryPickerProps {
   onChange?: (value: string) => void;
 }
 
-const CountryPicker: React.FC<CountryPickerProps> = ({ value, onChange }) => {
+const CountryPicker: React.FC<CountryPickerProps> = forwardRef(({ value, onChange }: CountryPickerProps, ref) => {
   const [selectedCountry, setSelectedCountry] = useState<string | null>(value || null);
 
   const handleChange = (value: string) => {
     const selected = countries.find((country) => country.value === value);
     if (selected) {
-      // const selectedData = { value: selected.value, label: selected.label };
-      // console.log('Selected Country:', JSON.stringify(selectedData, null, 2));
       setSelectedCountry(selected.value);
-      onChange?.(value);
+      onChange?.(value); // Call the parent component's onChange function
     }
   };
 
   return (
     <Select
+      ref={ref} // Pass the ref here
       showSearch
       style={{ width: 150, height: 40, borderRadius: '8px' }}
       placeholder="Select Country"
       optionFilterProp="title"
       filterOption={(input, option) => option?.title?.toLowerCase().includes(input.toLowerCase()) ?? false}
+      // Map countries to options with flags and labels
       options={countries.map(({ value, label, flag }) => ({
         value,
         label: (
@@ -48,6 +48,6 @@ const CountryPicker: React.FC<CountryPickerProps> = ({ value, onChange }) => {
       )}
     />
   );
-};
+});
 
 export default CountryPicker;

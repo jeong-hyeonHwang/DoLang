@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, forwardRef } from 'react';
 import { Select } from 'antd';
 import proficiencyLevel from './proficiencyLevel.json';
 
@@ -7,14 +7,12 @@ interface ProficiencyLevelProps {
   onChange?: (value: string) => void;
 }
 
-const ProficiencyLevelPicker: React.FC<ProficiencyLevelProps> = ({ value, onChange }) => {
+const ProficiencyLevelPicker = forwardRef<HTMLSelectElement, ProficiencyLevelProps>(({ value, onChange }, ref) => {
   const [selectedProficiencyLevel, setSelectedProficiencyLevel] = useState<string | null>(value || null);
 
-  const handelChange = (value: string) => {
+  const handleChange = (value: string) => {
     const selected = proficiencyLevel.find((level) => level.value === value);
     if (selected) {
-      // const selectedData = { value: selected.value, label: selected.label };
-      // console.log('Selected ProficiencyLevel:', JSON.stringify(selectedData, null, 2));
       setSelectedProficiencyLevel(selected.value);
       onChange?.(value);
     }
@@ -22,9 +20,10 @@ const ProficiencyLevelPicker: React.FC<ProficiencyLevelProps> = ({ value, onChan
 
   return (
     <Select
+      ref={ref}
       showSearch
       style={{ width: 150, height: 40, borderRadius: '8px' }}
-      placeholder="Select ProficiencyLevel"
+      placeholder="Select Proficiency Level"
       optionFilterProp="title"
       filterOption={(input, option) => option?.title?.toLowerCase().includes(input.toLowerCase()) ?? false}
       options={proficiencyLevel.map(({ value, label }) => ({
@@ -33,7 +32,7 @@ const ProficiencyLevelPicker: React.FC<ProficiencyLevelProps> = ({ value, onChan
         title: label,
       }))}
       value={selectedProficiencyLevel}
-      onChange={handelChange}
+      onChange={handleChange}
       dropdownRender={(menu) => (
         <div>
           {menu}
@@ -42,6 +41,6 @@ const ProficiencyLevelPicker: React.FC<ProficiencyLevelProps> = ({ value, onChan
       )}
     />
   );
-};
+});
 
 export default ProficiencyLevelPicker;
