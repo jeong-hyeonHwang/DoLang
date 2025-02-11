@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 public class MatchingService {
 
     private final UserProfileRepository userProfileRepository;
+    private final MatchingUserTagRepository matchingUserTagRepository;
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final RedisTemplate<String, String> redisTemplate;
     private final ObjectMapper objectMapper;
@@ -42,11 +43,10 @@ public class MatchingService {
     }
 
     /**
-     * 1초의 간격을 두고 실행합니다.
+     * 3초의 간격을 두고 실행합니다.
      */
     @Scheduled(fixedDelay = 3000)
     private void match() {
-        log.info("Match started");
 
         // Process Korean queue for users with native=en
         Set<String> koQueue = redisTemplate.opsForSet().members("matching:queue:ko");
@@ -55,11 +55,25 @@ public class MatchingService {
         // Process English queue for users with native=ko
         Set<String> enQueue = redisTemplate.opsForSet().members("matching:queue:en");
         List<MatchedUser> enCandidates = processQueue(enQueue, "ko");
+        log.info("Matching... ko: {} en: {}", koCandidates.size(), enCandidates.size());
 
-        int pairCount = Math.min(koCandidates.size(), enCandidates.size());
-        for (int i = 0; i < pairCount; i++) {
-            MatchedUser userK = koCandidates.get(i);
-            MatchedUser userE = enCandidates.get(i);
+        // 태그 비교를 통한 매칭
+        List<MatchingPair> matchingPairs = new ArrayList<>();
+        for (MatchedUser koUser : koCandidates) {
+            for (MatchedUser enUser : enCandidates) {
+                if (hasCommonTag(koUser.getTagIdList(), enUser.getTagIdList())) {
+                    matchingPairs.add(new MatchingPair(koUser, enUser));
+                    enCandidates.remove(enUser); // 반복문에서 제거
+                    break;
+                }
+            }
+        }
+
+
+        for (MatchingPair pair : matchingPairs) {
+            MatchedUser userK = pair.koUser;
+            MatchedUser userE = pair.enUser;
+            log.info("Matched!!! userK: {} userE: {}", userK.getUserId(), userE.getUserId());
 
             removeUserFromQueue("ko", userK);
             removeUserFromQueue("en", userE);
@@ -76,6 +90,26 @@ public class MatchingService {
             sendMessageToUser(userK.getUsername(), responseE);
             sendMessageToUser(userE.getUsername(), responseK);
         }
+
+    }
+
+    /**
+     * 태그 리스트를 이분 탐색하여 하나라도 일치하는지 여부를 반환합니다.
+     *
+     * @param tagList1 태그 리스트 1
+     * @param tagList2 태그 리스트 2
+     * @return 태그 리스트 하나라도 일치 여부
+     */
+    private boolean hasCommonTag(List<Integer> tagList1, List<Integer> tagList2) {
+        if (tagList1 == null || tagList2 == null || tagList1.isEmpty() || tagList2.isEmpty()) {
+            return false;
+        }
+        for (Integer tag : tagList1) {
+            if (Collections.binarySearch(tagList2, tag) >= 0) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -141,9 +175,10 @@ public class MatchingService {
      * @param username         jwt subject
      * @param peerId           피어링 ID
      * @param nativeLanguageId 모국어
+     * @param tagIdList        태그 ID 목록
      */
-    private void removeUserFromAllQueues(Integer userId, String username, String peerId, String nativeLanguageId) {
-        MatchedUser user = new MatchedUser(userId, username, peerId, nativeLanguageId);
+    private void removeUserFromAllQueues(Integer userId, String username, String peerId, String nativeLanguageId, List<Integer> tagIdList) {
+        MatchedUser user = new MatchedUser(userId, username, peerId, nativeLanguageId, tagIdList);
         removeUserFromQueue("ko", user);
         removeUserFromQueue("en", user);
     }
@@ -175,7 +210,8 @@ public class MatchingService {
         UserProfile userProfile = userProfileRepository.findById(userId).orElseThrow();
         String interestLanguageId = userProfile.getInterestLanguageId();
         String nativeLanguageId = userProfile.getNativeLanguageId();
-        MatchedUser user = new MatchedUser(userId, username, peerId, nativeLanguageId);
+        List<Integer> tagIdList = matchingUserTagRepository.findUserTagIdListOrderByTagId(userId);
+        MatchedUser user = new MatchedUser(userId, username, peerId, nativeLanguageId, tagIdList);
         try {
             String userJson = objectMapper.writeValueAsString(user);
             redisTemplate.opsForSet().add("matching:queue:" + interestLanguageId, userJson);
@@ -197,7 +233,8 @@ public class MatchingService {
         String peerId = request.getPeerId();
         UserProfile userProfile = userProfileRepository.findById(userId).orElseThrow();
         String nativeLanguageId = userProfile.getNativeLanguageId();
-        removeUserFromAllQueues(userId, username, peerId, nativeLanguageId);
+        List<Integer> tagIdList = matchingUserTagRepository.findUserTagIdListOrderByTagId(userId);
+        removeUserFromAllQueues(userId, username, peerId, nativeLanguageId, tagIdList);
     }
 
 }
