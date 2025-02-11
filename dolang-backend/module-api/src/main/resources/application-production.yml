@@ -23,8 +23,8 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: https://172.18.0.1:8200
-          jwk-set-uri: https://172.18.0.1:8200/oauth2/jwks
+          issuer-uri: https://dolang.live:8200
+          jwk-set-uri: https://dolang.live:8200/oauth2/jwks
   ssl:
     bundle:
       jks:
