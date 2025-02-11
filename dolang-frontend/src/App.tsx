@@ -1,7 +1,8 @@
 import React from 'react';
 import { Routes, Route } from 'react-router';
+import { StompClientProvider } from './features/Matching/hooks/useClientContext.tsx';
 import Layout from './shared/Layout.tsx';
-import MainPage from './app/routes/MainView.tsx';
+import MainView from './app/routes/MainView.tsx';
 import FeedView from './app/routes/FeedView.tsx';
 import SavedContentsView from './app/routes/SavedContentsView.tsx';
 import VoiceCallView from './app/routes/VoiceCallView.tsx';
@@ -9,6 +10,8 @@ import UserProfileView from './app/routes/UserProfileView.tsx';
 import GoogleLoginView from './features/Auth/GoogleLoginView.tsx';
 import GoogleSignupView from './features/Auth/GoogleSignUpView.tsx';
 import { GlobalStyle } from './shared/globalStyle.tsx';
+import { CallContextProvider } from './features/VoiceCall/hooks/useCallContext.tsx';
+import { PeerContextProvider } from './features/VoiceCall/hooks/usePeerContext.tsx';
 
 function App() {
   return (
@@ -17,11 +20,31 @@ function App() {
       <Routes>
         {/* <Route element={<Layout />}> */}
         <Route element={<Layout />}>
-          <Route index element={<MainPage />} />
+          <Route
+            index
+            element={
+              <PeerContextProvider>
+                <StompClientProvider>
+                  <MainView />
+                </StompClientProvider>
+              </PeerContextProvider>
+            }
+          />
           <Route path="feed" element={<FeedView />} />
           <Route path="savedContents" element={<SavedContentsView />} />
           <Route path="profile" element={<UserProfileView />} />
-          <Route path="/call" element={<VoiceCallView />} />
+          <Route
+            path="/call"
+            element={
+              <PeerContextProvider>
+                <StompClientProvider>
+                  <CallContextProvider>
+                    <VoiceCallView />
+                  </CallContextProvider>
+                </StompClientProvider>
+              </PeerContextProvider>
+            }
+          />
 
           {/* Auth */}
           <Route path="oauth2" element={<GoogleLoginView />} />
