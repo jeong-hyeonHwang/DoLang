@@ -4,7 +4,6 @@ import { createRoot } from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import App from './App.tsx';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { initMockAPI } from './mocks/index.ts';
 import { RecoilRoot } from 'recoil';
 
 const queryClient = new QueryClient({
@@ -16,17 +15,15 @@ const queryClient = new QueryClient({
   },
 });
 
-initMockAPI().then(() => {
-  createRoot(document.getElementById('root')).render(
-    <StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <ReactQueryDevtools initialIsOpen={false} position="bottom-right" />
-        <RecoilRoot>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
-        </RecoilRoot>
-      </QueryClientProvider>
-    </StrictMode>
-  );
-});
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <ReactQueryDevtools initialIsOpen={false} position="bottom-right" />
+      <RecoilRoot>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </RecoilRoot>
+    </QueryClientProvider>
+  </StrictMode>
+);
