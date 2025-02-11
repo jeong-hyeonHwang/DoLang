@@ -147,9 +147,12 @@ public class SecurityConfig {
                 .redirectUris(uris -> {
                     uris.add("http://localhost:5173/oauth2/code");
                     uris.add("http://localhost:5173/oauth2/token");
+                    uris.add("https://dolang.live/oauth2/code");
+                    uris.add("https://dolang.live/oauth2/token");
                 })
                 .postLogoutRedirectUris(uris -> {
                     uris.add("http://localhost:5173/logout");
+                    uris.add("https://dolang.live/logout");
                 })
                 .scopes(scopes -> {
                     scopes.add("openid");
@@ -253,7 +256,8 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowCredentials(true);
         configuration.setAllowedOrigins(List.of("http://localhost:5173"));
-        configuration.setAllowedMethods(List.of("POST"));
+        configuration.setAllowedOriginPatterns(List.of("https://dolang.live:*"));
+        configuration.setAllowedMethods(List.of("POST, GET"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setExposedHeaders(List.of("*"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
