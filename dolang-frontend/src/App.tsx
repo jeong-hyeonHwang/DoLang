@@ -1,11 +1,9 @@
 import React from 'react';
 import { Routes, Route } from 'react-router';
 import { StompClientProvider } from './features/Matching/hooks/useClientContext.tsx';
-import Layout from './shared/Layout.tsx';
 import MainView from './app/routes/MainView.tsx';
 import LayoutDesign from './shared/Layout.tsx';
 import LayoutNoNav from './shared/LayoutNoNav.tsx';
-import MainPage from './app/routes/MainView.tsx';
 import FeedView from './app/routes/FeedView.tsx';
 import SavedContentsView from './app/routes/SavedContentsView.tsx';
 import VoiceCallView from './app/routes/VoiceCallView.tsx';
@@ -25,7 +23,6 @@ function App() {
         {/* <Route element={<Layout />}> */}
         {/* <Route element={<Layout />}> */}
         <Route element={<LayoutDesign />}>
-          <Route index element={<MainPage />} />
           <Route
             index
             element={
