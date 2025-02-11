@@ -147,9 +147,12 @@ public class SecurityConfig {
                 .redirectUris(uris -> {
                     uris.add("http://localhost:5173/oauth2/code");
                     uris.add("http://localhost:5173/oauth2/token");
+                    uris.add("https://dolang.live/oauth2/code");
+                    uris.add("https://dolang.live/oauth2/token");
                 })
                 .postLogoutRedirectUris(uris -> {
                     uris.add("http://localhost:5173/logout");
+                    uris.add("https://dolang.live/logout");
                 })
                 .scopes(scopes -> {
                     scopes.add("openid");
