@@ -11,6 +11,7 @@ import GoogleLoginView from './features/Auth/GoogleLoginView.tsx';
 import GoogleSignupView from './features/Auth/GoogleSignUpView.tsx';
 import { GlobalStyle } from './shared/globalStyle.tsx';
 import { CallContextProvider } from './features/VoiceCall/hooks/useCallContext.tsx';
+import { PeerContextProvider } from './features/VoiceCall/hooks/usePeerContext.tsx';
 
 function App() {
   return (
@@ -22,11 +23,11 @@ function App() {
           <Route
             index
             element={
-              <StompClientProvider>
-                <CallContextProvider>
+              <PeerContextProvider>
+                <StompClientProvider>
                   <MainView />
-                </CallContextProvider>
-              </StompClientProvider>
+                </StompClientProvider>
+              </PeerContextProvider>
             }
           />
           <Route path="feed" element={<FeedView />} />
@@ -35,11 +36,13 @@ function App() {
           <Route
             path="/call"
             element={
-              <StompClientProvider>
-                <CallContextProvider>
-                  <VoiceCallView />
-                </CallContextProvider>
-              </StompClientProvider>
+              <PeerContextProvider>
+                <StompClientProvider>
+                  <CallContextProvider>
+                    <VoiceCallView />
+                  </CallContextProvider>
+                </StompClientProvider>
+              </PeerContextProvider>
             }
           />
 

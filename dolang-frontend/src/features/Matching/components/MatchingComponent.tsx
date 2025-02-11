@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { useStompClientContext } from '../hooks/useClientContext';
 import VoiceCallMatchingIndicator from './VoiceCallMatchingIndicator';
+import { usePeerContext } from '../../VoiceCall/hooks/usePeerContext';
 
-const MatchingComponent = () => {
+export const MatchingComponent = () => {
   const { isConnected, isMatching, matchedUser, connectionError, connect, disconnect, startMatching, cancelMatching } =
     useStompClientContext();
-
   const [accessToken, setAccessToken] = useState('');
+  const { peerId } = usePeerContext();
   return (
-    <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
-      <div style={{ marginBottom: '15px' }}>
+    <div>
+      <div>
+        {peerId ? <div>peerId: {peerId}</div> : <div>peerId: null</div>}
         <input
           type="text"
           placeholder="Enter Access Token"
@@ -54,4 +56,3 @@ const MatchingComponent = () => {
   );
 };
 
-export default MatchingComponent;

@@ -1,12 +1,14 @@
 import { createContext, useContext, useRef, useState, useCallback, useEffect } from 'react';
 import React from 'react';
 import { Client } from '@stomp/stompjs';
+import { UserInfo } from '../../../shared/types/UserInfo.type';
+import { usePeerContext } from '../../VoiceCall/hooks/usePeerContext';
 
 interface StompClientProviderProps {
   children: React.ReactNode;
 }
 
-interface MatchedUser {
+interface MatchedUser extends UserInfo {
   nativeLanguageId: string;
   peerId: string;
   userId: string;
@@ -55,7 +57,7 @@ export const StompClientProvider = ({ children }: StompClientProviderProps) => {
   const [isMatching, setIsMatching] = useState(false);
   const [matchedUser, setMatchedUser] = useState<MatchedUser | null>(null);
   const [connectionError, setConnectionError] = useState<string>('');
-  const [peerId, setPeerId] = useState(crypto.randomUUID());
+  const { peerId, setRemotePeer, peering } = usePeerContext();
 
   const sendMessage = useCallback(
     (destination: string) => {
@@ -70,62 +72,67 @@ export const StompClientProvider = ({ children }: StompClientProviderProps) => {
   );
 
   // 연결 시도 콜백
-  const connect = useCallback((accessToken: string) => {
-    if (stompClientRef.current) {
-      setConnectionError('Already connected');
-      stompClientRef.current.deactivate();
-      stompClientRef.current = null;
-    }
+  const connect = useCallback(
+    (accessToken: string) => {
+      if (stompClientRef.current) {
+        setConnectionError('Already connected');
+        stompClientRef.current.deactivate();
+        stompClientRef.current = null;
+      }
 
-    setToken(accessToken);
+      setToken(accessToken);
 
-    // 새 stompClient 인스턴스 생성
-    const stompClient = new Client({
-      brokerURL: 'ws://localhost:8300/ws',
-      connectHeaders: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-      debug: (str) => console.log(str),
-      reconnectDelay: 5000,
-      heartbeatIncoming: 4000,
-      heartbeatOutgoing: 4000,
-      onConnect: () => {
-        console.log('Connected');
-        setIsConnected(true);
-        setConnectionError('');
+      // 새 stompClient 인스턴스 생성
+      const stompClient = new Client({
+        brokerURL: 'ws://localhost:8300/ws',
+        connectHeaders: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        debug: (str) => console.log(str),
+        reconnectDelay: 5000,
+        heartbeatIncoming: 4000,
+        heartbeatOutgoing: 4000,
+        onConnect: () => {
+          peering();
+          console.log('Connected');
+          setIsConnected(true);
+          setConnectionError('');
 
-        stompClient.subscribe(`/user/queue/matched`, (message) => {
-          const matchingResult = JSON.parse(message.body);
-          setMatchingResult(matchingResult);
-          setMatchedUser(matchingResult.matchedUser);
+          stompClient.subscribe(`/user/queue/matched`, (message) => {
+            const matchingResult = JSON.parse(message.body);
+            setMatchingResult(matchingResult);
+            setRemotePeer(matchingResult.matchedUser.peerId);
+            setMatchedUser(matchingResult.matchedUser);
+            setIsMatching(false);
+            console.log(matchingResult);
+            console.log('Matched with user:', matchingResult.matchedUser);
+          });
+        },
+        onStompError: (frame) => {
+          console.error('Broker reported error: ' + frame.headers['message']);
+          console.error('Additional details: ' + frame.body);
+
+          // 서버에서 받은 에러 메시지를 사용자에게 표시
+          setConnectionError(frame.headers['message'] || 'Connection error');
+          setIsConnected(false);
+
+          // 서버에서 에러 메시지가 없다면 기본 메시지 제공
+          if (!frame.headers['message']) {
+            setConnectionError('Authentication failed or invalid token.');
+          }
+        },
+        onWebSocketClose: () => {
+          setIsConnected(false);
+          setMatchedUser(null);
           setIsMatching(false);
-          console.log(matchingResult);
-          console.log('Matched with user:', matchingResult.matchedUser);
-        });
-      },
-      onStompError: (frame) => {
-        console.error('Broker reported error: ' + frame.headers['message']);
-        console.error('Additional details: ' + frame.body);
+        },
+      });
 
-        // 서버에서 받은 에러 메시지를 사용자에게 표시
-        setConnectionError(frame.headers['message'] || 'Connection error');
-        setIsConnected(false);
-
-        // 서버에서 에러 메시지가 없다면 기본 메시지 제공
-        if (!frame.headers['message']) {
-          setConnectionError('Authentication failed or invalid token.');
-        }
-      },
-      onWebSocketClose: () => {
-        setIsConnected(false);
-        setMatchedUser(null);
-        setIsMatching(false);
-      },
-    });
-
-    stompClientRef.current = stompClient;
-    stompClient.activate();
-  }, []);
+      stompClientRef.current = stompClient;
+      stompClient.activate();
+    },
+    [peering, setRemotePeer]
+  );
 
   const disconnect = useCallback(() => {
     if (stompClientRef.current) {
@@ -137,11 +144,11 @@ export const StompClientProvider = ({ children }: StompClientProviderProps) => {
   }, [sendMessage]);
 
   const startMatching = useCallback(() => {
-    if (stompClientRef.current && !isMatching) {
+    if (stompClientRef.current && !isMatching && peerId) {
       setIsMatching(true);
       sendMessage('/start');
     }
-  }, [isMatching, sendMessage]);
+  }, [isMatching, sendMessage, peerId]);
 
   const cancelMatching = useCallback(() => {
     if (stompClientRef.current && isMatching) {
@@ -149,7 +156,6 @@ export const StompClientProvider = ({ children }: StompClientProviderProps) => {
       sendMessage('/stop');
     }
   }, [isMatching, sendMessage]);
-
 
   useEffect(() => {
     return () => {
@@ -165,7 +171,7 @@ export const StompClientProvider = ({ children }: StompClientProviderProps) => {
     peerId,
     isConnected,
     isMatching,
-    matchingResult, 
+    matchingResult,
     matchedUser,
     connectionError,
     connect,

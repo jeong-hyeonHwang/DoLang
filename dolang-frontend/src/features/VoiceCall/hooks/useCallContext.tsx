@@ -1,12 +1,14 @@
-// CallContext.tsx
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
-import { useStompClientContext } from '../../Matching/hooks/useClientContext';
+import React, { useEffect, useRef, useState, createContext, useContext } from 'react';
+import WaveSurfer from 'wavesurfer.js';
+import RecordPlugin from 'wavesurfer.js/dist/plugins/record.esm.js';
 
-export interface CallContextValue {
-  localStream: MediaStream | null;
-  remoteStream: MediaStream | null;
-  startCall: () => Promise<void>; // 오너가 통화 시작 (offer 생성)
-  endCall: () => void; // 통화 종료
+interface CallContextValue {
+  isRecording: boolean;
+  progress: string;
+  recordingsRef: React.RefObject<HTMLDivElement>;
+  containerRef: React.RefObject<HTMLDivElement>;
+  waveSurferRef: React.RefObject<WaveSurfer>;
+  handleRecord: () => void;
 }
 
 const CallContext = createContext<CallContextValue | null>(null);
@@ -20,189 +22,100 @@ export function useCallContext() {
 }
 
 export const CallContextProvider = ({ children }: { children: React.ReactNode }) => {
-  const { matchingResult, stompClient } = useStompClientContext();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const recordingsRef = useRef<HTMLDivElement>(null);
+  const waveSurferRef = useRef<WaveSurfer | null>(null);
+  const recordPluginRef = useRef<RecordPlugin | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [progress, setProgress] = useState('00:00');
 
-  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
-  const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
-  const [roomId, setRoomId] = useState<string | null>(null);
+  const createWaveSurfer = () => {
+    // 이전 인스턴스 제거
+    if (waveSurferRef.current) {
+      waveSurferRef.current.destroy();
+    }
+    if (!containerRef.current) return;
 
-  // WebRTC 객체를 Refs로 보관
-  const peerRef = useRef<RTCPeerConnection | null>(null);
+    // 인스턴스 생성
+    waveSurferRef.current = WaveSurfer.create({
+      container: containerRef.current,
+      waveColor: '#959595',
+      progressColor: '#000000',
+      width: 240,
+      height: 48,
+      barWidth: 5,
+      barGap: 1,
+      barRadius: 5,
+      dragToSeek: true,
+      cursorColor: '#ffffff0',
+    });
 
-  // =========================================
-  // 1. 매칭결과가 들어올 때 roomId 세팅
-  // =========================================
-  useEffect(() => {
-    if (!matchingResult) return;
-    const { ownerYN, me, matchedUser } = matchingResult;
-    // 오너라면 me.peerId, 아니면 matchedUser.peerId
-    const newRoomId = ownerYN ? me.peerId : matchedUser.peerId;
-    setRoomId(newRoomId);
-  }, [matchingResult]);
+    // Record Plugin 등록
+    recordPluginRef.current = waveSurferRef.current.registerPlugin(
+      RecordPlugin.create({
+        renderRecordedAudio: true,
+        continuousWaveform: true,
+        continuousWaveformDuration: 10,
+      })
+    );
 
-  // =========================================
-  // 2. PeerConnection 초기화 & Subscribe 설정
-  // =========================================
-  const initPeerConnection = useCallback(
-    async (isOwner: boolean) => {
-      // (1) 로컬 오디오 스트림 획득
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
-        setLocalStream(stream);
+    // 녹음 진행률
+    recordPluginRef.current?.on('record-progress', (time: number) => {
+      const progressElapsed = time / 1000;
+      const seconds = Math.floor((time % 60000) / 1000);
+      const formattedTime = seconds < 10 ? '0' + seconds + '"' : seconds + '"';
+      setProgress(formattedTime);
 
-        // (2) RTCPeerConnection 생성
-        const pc = new RTCPeerConnection({
-          iceServers: [
-            {
-              urls: ['stun:stun.l.google.com:19302', 'stun:global.stun.twilio.com:3478'],
-            },
-          ],
-        });
-
-        // (3) 로컬 트랙 추가
-        stream.getTracks().forEach((track) => pc.addTrack(track, stream));
-
-        // (4) ontrack 이벤트 → 상대 오디오 스트림 수신
-        pc.ontrack = (event) => {
-          console.log('Remote track received', event.streams);
-          setRemoteStream(event.streams[0]);
-        };
-
-        // (5) onicecandidate 이벤트 → ICE candidate를 서버로 전송
-        pc.onicecandidate = (event) => {
-          if (event.candidate && roomId) {
-            // STOMP를 통해 candidate를 전송 (예시)
-            stompClient?.publish({
-              destination: '/match/ice',
-              body: JSON.stringify({
-                roomId,
-                type: 'candidate',
-                candidate: event.candidate,
-              }),
-            });
-          }
-        };
-
-        peerRef.current = pc;
-
-        // (6) 오너라면 Offer 생성 → 서버로 전송
-        if (isOwner) {
-          const offer = await pc.createOffer();
-          await pc.setLocalDescription(offer);
-          // STOMP로 offer 전송
-          stompClient?.publish({
-            destination: '/match/offer',
-            body: JSON.stringify({ roomId, type: 'offer', sdp: offer }),
-          });
+      if (progressElapsed >= 10) {
+        if (recordPluginRef.current?.isRecording() || recordPluginRef.current?.isPaused()) {
+          recordPluginRef.current.stopRecording();
+          setIsRecording(false);
         }
-      } catch (err) {
-        console.error('Error initPeerConnection', err);
-      }
-    },
-    [roomId, stompClient]
-  );
-
-  // =========================================
-  // 3. STOMP 구독(Offer/Answer/ICE) 수신 핸들러
-  // =========================================
-  useEffect(() => {
-    // roomId가 존재해야 구독 가능
-    if (!roomId || !stompClient) return;
-
-    // Offer/Answer/ICE에 대한 메시지를 구독
-    const subscription = stompClient.subscribe('/user/queue/matched', async (msg) => {
-      const data = JSON.parse(msg.body);
-
-      switch (data.type) {
-        case 'offer': {
-          // 오너가 아닌 측은 Offer 수신 → setRemote → Answer 생성
-          if (!peerRef.current) {
-            // 아직 PeerConnection이 없으므로 초기화
-            await initPeerConnection(false);
-          }
-          if (!peerRef.current) return;
-
-          await peerRef.current.setRemoteDescription(data.sdp);
-          const answer = await peerRef.current.createAnswer();
-          await peerRef.current.setLocalDescription(answer);
-
-          // 서버로 Answer 전송
-          stompClient.publish({
-            destination: '/match/answer',
-            body: JSON.stringify({ roomId, type: 'answer', sdp: answer }),
-          });
-          break;
-        }
-
-        case 'answer': {
-          // 오너 측은 answer 수신 → setRemote
-          if (!peerRef.current) return;
-          await peerRef.current.setRemoteDescription(data.sdp);
-          break;
-        }
-
-        case 'candidate': {
-          // ICE candidate 수신 → peer.addIceCandidate
-          if (!peerRef.current) return;
-          try {
-            await peerRef.current.addIceCandidate(data.candidate);
-          } catch (error) {
-            console.error('Error adding received ice candidate', error);
-          }
-          break;
-        }
-
-        default:
-          break;
       }
     });
 
-    // cleanup
+    // 녹음 끝나면 녹음된 파일 재생
+    recordPluginRef.current.on('record-end', (blob: Blob) => {
+      if (recordingsRef.current) {
+        const recordedUrl = URL.createObjectURL(blob);
+        waveSurferRef.current?.load(recordedUrl);
+      }
+    });
+  };
+
+  // 초기화
+  useEffect(() => {
+    createWaveSurfer();
     return () => {
-      subscription.unsubscribe();
+      if (waveSurferRef.current) waveSurferRef.current.destroy();
     };
-  }, [roomId, stompClient, initPeerConnection]);
+  }, []);
 
-  // =========================================
-  // 4. 통화(Offer 생성) 시작 (owner)
-  // =========================================
-  const startCall = useCallback(async () => {
-    if (!matchingResult) return;
-    // ownerYN === true면 initPeerConnection(true)
-    await initPeerConnection(matchingResult.ownerYN);
-  }, [matchingResult, initPeerConnection]);
-
-  // =========================================
-  // 5. 통화 종료
-  // =========================================
-  const endCall = useCallback(() => {
-    // (1) PeerConnection 닫기
-    if (peerRef.current) {
-      peerRef.current.close();
-      peerRef.current = null;
+  // 녹음 시작/정지
+  const handleRecord = async () => {
+    if (recordPluginRef.current && (recordPluginRef.current.isRecording() || recordPluginRef.current.isPaused())) {
+      // 이미 녹음 중이면 녹음 중지
+      recordPluginRef.current.stopRecording();
+      setIsRecording(false);
+    } else {
+      try {
+        await recordPluginRef.current?.startRecording();
+        setIsRecording(true);
+      } catch (err) {
+        console.error('녹음 시작 실패:', err);
+      }
     }
-    // (2) 오디오 스트림 중지
-    if (localStream) {
-      localStream.getTracks().forEach((track) => track.stop());
-    }
-    setLocalStream(null);
-    setRemoteStream(null);
-
-    // (3) 필요하다면 서버에도 통화 종료 알림
-    if (roomId && stompClient) {
-      stompClient.publish({
-        destination: '/match/endCall',
-        body: JSON.stringify({ roomId }),
-      });
-    }
-  }, [localStream, stompClient, roomId]);
-
-  const value: CallContextValue = {
-    localStream,
-    remoteStream,
-    startCall,
-    endCall,
+  };
+  const value = {
+    isRecording,
+    progress,
+    recordingsRef,
+    containerRef,
+    waveSurferRef,
+    handleRecord,
   };
 
   return <CallContext.Provider value={value}>{children}</CallContext.Provider>;
 };
+
+export default useCallContext;
