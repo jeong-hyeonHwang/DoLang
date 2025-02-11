@@ -15,6 +15,16 @@ spring:
     uris: http://dolang-es:9200
     username: elastic
     password: ${DOLANG_ELASTICSEARCH_PASSWORD}
+  data:
+    redis:
+      host: dolang-redis
+      port: 6379
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://booted-spring-authorization:8200
+          jwk-set-uri: http://booted-spring-authorization:8200/oauth2/jwks
   ssl:
     bundle:
       jks:
