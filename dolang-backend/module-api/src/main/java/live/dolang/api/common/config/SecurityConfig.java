@@ -24,17 +24,14 @@ public class SecurityConfig {
                 )
                 .oauth2ResourceServer(oauth2ResourceServer ->
                         oauth2ResourceServer.jwt(Customizer.withDefaults())
-                )
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()));
+                );
         return http.build();
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfig = new CorsConfiguration();
-        corsConfig.setAllowedOrigins(List.of("http://localhost:5173"));
-        corsConfig.setAllowedOrigins(List.of("https://dolang.live"));
-        corsConfig.setAllowedMethods(List.of("*"));
+        corsConfig.setAllowedOrigins(List.of("http://localhost:5173", "https://dolang.live"));
         corsConfig.setAllowedMethods(List.of("*"));
         corsConfig.setAllowCredentials(true);
 
