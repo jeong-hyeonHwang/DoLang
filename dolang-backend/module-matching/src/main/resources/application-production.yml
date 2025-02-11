@@ -11,6 +11,12 @@ spring:
       jakarta.persistence.schema-generation.database.action: none
       jakarta.persistence.schema-generation.scripts.action: none
       jakarta.persistence.create-database-schemas: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8200
+          jwk-set-uri: http://localhost:8200/oauth2/jwks
   ssl:
     bundle:
       jks:
