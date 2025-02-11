@@ -17,6 +17,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(request ->
                         request
                                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
@@ -25,19 +26,16 @@ public class SecurityConfig {
                 )
                 .oauth2ResourceServer(oauth2ResourceServer ->
                         oauth2ResourceServer.jwt(Customizer.withDefaults())
-                )
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()));
+                );
         return http.build();
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfig = new CorsConfiguration();
-        corsConfig.setAllowedOrigins(List.of("http://localhost:5173"));
-        corsConfig.setAllowedOrigins(List.of("https://dolang.live"));
+        corsConfig.setAllowedOrigins(List.of("http://localhost:5173", "https://dolang.live"));
+        corsConfig.setAllowedHeaders(List.of("*"));
         corsConfig.setAllowedMethods(List.of("*"));
-        corsConfig.setAllowedMethods(List.of("*"));
-        corsConfig.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", corsConfig); // Apply to all paths

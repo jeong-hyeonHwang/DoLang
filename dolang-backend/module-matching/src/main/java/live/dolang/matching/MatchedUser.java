@@ -1,13 +1,14 @@
 package live.dolang.matching;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+import java.util.Objects;
+
 @Getter
 @NoArgsConstructor
-@AllArgsConstructor
 @Schema(description = "매칭된 사용자 정보")
 public class MatchedUser {
 
@@ -22,4 +23,34 @@ public class MatchedUser {
 
     @Schema(description = "사용자의 모국어 ID", example = "en")
     private String nativeLanguageId;
+
+    @Schema(description = "사용자 태그 ID 리스트")
+    private List<Integer> tagIdList;
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        MatchedUser user = (MatchedUser) o;
+        return Objects.equals(userId, user.userId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(userId);
+    }
+
+    public MatchedUser(Integer userId, String username, String peerId, String nativeLanguageId) {
+        this.userId = userId;
+        this.username = username;
+        this.peerId = peerId;
+        this.nativeLanguageId = nativeLanguageId;
+    }
+
+    public MatchedUser(Integer userId, String username, String peerId, String nativeLanguageId, List<Integer> tagIdList) {
+        this.userId = userId;
+        this.username = username;
+        this.peerId = peerId;
+        this.nativeLanguageId = nativeLanguageId;
+        this.tagIdList = tagIdList;
+    }
 }
