@@ -1,38 +1,58 @@
-import { useEffect } from 'react';
-import VoiceCallStartMenu from '../../features/VoiceCall/components/VoiceCallStartMenu.tsx';
-import { useQuery } from '@tanstack/react-query';
+import React from 'react';
+import { useStompClientContext } from '../../features/Matching/hooks/useClientContext.tsx';
+import { CallWaveIndicator } from '../../features/VoiceCall/components/CallWaveIndicator.tsx';
+import { usePeerContext } from '../../features/VoiceCall/hooks/usePeerContext.tsx';
+import { useCallContext } from '../../features/VoiceCall/hooks/useCallContext.tsx';
 
-interface MatchResultResponse {
-  id: number;
-  message: string;
-}
+function VoiceCallView() {
+  const { matchingResult } = useStompClientContext();
+  const { localStream, remoteStream, startCall, endCall } = useCallContext();
 
-const fetchMatchResult = async (): Promise<MatchResultResponse> => {
-  const response = await axios.get('/api/voice-call/match/result');
-  return response.data;
-};
-
-const MatchedPage = () => {
-  const { data, isPending, error } = useQuery(['matchResult'], fetchMatchResult);
-
-  if (isPending) {
-    return <div>Loading match result...</div>;
-  }
-
-  if (error) {
-    return <div>Error fetching match result: {error.message}</div>;
-  }
-
+  const { peerId, callStatus, remotePeerId, audioRef } = usePeerContext();
+  // 오디오 태그에 localStream, remoteStream을 바인딩
   return (
     <div>
-      <h1>매칭 완료!</h1>
-      <p>{data?.message}</p>
+      <div className="call-participants-container">
+        <div>
+          <h2>Your Peer ID: {peerId}</h2>
+          <p>Status: {callStatus}</p>
+          <p>Remote Peer ID: {remotePeerId}</p>
+          <div>
+            <audio ref={audioRef} autoPlay controls />
+          </div>
+          <div></div>
+        </div>
+      </div>
+
+      {/* 로컬 오디오 */}
+
+      {localStream && (
+        <audio
+          autoPlay
+          controls
+          muted
+          ref={(audio) => {
+            if (audio && localStream) {
+              audio.srcObject = localStream;
+            }
+          }}
+        />
+      )}
+
+      {/* 리모트 오디오 */}
+      {remoteStream && (
+        <audio
+          autoPlay
+          controls
+          ref={(video) => {
+            if (video && remoteStream) {
+              video.srcObject = remoteStream;
+            }
+          }}
+        />
+      )}
     </div>
   );
-};
-
-const VoiceCallView = () => {
-  return <VoiceCallStartMenu />;
-};
+}
 
 export default VoiceCallView;
