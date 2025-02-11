@@ -14,7 +14,7 @@ spring:
   elasticsearch:
     uris: http://dolang-es:9200
     username: elastic
-    password: password
+    password: ${DOLANG_ELASTICSEARCH_PASSWORD}
   ssl:
     bundle:
       jks:
@@ -25,3 +25,12 @@ spring:
             location: ${DOLANG_SSL_KEY_LOCATION}
             password: ${DOLANG_SSL_KEY_PASSWORD}
             type: "PKCS12"
+
+logging:
+  file:
+    path: /var/log
+  level:
+    live.dolang: info
+    org.hibernate.SQL_SLOW: info
+    org.hibernate.SQL: error
+    org.hibernate.orm.jdbc.bind: off
