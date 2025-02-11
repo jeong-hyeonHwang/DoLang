@@ -1,0 +1,23 @@
+server:
+  ssl.bundle: "dolang-bundle"
+
+spring:
+  datasource:
+    url: jdbc:mysql://dolang-mysql:3306/${DOLANG_MYSQL_DATABASE}
+    username: ${DOLANG_MYSQL_USER}
+    password: ${DOLANG_MYSQL_PASSWORD}
+  jpa:
+    properties:
+      jakarta.persistence.schema-generation.database.action: none
+      jakarta.persistence.schema-generation.scripts.action: none
+      jakarta.persistence.create-database-schemas: false
+  ssl:
+    bundle:
+      jks:
+        dolang-bundle:
+          key:
+            alias: "1"
+          keystore:
+            location: ${DOLANG_SSL_KEY_LOCATION}
+            password: ${DOLANG_SSL_KEY_PASSWORD}
+            type: "PKCS12"
