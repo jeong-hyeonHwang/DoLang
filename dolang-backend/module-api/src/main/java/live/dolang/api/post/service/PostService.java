@@ -2,6 +2,8 @@ package live.dolang.api.post.service;
 
 import jakarta.annotation.PostConstruct;
 import live.dolang.api.post.dto.BookmarkDataDto;
+import live.dolang.api.post.dto.ResponseFeedDto;
+import live.dolang.api.post.repository.CustomPostRepository;
 import live.dolang.core.domain.date_sentence.DateSentence;
 import live.dolang.core.domain.date_sentence.repository.DateSentenceRepository;
 import live.dolang.core.domain.user.User;
@@ -10,6 +12,8 @@ import live.dolang.core.domain.user_date_sentence.UserDateSentence;
 import live.dolang.core.domain.user_date_sentence.repository.UserDateSentenceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
@@ -18,6 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class PostService {
@@ -38,6 +44,7 @@ public class PostService {
     private final UserDateSentenceRepository userDateSentenceRepository;
     private final UserRepository userRepository;
     private final DateSentenceRepository dateSentenceRepository;
+    private final CustomPostRepository customPostRepository;
 
     private final RedisTemplate<String, Object> redisTemplate;
     private ZSetOperations<String, Object> zSetOperations;
@@ -126,6 +133,13 @@ public class PostService {
 
     private String getDirtySetKey(Integer userId, Integer feedId) {
         return getDataKey(userId, feedId) + ":dirty";
+    }
+
+
+    public Page<ResponseFeedDto> getMyFeedList(int userId, Pageable pageable) {
+        Page<ResponseFeedDto> list = customPostRepository.getMyFeedList(userId, pageable);
+        //TODO: 좋아요 수 REDIS에서 가져와서 붙이기
+        return list;
     }
 }
 
