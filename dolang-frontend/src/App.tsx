@@ -23,7 +23,9 @@ function App() {
       <GlobalStyle />
       <Routes>
         {/* <Route element={<Layout />}> */}
-        <Route element={<Layout />}>
+        {/* <Route element={<Layout />}> */}
+        <Route element={<LayoutDesign />}>
+          <Route index element={<MainPage />} />
           <Route
             index
             element={
@@ -34,8 +36,6 @@ function App() {
               </PeerContextProvider>
             }
           />
-        <Route element={<LayoutDesign />}>
-          <Route index element={<MainPage />} />
           <Route path="feed" element={<FeedView />} />
           <Route path="savedContents" element={<SavedContentsView />} />
           <Route path="profile" element={<UserProfileView />} />
