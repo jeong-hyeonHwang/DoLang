@@ -11,6 +11,7 @@ import { useRecoilState } from 'recoil';
 import { authState } from './authState';
 import { userState } from './userState';
 import type { User } from '../../shared/types/UserInfo.type';
+import Cookies from 'js-cookie';
 
 type Interest = {
   id: number;
@@ -197,17 +198,17 @@ function SignupForm() {
 
     try {
       const response = await userPost(data);
-      console.log('Userdata: ', response);
+      console.log('Userdata: ', data);
       if (response.status === 200) {
         setAuth((prevAuth) => ({
           ...prevAuth,
-          user: response.data,
+          user: data,
           isLoggedIn: true,
         }));
 
-        setUser(userData);
         alert('회원가입이 완료되었습니다!');
         sessionStorage.setItem('isLoggedIn', JSON.stringify(true));
+        sessionStorage.setItem('user', JSON.stringify(data));
         navigate('/');
       } else {
         throw new Error('회원가입 실패');

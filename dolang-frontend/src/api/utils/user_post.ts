@@ -25,8 +25,9 @@ export const userPost = async (data: object) => {
       },
     });
 
-    const responseData = response.data;
-    if (responseData.code === 200) {
+    // const responseData = response.data;
+    console.log(response);
+    if (response.status === 200) {
       return response;
     } else {
       alert('다시 회원가입을 시도해주세요.');
