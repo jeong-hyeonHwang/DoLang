@@ -1,9 +1,15 @@
 import styled from '@emotion/styled';
+import { useState } from 'react';
 import { Phone } from 'lucide-react';
 import FeedSection from './FeedSection';
 import UserProfileImage from './UserProfileImage';
 import { theme } from './MainTheme';
 import { motion } from 'framer-motion';
+import Modal from 'antd/es/modal/Modal';
+import { useStompClientContext } from '@/features/Matching/hooks/useClientContext';
+import { usePeerContext } from '@/features/VoiceCall/hooks/usePeerContext';
+import { MatchingComponent } from '@/features/Matching/components/MatchingComponent';
+import { useNavigate } from 'react-router';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -109,6 +115,41 @@ const UserProfile = styled(motion.div)`
 `;
 
 export default function MainViewComponent() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { isConnected, isMatching, matchedUser, connectionError, connect, disconnect, startMatching, cancelMatching } =
+    useStompClientContext();
+
+  const {
+    peerId,
+    remotePeerId,
+    callStatus,
+    audioRef,
+    mediaConnectionRef,
+    mediaStreamRef,
+    peering,
+    initiateCall,
+    closeCall,
+    setPeer,
+    setRemotePeer,
+  } = usePeerContext();
+  const navigate = useNavigate();
+
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleOk = () => {
+    if (matchedUser) {
+      console.log('matchedUser', matchedUser);
+      navigate('/call');
+    }
+  };
+
+  const handleCancel = () => {
+    disconnect();
+    cancelMatching();
+    setIsModalOpen(false);
+  };
   const users = [
     { id: '1', name: 'User 1', profileImage: 'https://i.pravatar.cc/150?img=1' },
     { id: '2', name: 'User 2', profileImage: 'https://i.pravatar.cc/150?img=2' },
@@ -127,10 +168,13 @@ export default function MainViewComponent() {
             <Flag src="https://flagcdn.com/w40/us.png" alt="US Flag" />
             <Topics>#Sports #Movie #Music</Topics>
           </TopicContent>
-          <CallButton whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+          <CallButton whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={openModal}>
             <Phone size={24} />
           </CallButton>
         </TopicRow>
+        <Modal title="대화 상대 매칭" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+          <MatchingComponent />
+        </Modal>
 
         <UserProfiles>
           {users.map((user) => (

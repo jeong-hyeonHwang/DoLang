@@ -1,5 +1,4 @@
 import UserProfile from './UserProfile/UserProfile';
-
 const UserProfileView = () => {
   return (
     <>
