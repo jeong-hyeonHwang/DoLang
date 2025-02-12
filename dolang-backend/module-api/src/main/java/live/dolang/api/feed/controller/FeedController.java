@@ -31,7 +31,7 @@ public class FeedController {
     )
     @GetMapping("/today")
     public BaseResponse<TodayFeedResponseDto> getTodayPost(@AuthenticationPrincipal Jwt jwt,
-                                                           @RequestParam(value = "lang", defaultValue = "ko")String lang,
+                                                           @RequestParam(value = "lang", defaultValue = "kr")String lang,
                                                            @RequestParam(value = "langLevel", defaultValue = "B1")String langLevel) {
         Integer userId = jwt == null ? null : Integer.parseInt(jwt.getId());
         TodayFeedResponseDto dto = feedService.getTodayFeed(userId, lang, langLevel);
