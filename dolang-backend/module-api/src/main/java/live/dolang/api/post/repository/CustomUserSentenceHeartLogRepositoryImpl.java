@@ -2,8 +2,8 @@ package live.dolang.api.post.repository;
 
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import live.dolang.api.post.dto.BookmarkCountDTO;
-import live.dolang.core.domain.user_sentence_bookmark_log.QUserSentenceBookmarkLog;
+import live.dolang.api.post.dto.HeartCountDto;
+import live.dolang.core.domain.user_sentence_like_log.QUserSentenceLikeLog;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -14,38 +14,35 @@ import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
-public class CustomUserSentenceBookmarkLogRepositoryImpl implements CustomUserSentenceBookmarkLogRepository {
+public class CustomUserSentenceHeartLogRepositoryImpl implements CustomUserSentenceHeartLogRepository {
     private final JPAQueryFactory queryFactory;
 
-    // 피드별, 포스트별 북마크 수를 집계
     @Override
-    public List<BookmarkCountDTO> findAllPostBookmarkCountsRaw() {
-        QUserSentenceBookmarkLog log = QUserSentenceBookmarkLog.userSentenceBookmarkLog;
+    public List<HeartCountDto> findAllPostHeartCountsRaw() {
+        QUserSentenceLikeLog log = QUserSentenceLikeLog.userSentenceLikeLog;
 
         List<Tuple> logTuples = queryFactory
                 .select(log.dateSentence.id, log.userDateSentence.id, log.count())
                 .from(log)
-                .where(log.bookmarkYn.isTrue())
+                .where(log.likeYn.isTrue())
                 .groupBy(log.dateSentence.id, log.userDateSentence.id)
                 .fetch();
 
         return logTuples.stream()
-                .map(tuple -> new BookmarkCountDTO(
+                .map(tuple -> new HeartCountDto(
                         tuple.get(log.dateSentence.id),              // feedId
                         tuple.get(log.userDateSentence.id),            // postId
-                        Objects.requireNonNull(tuple.get(log.count())).intValue() // bookmarkCount
+                        Objects.requireNonNull(tuple.get(log.count())).intValue() // heartCount
                 ))
                 .collect(Collectors.toList());
     }
 
-    // 사용자가 특정 피드 내에서 특정 포스트에 대해 가장 최신의 북마크 상태를 조회합니다.
-     // feedId 조건을 추가하여 해당 피드에 속한 데이터만 조회하도록 합니다.
     @Override
-    public Boolean getLatestBookmarkYn(Integer userId, Integer feedId, Integer userDateSentenceId) {
-        QUserSentenceBookmarkLog log = QUserSentenceBookmarkLog.userSentenceBookmarkLog;
+    public Boolean getLatestHeartYn(Integer userId, Integer feedId, Integer userDateSentenceId) {
+        QUserSentenceLikeLog log = QUserSentenceLikeLog.userSentenceLikeLog;
 
-        Boolean isBookmark = queryFactory
-                .select(log.bookmarkYn)
+        Boolean isHearted = queryFactory
+                .select(log.likeYn)
                 .from(log)
                 .where(
                         log.user.id.eq(userId)
@@ -55,6 +52,6 @@ public class CustomUserSentenceBookmarkLogRepositoryImpl implements CustomUserSe
                 .orderBy(log.createdAt.desc())
                 .limit(1)
                 .fetchFirst();
-        return Optional.ofNullable(isBookmark).orElse(false);
+        return Optional.ofNullable(isHearted).orElse(false);
     }
 }

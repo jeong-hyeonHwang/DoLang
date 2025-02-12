@@ -1,7 +1,7 @@
 package live.dolang.api.post.service;
 
-import live.dolang.api.post.dto.BookmarkDataDto;
-import live.dolang.api.post.repository.CustomUserSentenceBookmarkLogRepository;
+import live.dolang.api.post.dto.HeartDataDto;
+import live.dolang.api.post.repository.CustomUserSentenceHeartLogRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.HashOperations;
@@ -13,54 +13,54 @@ import java.time.Instant;
 
 @Service
 @RequiredArgsConstructor
-public class UserBookmarkService {
+public class UserHeartService {
 
     @Value("${spring.data.redis.user.prefix}")
     private String userPrefix;
 
     @Value("${spring.data.redis.feed.prefix}")
     private String feedPrefix;
-    @Value("${spring.data.redis.bookmark.postfix}")
-    private String bookmarkPostfix;
+    @Value("${spring.data.redis.heart.postfix}")
+    private String heartPostfix;
 
     private final RedisTemplate<String, Object> redisTemplate;
-    private final HashOperations<String, String, BookmarkDataDto> bookmarkHashOperations;
-    private final CustomUserSentenceBookmarkLogRepository customUserSentenceBookmarkLogRepository;
+    private final HashOperations<String, String, HeartDataDto> heartHashOperations;
+    private final CustomUserSentenceHeartLogRepository customUserSentenceHeartLogRepository;
 
     /**
-     * 북마크 등록 또는 해제 메서드 (dirty 플래그 사용)
+     * 좋아요 등록 또는 해제 메서드 (dirty 플래그 사용)
      *
      * @param userId 사용자 ID
-     * @param feedId 북마크할 Sentence ID (DateSentence)
-     * @param postId 북마크할 Sentence ID (UserDateSentence)
-     * @return 최종 북마크 상태 (true: 등록, false: 해제)
+     * @param feedId 좋아요할 Sentence ID (DateSentence)
+     * @param postId 좋아요할 Sentence ID (UserDateSentence)
+     * @return 최종 좋아요 상태 (true: 등록, false: 해제)
      */
-    public boolean setUserBookmark(Integer userId, Integer feedId, Integer postId) {
+    public boolean setUserHeart(Integer userId, Integer feedId, Integer postId) {
         // 사용자와 피드 ID를 함께 사용하여 데이터 key와 필드 구성
         String dataKey = getDataKey(userId, feedId);
         String field = postId.toString();
-        // dirty 플래그용 key 구성 (예: "user:123:feed:456:bookmark:dirty")
+        // dirty 플래그용 key 구성 (예: "user:123:feed:456:heart:dirty")
         String dirtySetKey = getDirtySetKey(userId, feedId);
 
         long timestamp = Instant.now().getEpochSecond();
 
         // Redis에서 기존 데이터 조회
-        BookmarkDataDto currentData = bookmarkHashOperations.get(dataKey, field);
-        boolean currentBookmarkStatus;
+        HeartDataDto currentData = heartHashOperations.get(dataKey, field);
+        boolean currentHeartStatus;
 
         // Redis에 값이 없으면 DB에서 조회
         if (currentData == null) {
-            currentBookmarkStatus = isBookmarked(userId, feedId, postId);
+            currentHeartStatus = isHearted(userId, feedId, postId);
         } else {
-            currentBookmarkStatus = currentData.isBookmarked();
+            currentHeartStatus = currentData.isHearted();
         }
 
         // 토글 방식: 기존 상태의 반대로 변경
-        boolean newBookmarkStatus = !currentBookmarkStatus;
-        BookmarkDataDto newData = new BookmarkDataDto(newBookmarkStatus, timestamp);
+        boolean newHeartStatus = !currentHeartStatus;
+        HeartDataDto newData = new HeartDataDto(newHeartStatus, timestamp);
 
         // 메인 해시 업데이트
-        bookmarkHashOperations.put(dataKey, field, newData);
+        heartHashOperations.put(dataKey, field, newData);
         // 변경된 항목을 dirty 세트에 추가하여 변경됨을 표시
         redisTemplate.opsForSet().add(dirtySetKey, field);
 
@@ -68,37 +68,37 @@ public class UserBookmarkService {
         redisTemplate.expire(dataKey, Duration.ofDays(1));
         redisTemplate.expire(dirtySetKey, Duration.ofDays(1));
 
-        return newBookmarkStatus;
+        return newHeartStatus;
     }
 
     /**
-     * 특정 포스트의 북마크 여부 조회 메서드
-     * Redis에 값이 있으면 반환, 없으면 DB 조회
+     * 특정 포스트의 좋아요 여부 조회 메서드
+     * Redis에 값이 있으면 반환, 없으면 DB 요회
      */
-    public boolean isBookmarked(Integer userId, Integer feedId, Integer postId) {
+    public boolean isHearted(Integer userId, Integer feedId, Integer postId) {
         String dataKey = getDataKey(userId, feedId);
         String field = postId.toString();
-        BookmarkDataDto data = bookmarkHashOperations.get(dataKey, field);
+        HeartDataDto data = heartHashOperations.get(dataKey, field);
         if (data != null) {
-            return data.isBookmarked();
+            return data.isHearted();
         }
-        return customUserSentenceBookmarkLogRepository.getLatestBookmarkYn(userId, feedId, postId);
+        return customUserSentenceHeartLogRepository.getLatestHeartYn(userId, feedId, postId);
     }
 
     /**
      * 사용자와 피드 ID를 포함한 Redis 데이터 key 생성
-     * 예: "user:123:feed:456:bookmark"
+     * 예: "user:123:feed:456:heart"
      */
     private String getDataKey(Integer userId, Integer feedId) {
         return userPrefix + ":" +
                 userId + ":" +
                 feedPrefix + ":" +
                 feedId + ":" +
-                bookmarkPostfix;
+                heartPostfix;
     }
     /**
      * dirty 플래그를 위한 key 생성
-     * 예: "user:123:feed:456:bookmark:dirty"
+     * 예: "user:123:feed:456:heart:dirty"
      */
     private String getDirtySetKey(Integer userId, Integer feedId) {
         return getDataKey(userId, feedId) + ":dirty";
