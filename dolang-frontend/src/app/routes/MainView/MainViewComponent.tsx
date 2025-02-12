@@ -123,7 +123,6 @@ export default function MainViewComponent() {
     peerId,
     remotePeerId,
     callStatus,
-    audioRef,
     mediaConnectionRef,
     mediaStreamRef,
     peering,
@@ -140,8 +139,8 @@ export default function MainViewComponent() {
 
   const handleOk = () => {
     if (matchedUser) {
-      console.log('matchedUser', matchedUser);
       navigate('/call');
+      initiateCall(remotePeerId);
     }
   };
 

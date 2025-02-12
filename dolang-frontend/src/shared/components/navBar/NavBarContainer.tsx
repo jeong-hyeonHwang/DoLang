@@ -289,8 +289,22 @@ export const NavBarContainer = () => {
             css={nameCardContainerStyle}
             style={{ display: 'flex', justifyContent: 'space-evenly', marginTop: '2.2rem', marginBottom: '1rem' }}
           >
-            <SignUpModal />
+            {/* <SignUpModal /> */}
             {/* <LogInModal /> */}
+            <Link to="oauth2/code">
+              <button
+                style={{
+                  backgroundColor: '#ffffff',
+                  color: '#202022',
+                  width: '80px',
+                  height: '35px',
+                  border: '1px solid #a0a0a0',
+                  borderRadius: '6px',
+                }}
+              >
+                SignUp
+              </button>
+            </Link>
             <Link to="oauth2/code">
               <button
                 style={{
