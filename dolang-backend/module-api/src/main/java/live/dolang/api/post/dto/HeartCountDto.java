@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class BookmarkCountDTO {
+public class HeartCountDto {
     Integer feedId;
     Integer postId;
-    Integer bookmarkCount;
+    Integer heartCount;
 }
