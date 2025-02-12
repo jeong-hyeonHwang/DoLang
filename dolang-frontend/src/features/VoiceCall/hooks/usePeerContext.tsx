@@ -80,7 +80,7 @@ export const PeerContextProvider = ({ children }: { children: React.ReactNode })
       navigator.mediaDevices
         .getUserMedia({ audio: true })
         .then((stream) => {
-          const mediaConnection = peer.current.call(peerIdToCall, stream);
+          const mediaConnection = peer.current!.call(peerIdToCall, stream);
           mediaConnectionRef.current = mediaConnection;
           console.log('mediaStream' + mediaConnection);
           setEventsOnMediaConnection(mediaConnection);
