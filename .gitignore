@@ -139,3 +139,6 @@ fabric.properties
 
 ### generated scripts ###
 /scripts/**
+
+### env ###
+**/env.yml
