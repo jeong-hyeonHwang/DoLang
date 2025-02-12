@@ -49,20 +49,20 @@ public class MatchingService {
     private void match() {
 
         // Process Korean queue for users with native=en
-        Set<String> koQueue = redisTemplate.opsForSet().members("matching:queue:ko");
-        List<MatchedUser> koCandidates = processQueue(koQueue, "en");
+        Set<String> krQueue = redisTemplate.opsForSet().members("matching:queue:kr");
+        List<MatchedUser> krCandidates = processQueue(krQueue, "en");
 
-        // Process English queue for users with native=ko
+        // Process English queue for users with native=kr
         Set<String> enQueue = redisTemplate.opsForSet().members("matching:queue:en");
-        List<MatchedUser> enCandidates = processQueue(enQueue, "ko");
-        log.info("Matching... ko: {} en: {}", koCandidates.size(), enCandidates.size());
+        List<MatchedUser> enCandidates = processQueue(enQueue, "kr");
+        log.info("Matching... kr: {} en: {}", krCandidates.size(), enCandidates.size());
 
         // 태그 비교를 통한 매칭
         List<MatchingPair> matchingPairs = new ArrayList<>();
-        for (MatchedUser koUser : koCandidates) {
+        for (MatchedUser krUser : krCandidates) {
             for (MatchedUser enUser : enCandidates) {
-                if (hasCommonTag(koUser.getTagIdList(), enUser.getTagIdList())) {
-                    matchingPairs.add(new MatchingPair(koUser, enUser));
+                if (hasCommonTag(krUser.getTagIdList(), enUser.getTagIdList())) {
+                    matchingPairs.add(new MatchingPair(krUser, enUser));
                     enCandidates.remove(enUser); // 반복문에서 제거
                     break;
                 }
@@ -71,11 +71,11 @@ public class MatchingService {
 
 
         for (MatchingPair pair : matchingPairs) {
-            MatchedUser userK = pair.koUser;
+            MatchedUser userK = pair.krUser;
             MatchedUser userE = pair.enUser;
             log.info("Matched!!! userK: {} userE: {}", userK.getUserId(), userE.getUserId());
 
-            removeUserFromQueue("ko", userK);
+            removeUserFromQueue("kr", userK);
             removeUserFromQueue("en", userE);
 
             MatchedResponse responseE = MatchedResponse.builder()
@@ -179,7 +179,7 @@ public class MatchingService {
      */
     private void removeUserFromAllQueues(Integer userId, String username, String peerId, String nativeLanguageId, List<Integer> tagIdList) {
         MatchedUser user = new MatchedUser(userId, username, peerId, nativeLanguageId, tagIdList);
-        removeUserFromQueue("ko", user);
+        removeUserFromQueue("kr", user);
         removeUserFromQueue("en", user);
     }
 
