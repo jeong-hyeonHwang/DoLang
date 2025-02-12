@@ -269,6 +269,7 @@ const BottomLinkItems: LinkItem[] = [{ key: '1', href: '/guide', title: '서비�
 export const NavBarContainer = () => {
   const auth = useRecoilState(authState);
   const isLoggedIn = JSON.parse(sessionStorage.getItem('isLoggedIn') || 'false');
+  const user = JSON.parse(sessionStorage.getItem('user') || 'false');
   console.log('login: ', auth);
   const { data: userInfo, isLoading } = useUserQuery();
 
@@ -279,7 +280,7 @@ export const NavBarContainer = () => {
           <Logo />
         </Link>
 
-        {isLoggedIn ? (
+        {isLoggedIn && user ? (
           <div css={nameCardContainerStyle}>
             <NameCard style={{ border: 'none', backgroundColor: 'transparent' }} />
           </div>
@@ -288,8 +289,22 @@ export const NavBarContainer = () => {
             css={nameCardContainerStyle}
             style={{ display: 'flex', justifyContent: 'space-evenly', marginTop: '2.2rem', marginBottom: '1rem' }}
           >
-            <SignUpModal />
+            {/* <SignUpModal /> */}
             {/* <LogInModal /> */}
+            <Link to="oauth2/code">
+              <button
+                style={{
+                  backgroundColor: '#ffffff',
+                  color: '#202022',
+                  width: '80px',
+                  height: '35px',
+                  border: '1px solid #a0a0a0',
+                  borderRadius: '6px',
+                }}
+              >
+                SignUp
+              </button>
+            </Link>
             <Link to="oauth2/code">
               <button
                 style={{
@@ -315,7 +330,9 @@ export const NavBarContainer = () => {
         <NavLinks linkItems={BottomLinkItems} customLinkStyle={bottomLinkStyle} />
       </div>
 
-      <div css={bottomSectionStyle}>{isLoading ? <div>Loading...</div> : isLoggedIn ? <GoogleLogout /> : null}</div>
+      <div css={bottomSectionStyle}>
+        {isLoading ? <div>Loading...</div> : isLoggedIn && user ? <GoogleLogout /> : null}
+      </div>
     </div>
   );
 };

@@ -9,6 +9,7 @@ import {
 } from '../../features/Feed/tests/feedTestData.ts';
 import { FeedParticipation } from '../../features/Feed/types/feedParticipation.type.ts';
 import Waveform from '@/shared/components/waveform/Waveform.tsx';
+import Recorder from '../../features/Feed/components/Recorder.tsx';
 
 const FeedView = () => {
   const feedContainerStyle = css`
@@ -60,10 +61,8 @@ const FeedView = () => {
         </div>
         <div className="feed-sentence-section" css={feedSentenceSectionStyle}>
           <p>{nativeFeedSentenceTestData.sentenceInfo.sentence}</p>
-          <div className="feed-sentence-record-button" css={feedRecordButtonStyle}>
-            <Mic size={32} stroke="#fff" />
-          </div>
         </div>
+        <Recorder />
         <FeedList feeds={feedListData} />
       </div>
     </>

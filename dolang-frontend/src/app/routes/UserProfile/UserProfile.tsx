@@ -1,20 +1,21 @@
-import type React from 'react';
-import type { User } from '../../../shared/types/UserInfo.type';
-import { useEffect, useState } from 'react';
-import { authState } from '../../../features/Auth/authState';
-import styled from '@emotion/styled';
+import { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
+import { useRecoilState } from 'recoil';
+import { userState } from '../../../features/Auth/userState';
+import styled from '@emotion/styled';
 import CountryPicker from '../../../shared/components/Picker/CountryPicker';
 import LanguagePicker from '../../../shared/components/Picker/LanguagePicker';
 import ProficiencyLevelPicker from '../../../shared/components/Picker/ProficiencyLevelPicker';
 import TagInput from '../../../shared/components/Tag/TagInput';
-import { useRecoilState } from 'recoil';
 import { userPut } from '../../../api/utils/user_put';
+import languages from '../../../shared/components/Picker/languages.json';
+import countries from '../../../shared/components/Picker/countries.json';
+import proficiencyLevel from '../../../shared/components/Picker/proficiencyLevel.json';
 
 type Interest = {
-  id: number;
+  tagId: number;
   nativeLanguageId: string;
-  name: string;
+  tagName: string;
 };
 
 interface UserProfileData {
@@ -26,6 +27,23 @@ interface UserProfileData {
   interests: Interest[];
   profileImageUrl: string;
 }
+
+const getLanguageLabel = (code: string) => {
+  const language = languages.find((lang) => lang.value === code);
+  return language ? language.label : '알 수 없음';
+};
+const getFlagEmoji = (code: string) => {
+  const language = languages.find((lang) => lang.value === code);
+  return language ? `🇨🇭` : '';
+};
+const getProficiencyLabel = (code: string) => {
+  const proficiency = proficiencyLevel.find((level) => level.value === code);
+  return proficiency ? proficiency.label : '알 수 없음';
+};
+const getCountryLabel = (code: string) => {
+  const country = countries.find((coun) => coun.value === code);
+  return country ? country.label : '알 수 없음';
+};
 
 const PageContainer = styled.div`
   background-color: #ffffff;
@@ -142,27 +160,18 @@ const ImageUploadButton = styled.label`
 `;
 
 function UserProfile() {
-  const [auth, setAuth] = useRecoilState(authState);
+  const [user, setUser] = useRecoilState(userState);
+  const [loading, setLoading] = useState(true);
   const [profileImageUrl, setProfileImageUrl] = useState<string>('/placeholder.svg');
 
-  const userData = auth.user;
-  console.log('authData: ', userData);
-
   useEffect(() => {
-    console.log('auth 변경', auth.user);
-  }, [auth]);
-
-  const formattedUserData: Partial<UserProfileData> | undefined = userData
-    ? {
-        nickname: userData.nickname ?? '',
-        nationality: userData.nationality ?? '',
-        nativeLanguage: userData.nativeLanguage ?? '',
-        targetLanguage: userData.targetLanguage ?? '',
-        proficiencyLevel: userData.proficiencyLevel ?? '',
-        interests: userData.interests ?? [],
-        profileImageUrl: userData.profileImageUrl ?? '/placeholder.svg',
-      }
-    : undefined;
+    const storedUser = sessionStorage.getItem('user');
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      setUser(parsedUser);
+    }
+    setLoading(false);
+  }, [setUser]);
 
   const {
     register,
@@ -171,44 +180,35 @@ function UserProfile() {
     formState: { errors },
     reset,
   } = useForm<UserProfileData>({
-    defaultValues: formattedUserData || {
-      nickname: '홍길동',
-      nationality: 'kr',
-      nativeLanguage: 'ko',
-      targetLanguage: 'en',
-      proficiencyLevel: 'b1',
-      interests: [
-        {
-          id: 1,
-          nativeLanguageId: 'en',
-          name: 'Sports',
-        },
-        { id: 2, nativeLanguageId: 'en', name: 'Gaming' },
-        { id: 3, nativeLanguageId: 'en', name: 'Music' },
-      ],
+    defaultValues: user || {
+      nickname: '',
+      nationality: '',
+      nativeLanguage: '',
+      targetLanguage: '',
+      proficiencyLevel: '',
+      interests: [],
       profileImageUrl: '/placeholder.svg',
     },
   });
 
-  const onSubmit = async (data: UserProfileData) => {
-    console.log('update', data);
-    try {
-      const res = await userPut(data);
-      if (res) {
-        setAuth((prevAuth) => ({
-          ...prevAuth,
-          user: data,
-        }));
-        alert('프로필이 성공적으로 업데이트되었습니다.');
-      } else {
-        throw new Error('업데이트에 실패했습니다.');
-      }
-    } catch (error) {
-      console.error('프로필 업데이트 중 오류 발생: ', error);
-      alert('업데이트에 실패했습니다.');
+  useEffect(() => {
+    // user 값이 변할 때마다 reset 호출
+    if (user) {
+      reset({
+        nickname: user.nickname ?? '',
+        nationality: user.nationality ?? '',
+        nativeLanguage: user.nativeLanguage ?? '',
+        targetLanguage: user.targetLanguage ?? '',
+        proficiencyLevel: user.proficiencyLevel ?? '',
+        interests: user.interests ?? [],
+        profileImageUrl: user.profileImageUrl ?? '',
+        // profileImageUrl: user.profileImageUrl ?? '/placeholder.svg',
+      });
+      setProfileImageUrl(user.profileImageUrl ?? '');
     }
-  };
+  }, [user, reset]);
 
+  // 프로필 이미지 업로드 처리
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -217,6 +217,26 @@ function UserProfile() {
         setProfileImageUrl(reader.result as string);
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  // 프로필 업데이트 요청
+  const onSubmit = async (data: UserProfileData) => {
+    setLoading(true); // 로딩 시작
+    try {
+      const res = await userPut(data);
+      if (res) {
+        alert('프로필이 성공적으로 업데이트되었습니다.');
+        setUser(data);
+        sessionStorage.setItem('user', JSON.stringify(data));
+      } else {
+        throw new Error('업데이트에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('프로필 업데이트 중 오류 발생: ', error);
+      alert('업데이트에 실패했습니다.');
+    } finally {
+      setLoading(false); // 로딩 종료
     }
   };
 
@@ -295,7 +315,7 @@ function UserProfile() {
             control={control}
             rules={{ required: '최소 3개의 관심사를 입력해주세요.' }}
             render={({ field }) => {
-              const mappedIterests = field.value.map((interest: Interest) => interest.name);
+              const mappedIterests = field.value.map((interest: Interest) => interest.tagName);
               return (
                 <TagInput
                   {...field}
@@ -314,4 +334,5 @@ function UserProfile() {
     </PageContainer>
   );
 }
+
 export default UserProfile;

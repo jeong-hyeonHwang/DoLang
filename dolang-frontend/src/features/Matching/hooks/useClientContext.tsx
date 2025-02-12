@@ -82,9 +82,11 @@ export const StompClientProvider = ({ children }: StompClientProviderProps) => {
 
       setToken(accessToken);
 
+      const MATCHING_SERVER_URL = import.meta.env.VITE_MATCHING_SERVER_URL;
+
       // 새 stompClient 인스턴스 생성
       const stompClient = new Client({
-        brokerURL: 'ws://localhost:8300/ws',
+        brokerURL: `wss://${MATCHING_SERVER_URL}/ws`,
         connectHeaders: {
           Authorization: `Bearer ${accessToken}`,
         },

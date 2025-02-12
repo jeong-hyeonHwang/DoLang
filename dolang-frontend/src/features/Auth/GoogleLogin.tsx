@@ -2,12 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useRecoilState } from 'recoil';
 import { authState } from './authState.ts';
-import { userGet } from '../../api/utils/user_get.ts';
+import { userGet } from '../../api/utils/useUser.ts';
 import GoogleAuthModal from './GoogleAuthModal.tsx';
 import Cookies from 'js-cookie';
-import axios from 'axios';
-import LogInModal from './LoginModal.tsx';
-import { accessTokenState } from './authState.ts';
 
 interface ImportMetaEnv {
   readonly VITE_GOOGLE_CLIENT_ID: string;
@@ -34,6 +31,7 @@ const GoogleLogin = () => {
 
   useEffect(() => {
     console.log('auth: ', auth.user);
+    sessionStorage.setItem('user', JSON.stringify(auth.user));
   }, [auth]);
 
   // 1. Authorization code 발급
@@ -101,8 +99,8 @@ const GoogleLogin = () => {
         const res = await userGet(data.access_token);
         console.log('res', res);
         if (res.result?.nickname && res.result?.nationality) {
-          sessionStorage.setItem('isLoggedIn', JSON.stringify(true));
           alert('로그인 되었습니다.');
+          sessionStorage.setItem('isLoggedIn', JSON.stringify(true));
           navigate('/');
           setAuth({
             isLoggedIn: true,
