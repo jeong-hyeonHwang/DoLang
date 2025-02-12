@@ -7,16 +7,23 @@ import live.dolang.api.common.exception.NotFoundException;
 import live.dolang.api.common.response.BaseResponse;
 import live.dolang.api.common.response.BaseResponseStatus;
 import live.dolang.api.post.dto.BookmarkStatusDto;
+import live.dolang.api.post.dto.ResponseFeedDto;
 import live.dolang.api.post.service.CustomDateSentenceService;
 import live.dolang.api.post.service.CustomUserDateSentenceService;
 import live.dolang.api.post.service.PostService;
 import live.dolang.api.post.service.facade.BookmarkFacadeService;
 import live.dolang.core.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Tag(name = "2. POST")
 @RestController
@@ -84,5 +91,21 @@ public class PostController {
         System.out.println("결과 : " + fileUrl);
         System.out.println("걸린 시간 :" + (end - start));
         return BaseResponse.ok();
+    }
+
+    /**
+     * 나의 피드목록 가져오기
+     */
+    @GetMapping("/feed")
+    @Operation(
+            summary = "나의 피드목록 가져오기",
+            description = "현재 로그인된 사용자의 피드 목록을 조회합니다.",
+            security = @SecurityRequirement(name = "BearerAuth") // JWT 인증 적용
+    )
+    public BaseResponse<Page<ResponseFeedDto>> getMyfeedList(@AuthenticationPrincipal Jwt jwt,
+                                                             @PageableDefault(size = 5, sort = "dateId", direction = Sort.Direction.DESC) Pageable pageable) {
+        int userId = Integer.parseInt(jwt.getId());
+        Page<ResponseFeedDto> list = postService.getMyFeedList(userId,pageable);
+        return BaseResponse.ok(list);
     }
 }

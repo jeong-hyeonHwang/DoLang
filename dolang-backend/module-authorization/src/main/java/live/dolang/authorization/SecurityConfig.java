@@ -47,7 +47,6 @@ import java.security.KeyPairGenerator;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Duration;
-import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
@@ -148,9 +147,12 @@ public class SecurityConfig {
                 .redirectUris(uris -> {
                     uris.add("http://localhost:5173/oauth2/code");
                     uris.add("http://localhost:5173/oauth2/token");
+                    uris.add("https://dolang.live/oauth2/code");
+                    uris.add("https://dolang.live/oauth2/token");
                 })
                 .postLogoutRedirectUris(uris -> {
                     uris.add("http://localhost:5173/logout");
+                    uris.add("https://dolang.live/logout");
                 })
                 .scopes(scopes -> {
                     scopes.add("openid");
@@ -179,17 +181,17 @@ public class SecurityConfig {
         RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
         RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
 
-        // 공개 키 출력 (PEM 형식으로 출력)
-        System.out.println("Public Key (PEM Format):");
-        System.out.println("-----BEGIN PUBLIC KEY-----");
-        System.out.println(Base64.getEncoder().encodeToString(publicKey.getEncoded()));
-        System.out.println("-----END PUBLIC KEY-----");
-
-        // 개인 키 출력 (PEM 형식으로 출력)
-        System.out.println("\nPrivate Key (PEM Format):");
-        System.out.println("-----BEGIN PRIVATE KEY-----");
-        System.out.println(Base64.getEncoder().encodeToString(privateKey.getEncoded()));
-        System.out.println("-----END PRIVATE KEY-----");
+//        // 공개 키 출력 (PEM 형식으로 출력)
+//        System.out.println("Public Key (PEM Format):");
+//        System.out.println("-----BEGIN PUBLIC KEY-----");
+//        System.out.println(Base64.getEncoder().encodeToString(publicKey.getEncoded()));
+//        System.out.println("-----END PUBLIC KEY-----");
+//
+//        // 개인 키 출력 (PEM 형식으로 출력)
+//        System.out.println("\nPrivate Key (PEM Format):");
+//        System.out.println("-----BEGIN PRIVATE KEY-----");
+//        System.out.println(Base64.getEncoder().encodeToString(privateKey.getEncoded()));
+//        System.out.println("-----END PRIVATE KEY-----");
 
         RSAKey rsaKey = new RSAKey.Builder(publicKey)
                 .privateKey(privateKey)
@@ -252,11 +254,9 @@ public class SecurityConfig {
     @Bean
     UrlBasedCorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowCredentials(true);
-        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
-        configuration.setAllowedMethods(List.of("POST"));
+        configuration.setAllowedOrigins(List.of("http://localhost:5173", "https://dolang.live"));
+        configuration.setAllowedMethods(List.of("*"));
         configuration.setAllowedHeaders(List.of("*"));
-        configuration.setExposedHeaders(List.of("*"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
