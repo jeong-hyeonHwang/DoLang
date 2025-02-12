@@ -7,11 +7,13 @@ import live.dolang.api.common.exception.NotFoundException;
 import live.dolang.api.common.response.BaseResponse;
 import live.dolang.api.common.response.BaseResponseStatus;
 import live.dolang.api.post.dto.BookmarkStatusDto;
+import live.dolang.api.post.dto.HeartStatusDto;
 import live.dolang.api.post.dto.ResponseFeedDto;
 import live.dolang.api.post.service.CustomDateSentenceService;
 import live.dolang.api.post.service.CustomUserDateSentenceService;
 import live.dolang.api.post.service.PostService;
 import live.dolang.api.post.service.facade.BookmarkFacadeService;
+import live.dolang.api.post.service.facade.HeartFacadeService;
 import live.dolang.core.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -23,8 +25,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-
 @Tag(name = "2. POST")
 @RestController
 @RequestMapping("/api/post")
@@ -35,6 +35,7 @@ public class PostController {
     private final CustomDateSentenceService customDateSentenceService;
     private final CustomUserDateSentenceService customUserDateSentenceService;
     private final BookmarkFacadeService bookmarkFacadeService;
+    private final HeartFacadeService heartFacadeService;
     private final PostService postService;
 
     /**
@@ -65,6 +66,36 @@ public class PostController {
 
         BookmarkStatusDto bookmarkStatusDto = bookmarkFacadeService.bookmarkUserDateSentence(userId, feedId, postId);
         return BaseResponse.ok(bookmarkStatusDto);
+    }
+
+    /**
+     * 북마크 추가
+     *
+     * @param feedId: 발음 문장 아이디
+     * @param postId: 사용자가 발음한 문장 아이디
+     */
+    @Operation(
+            summary = "좋아요 추가",
+            security = @SecurityRequirement(name = "BearerAuth")
+    )
+    @PostMapping("{feedId}/{postId}/heart")
+    public BaseResponse<HeartStatusDto> heartPost(@AuthenticationPrincipal Jwt jwt,
+                                                     @PathVariable Integer feedId,
+                                                     @PathVariable Integer postId) {
+        Integer userId = Integer.parseInt(jwt.getId());
+        if (!userService.isUserExists(userId)) {
+            throw new NotFoundException(BaseResponseStatus.NOT_EXIST_USER);
+        }
+
+        if (customDateSentenceService.isDateSentenceExists(feedId)) {
+            throw new NotFoundException(BaseResponseStatus.NOT_EXIST_FEED);
+        }
+        if (customUserDateSentenceService.isUserDateSentenceExists(postId)) {
+            throw new NotFoundException(BaseResponseStatus.NOT_EXIST_POST);
+        }
+
+        HeartStatusDto heartStatusDto = heartFacadeService.heartUserDateSentence(userId, feedId, postId);
+        return BaseResponse.ok(heartStatusDto);
     }
 
 

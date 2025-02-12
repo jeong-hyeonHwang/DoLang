@@ -1,6 +1,7 @@
 package live.dolang.api.common.config;
 
 import live.dolang.api.post.dto.BookmarkDataDto;
+import live.dolang.api.post.dto.HeartDataDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -55,6 +56,11 @@ public class RedisConfig {
 
     @Bean
     public HashOperations<String, String, BookmarkDataDto> bookmarkHashOperations(RedisTemplate<String, Object> redisTemplate) {
+        return redisTemplate.opsForHash();
+    }
+
+    @Bean
+    public HashOperations<String, String, HeartDataDto> heartHashOperations(RedisTemplate<String, Object> redisTemplate) {
         return redisTemplate.opsForHash();
     }
 

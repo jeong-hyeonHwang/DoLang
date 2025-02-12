@@ -14,13 +14,20 @@ import org.springframework.scheduling.annotation.Scheduled;
 public class SchedulerConfig {
 
     private final JobLauncher jobLauncher;
-    private final Job redisToDatabaseJob;
+    private final Job redisBookmarkToDatabaseJob;
+    private final Job redisHeartToDatabaseJob;
 
-    @Scheduled(cron = "0 */5 * * * ?")
+    @Scheduled(cron = "0 */1 * * * ?")
     public void runBatchJob() {
         try {
-             jobLauncher.run(redisToDatabaseJob, new JobParametersBuilder()
-                    .addLong("timestamp", System.currentTimeMillis())
+            // Bookmark 배치 작업 실행
+            jobLauncher.run(redisBookmarkToDatabaseJob, new JobParametersBuilder()
+                    .addLong("bookmarkTimestamp", System.currentTimeMillis())
+                    .toJobParameters());
+
+            // Heart 배치 작업 실행
+            jobLauncher.run(redisHeartToDatabaseJob, new JobParametersBuilder()
+                    .addLong("heartTimestamp", System.currentTimeMillis())
                     .toJobParameters());
         } catch (Exception e) {
             System.out.println(e.getMessage());
