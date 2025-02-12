@@ -36,7 +36,21 @@ export const PeerContextProvider = ({ children }: { children: React.ReactNode })
   const mediaStreamRef = useRef<MediaStream | null>(null);
 
   const peering = () => {
-    peer.current = new Peer();
+       peer.current = new Peer(undefined, {
+         host: 'peer.imhyuk.kr',
+         port: 443,
+         pingInterval: 5000,
+         path: '/',
+         secure: true,
+         config: {
+           iceServers: [
+             { url: 'stun:stun.l.google.com:19302' },
+             { url: 'turn:13.125.99.196:3478', username: 'user', credential: '1234' },
+           ],
+           sdpSemantics: 'unified-plan',
+         },
+         debug: 3,
+       });
 
     // Emitted when a connection to the PeerServer is established.
     peer.current.on('open', (id) => {
