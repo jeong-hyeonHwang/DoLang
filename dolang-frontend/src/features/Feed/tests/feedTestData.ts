@@ -21,7 +21,7 @@ export const nativeFeedSentenceTestData: FeedSentence = {
   isNativeFeed: true,
   sentenceInfo: {
     sentenceId: 2222,
-    sentence: '안녕하세요',
+    sentence: '사람이 여행을 하는 것은 도착하기 위해서가 아니라 여행하기 위해서이다.',
     level: 'A2',
   },
   userParticipation: userNativeParticipationTestData,
