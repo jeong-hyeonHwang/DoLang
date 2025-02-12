@@ -1,12 +1,11 @@
 package live.dolang.api.user.repository;
 
 import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import live.dolang.api.user.dto.ResponseUserInfoDto;
 import live.dolang.api.user.dto.TagDto;
+import live.dolang.core.domain.language_level.tag_translation.QTagTranslation;
 import live.dolang.core.domain.tag.QTag;
-import live.dolang.core.domain.tag.Tag;
 import live.dolang.core.domain.user.QUser;
 import live.dolang.core.domain.user_language_level.QUserLanguageLevel;
 import live.dolang.core.domain.user_profile.QUserProfile;
@@ -17,6 +16,8 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
+import static live.dolang.core.domain.user_profile.QUserProfile.userProfile;
+
 @RequiredArgsConstructor
 @Repository
 public class CustomUserRepository {
@@ -24,10 +25,8 @@ public class CustomUserRepository {
 
     public Optional<ResponseUserInfoDto> getUserInfo(int userId) {
         QUser user = QUser.user;
-        QUserProfile profile = QUserProfile.userProfile;
+        QUserProfile profile = userProfile;
         QUserLanguageLevel userLanguageLevel = QUserLanguageLevel.userLanguageLevel;
-        QUserTag userTag = QUserTag.userTag;
-        QTag tag = QTag.tag;
         //사용자 기본정보 + 프로필 조회
         ResponseUserInfoDto dto = queryFactory
                 .select(Projections.bean(
@@ -49,20 +48,27 @@ public class CustomUserRepository {
         return Optional.ofNullable(dto);
     }
 
-    //관심사 태그 조회
+    // 관심사 태그 조회
     public List<TagDto> getUserTagList(int userId) {
         QTag tag = QTag.tag;
+        QUser user = QUser.user;
         QUserTag userTag = QUserTag.userTag;
+        QTagTranslation tagTranslation = QTagTranslation.tagTranslation;
+        QUserProfile userProfile = QUserProfile.userProfile;
 
-        List<TagDto> tags = queryFactory
+        return queryFactory
                 .select(Projections.bean(TagDto.class,
                         tag.id.as("tagId"),
-                        tag.name.as("tagName")
+                        tagTranslation.translatedName.as("tagName")
                 ))
                 .from(userTag)
-                .join(userTag.tag,tag)
-                .where(userTag.user.id.eq(userId))
+                .join(userTag.user, user).on(user.id.eq(userId))
+                .join(user.userProfile, userProfile)
+                .join(userTag.tag, tag)
+                .join(tagTranslation).on(tagTranslation.tag.eq(tag))
+                .where(
+                        tagTranslation.nativeLanguageId.eq(userProfile.nativeLanguageId)
+                )
                 .fetch();
-        return tags;
     }
 }

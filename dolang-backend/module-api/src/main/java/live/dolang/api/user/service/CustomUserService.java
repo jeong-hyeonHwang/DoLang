@@ -64,7 +64,7 @@ public class CustomUserService {
         //유저 관심사 태그저장
         List<Integer> tags = requestRegisterUserProfileDto.getInterests();
         List<UserTag> userTags = tags.stream()
-                .map(tagId -> new UserTag(null, user, new Tag(tagId, null, null)))
+                .map(tagId -> new UserTag(null, user, new Tag(tagId, null)))
                 .toList();
         userTagRepository.saveAll(userTags);
 
@@ -121,7 +121,7 @@ public class CustomUserService {
         userTagRepository.flush();
         List<Integer> tags = requestUpdateUserInfoDto.getInterests();
         List<UserTag> userTags = tags.stream()
-                .map(tagId -> new UserTag(null, user, new Tag(tagId, null, null)))
+                .map(tagId -> new UserTag(null, user, new Tag(tagId, null)))
                 .toList();
         userTagRepository.saveAll(userTags);
 
