@@ -8,11 +8,11 @@ import live.dolang.api.note.document.UserNoteDocument;
 import live.dolang.api.note.dto.UserNoteRequestDto;
 import live.dolang.api.note.service.UserNoteService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @Tag(name = "USER 단어장")
 @RestController
@@ -42,9 +42,11 @@ public class UserNoteController {
             security = @SecurityRequirement(name = "BearerAuth") // JWT 인증 적용
     )
     @GetMapping
-    public BaseResponse<List<UserNoteDocument>> getUserNotes(@AuthenticationPrincipal Jwt jwt) {
+    public BaseResponse<Page<UserNoteDocument>> getUserNotes(@AuthenticationPrincipal Jwt jwt,
+                                                             @RequestParam(defaultValue = "0") int page,
+                                                             @RequestParam(defaultValue = "10") int size) {
         int userId = Integer.parseInt(jwt.getId());
-        return BaseResponse.ok(userNoteService.getUserNoteById(userId));
+        return BaseResponse.ok(userNoteService.getUserNoteById(userId, page, size));
     }
 
     // 기록 검색 (Elasticsearch 에서 키워드 검색)
@@ -54,8 +56,10 @@ public class UserNoteController {
             security = @SecurityRequirement(name = "BearerAuth") // JWT 인증 적용
     )
     @GetMapping("/search")
-    public BaseResponse<List<UserNoteDocument>> searchNotes(@AuthenticationPrincipal Jwt jwt, @RequestParam String keyword) {
+    public BaseResponse<Page<UserNoteDocument>> searchNotes(@AuthenticationPrincipal Jwt jwt, @RequestParam String keyword,
+                                                            @RequestParam(defaultValue = "0") int page,
+                                                            @RequestParam(defaultValue = "10") int size) {
         int userId = Integer.parseInt(jwt.getId());
-        return BaseResponse.ok(userNoteService.searchUserNotes(userId, keyword));
+        return BaseResponse.ok(userNoteService.searchUserNotes(userId, keyword, page, size));
     }
 }
