@@ -1,20 +1,21 @@
 import { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { useRecoilState } from 'recoil';
-import { useUser, useUpdateUser } from '../../../api/utils/useUser';
-import { userPut } from '../../../api/utils/user_put';
-import { authState } from '../../../features/Auth/authState';
+import { userState } from '../../../features/Auth/userState';
 import styled from '@emotion/styled';
 import CountryPicker from '../../../shared/components/Picker/CountryPicker';
 import LanguagePicker from '../../../shared/components/Picker/LanguagePicker';
 import ProficiencyLevelPicker from '../../../shared/components/Picker/ProficiencyLevelPicker';
 import TagInput from '../../../shared/components/Tag/TagInput';
-import { userState } from '../../../features/Auth/userState';
+import { userPut } from '../../../api/utils/user_put';
+import languages from '../../../shared/components/Picker/languages.json';
+import countries from '../../../shared/components/Picker/countries.json';
+import proficiencyLevel from '../../../shared/components/Picker/proficiencyLevel.json';
 
 type Interest = {
-  id: number;
+  tagId: number;
   nativeLanguageId: string;
-  name: string;
+  tagName: string;
 };
 
 interface UserProfileData {
@@ -26,6 +27,23 @@ interface UserProfileData {
   interests: Interest[];
   profileImageUrl: string;
 }
+
+const getLanguageLabel = (code: string) => {
+  const language = languages.find((lang) => lang.value === code);
+  return language ? language.label : '알 수 없음';
+};
+const getFlagEmoji = (code: string) => {
+  const language = languages.find((lang) => lang.value === code);
+  return language ? `🇨🇭` : '';
+};
+const getProficiencyLabel = (code: string) => {
+  const proficiency = proficiencyLevel.find((level) => level.value === code);
+  return proficiency ? proficiency.label : '알 수 없음';
+};
+const getCountryLabel = (code: string) => {
+  const country = countries.find((coun) => coun.value === code);
+  return country ? country.label : '알 수 없음';
+};
 
 const PageContainer = styled.div`
   background-color: #ffffff;
@@ -55,6 +73,13 @@ const FormGroup = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+`;
+
+const FormItem = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 `;
 
 const RowContainer = styled.div`
@@ -135,9 +160,6 @@ const ImageUploadButton = styled.label`
 `;
 
 function UserProfile() {
-  // const { data, isLoading, error } = useUser(); // 사용자 데이터 로드
-  // const updateUserMutation = useUpdateUser();
-
   const [user, setUser] = useRecoilState(userState);
   const [loading, setLoading] = useState(true);
   const [profileImageUrl, setProfileImageUrl] = useState<string>('/placeholder.svg');
@@ -145,7 +167,8 @@ function UserProfile() {
   useEffect(() => {
     const storedUser = sessionStorage.getItem('user');
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      const parsedUser = JSON.parse(storedUser);
+      setUser(parsedUser);
     }
     setLoading(false);
   }, [setUser]);
@@ -157,7 +180,7 @@ function UserProfile() {
     formState: { errors },
     reset,
   } = useForm<UserProfileData>({
-    defaultValues: {
+    defaultValues: user || {
       nickname: '',
       nationality: '',
       nativeLanguage: '',
@@ -168,22 +191,22 @@ function UserProfile() {
     },
   });
 
-  const data = setUser;
-  // 사용자 데이터 로드 후 폼 초기화
   useEffect(() => {
-    if (data) {
+    // user 값이 변할 때마다 reset 호출
+    if (user) {
       reset({
-        nickname: data.nickname ?? '',
-        nationality: data.nationality ?? '',
-        nativeLanguage: data.nativeLanguage ?? '',
-        targetLanguage: data.targetLanguage ?? '',
-        proficiencyLevel: data.proficiencyLevel ?? '',
-        interests: data.interests ?? [],
-        profileImageUrl: data.profileImageUrl ?? '/placeholder.svg',
+        nickname: user.nickname ?? '',
+        nationality: user.nationality ?? '',
+        nativeLanguage: user.nativeLanguage ?? '',
+        targetLanguage: user.targetLanguage ?? '',
+        proficiencyLevel: user.proficiencyLevel ?? '',
+        interests: user.interests ?? [],
+        profileImageUrl: user.profileImageUrl ?? '',
+        // profileImageUrl: user.profileImageUrl ?? '/placeholder.svg',
       });
-      setProfileImageUrl(data.profileImageUrl ?? '/placeholder.svg');
+      setProfileImageUrl(user.profileImageUrl ?? '');
     }
-  }, [data, reset]);
+  }, [user, reset]);
 
   // 프로필 이미지 업로드 처리
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -203,8 +226,9 @@ function UserProfile() {
     try {
       const res = await userPut(data);
       if (res) {
-        updateUserMutation.mutate(data);
         alert('프로필이 성공적으로 업데이트되었습니다.');
+        setUser(data);
+        sessionStorage.setItem('user', JSON.stringify(data));
       } else {
         throw new Error('업데이트에 실패했습니다.');
       }
@@ -215,10 +239,6 @@ function UserProfile() {
       setLoading(false); // 로딩 종료
     }
   };
-
-  if (isLoading || loading) {
-    return <div>로딩 중...</div>; // 로딩 상태에서 표시할 내용
-  }
 
   return (
     <PageContainer>
@@ -295,7 +315,7 @@ function UserProfile() {
             control={control}
             rules={{ required: '최소 3개의 관심사를 입력해주세요.' }}
             render={({ field }) => {
-              const mappedIterests = field.value.map((interest: Interest) => interest.name);
+              const mappedIterests = field.value.map((interest: Interest) => interest.tagName);
               return (
                 <TagInput
                   {...field}
