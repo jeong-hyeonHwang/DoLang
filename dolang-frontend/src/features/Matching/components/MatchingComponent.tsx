@@ -11,7 +11,6 @@ export const MatchingComponent = () => {
 
   useEffect(() => {
     const token = sessionStorage.getItem('accessToken');
-    console.log(token);
     if (!token) return;
     setAccessToken(token);
   }, []);
