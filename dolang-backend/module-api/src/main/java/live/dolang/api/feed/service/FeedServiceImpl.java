@@ -1,6 +1,7 @@
 package live.dolang.api.feed.service;
 
 import live.dolang.api.common.enums.SortType;
+import live.dolang.api.common.exception.ForbiddenException;
 import live.dolang.api.common.exception.NotFoundException;
 import live.dolang.api.common.response.BaseResponseStatus;
 import live.dolang.api.common.util.UTCTimeUtil;
@@ -8,7 +9,7 @@ import live.dolang.api.feed.dto.FeedParticipantsResponseDto;
 import live.dolang.api.feed.dto.TodayFeedResponseDto;
 import live.dolang.api.feed.projection.TodayFeedProjection;
 import live.dolang.api.feed.repository.FeedRepository;
-import live.dolang.api.post.service.CustomDateSentenceService;
+import live.dolang.api.post.service.CustomUserDateSentenceService;
 import live.dolang.api.post.service.PostBookmarkService;
 import live.dolang.api.post.service.UserBookmarkService;
 import live.dolang.core.domain.date.repository.DateRepository;
@@ -26,7 +27,7 @@ public class FeedServiceImpl implements FeedService{
 
     private final UserService userService;
     private final CustomUserProfileService customUserProfileService;
-    private final CustomDateSentenceService customDateSentenceService;
+    private final CustomUserDateSentenceService customDateSentenceService;
     private final UserBookmarkService userBookmarkService;
     private final PostBookmarkService postBookmarkService;
     // 예시: 사용자의 북마크 여부 조회
@@ -63,6 +64,15 @@ public class FeedServiceImpl implements FeedService{
         TodayFeedProjection proj = feedRepository.selectTodayFeed(userId, language, languageLevel, todayUTCInstant);
         Boolean isUserBookmarked = null;
         Boolean isNativeFeed = proj.getIsNativeFeed();
+
+        if (!isNativeFeed) {
+            // 사용자가 하나라도 어떤 기록을 남겼는지 본다.
+            // 근데 이제 이게 모국어 피드인지는 모르는...
+            boolean isRecordExist = customDateSentenceService.isUserRecordedSentenceAt(userId, todayUTCInstant);
+            if (!isRecordExist) {
+                throw new ForbiddenException(BaseResponseStatus.NOT_NATIVE_POST_UPLOADED);
+            }
+        }
 
         if (userId != null && proj.getFeedId() != null && proj.getPostId() != null) {
             isUserBookmarked = userBookmarkService.isBookmarked(userId, proj.getFeedId(), proj.getPostId());
@@ -101,6 +111,7 @@ public class FeedServiceImpl implements FeedService{
         if (proj.getPostId() == null) return dto;
 
         // TODO: 0 대신 모국어 피드가 아닌 경우 postLikeService로부터 갱신하기
+        // 모국어 피드에 따라 북마크 & 좋아요 관련 설정
         if (isNativeFeed) {
             dto.getFeed().getUserParticipation().setHeartCount(0);
         } else {
@@ -133,7 +144,7 @@ public class FeedServiceImpl implements FeedService{
             throw new NotFoundException(BaseResponseStatus.NOT_EXIST_USER);
         }
 
-        if (customDateSentenceService.isDateSentenceExists(feedId)) {
+        if (customDateSentenceService.isUserDateSentenceExists(feedId)) {
             throw new NotFoundException(BaseResponseStatus.NOT_EXIST_FEED);
         }
 

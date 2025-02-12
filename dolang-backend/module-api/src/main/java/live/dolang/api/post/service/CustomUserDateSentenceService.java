@@ -1,7 +1,7 @@
 package live.dolang.api.post.service;
 
+import live.dolang.api.post.repository.CustomUserDateSentenceRepository;
 import live.dolang.core.domain.user_date_sentence.repository.UserDateSentenceRepository;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -11,17 +11,23 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class CustomUserDateSentenceService {
+    private final CustomUserDateSentenceRepository customUserDateSentenceRepository;
     private final UserDateSentenceRepository userDateSentenceRepository;
     private final S3Client s3Client;
     @Value("${aws.s3.bucket}")
     private String bucket;
     public boolean isUserDateSentenceExists(Integer userDateSentenceId) {
         return userDateSentenceRepository.findById(userDateSentenceId).isEmpty();
+    }
+
+    public boolean isUserRecordedSentenceAt(Integer userId, Instant date) {
+        return customUserDateSentenceRepository.existsByUserIdAndDate(userId, date);
     }
 
     public String uploadTest(MultipartFile file) throws IllegalAccessException {
