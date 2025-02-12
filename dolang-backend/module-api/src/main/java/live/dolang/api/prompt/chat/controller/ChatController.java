@@ -1,7 +1,7 @@
-package live.dolang.api.chat.controller;
+package live.dolang.api.prompt.chat.controller;
 
-import live.dolang.api.chat.dto.RequestChatQuestionDto;
-import live.dolang.api.chat.service.ChatService;
+import live.dolang.api.prompt.chat.dto.RequestChatQuestionDto;
+import live.dolang.api.prompt.chat.service.ChatService;
 import live.dolang.api.common.response.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;

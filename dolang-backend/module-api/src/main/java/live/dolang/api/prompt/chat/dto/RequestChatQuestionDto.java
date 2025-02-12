@@ -1,4 +1,4 @@
-package live.dolang.api.chat.dto;
+package live.dolang.api.prompt.chat.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

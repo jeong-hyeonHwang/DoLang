@@ -73,3 +73,7 @@ logging:
     org.hibernate.SQL_SLOW: info
     org.hibernate.SQL: debug
     org.hibernate.orm.jdbc.bind: trace
+
+openAi:
+  apiKey: ${OPENAI_API_KEY}
+  apiUrl: ${OPENAI_API_URL}
