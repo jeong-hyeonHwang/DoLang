@@ -6,5 +6,5 @@ import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 
 public interface UserSentenceBookmarkLogRepository
         extends JpaRepository<UserSentenceBookmarkLog, Integer>,
-        QuerydslPredicateExecutor<UserSentenceBookmarkLog> {
+        QuerydslPredicateExecutor<UserSentenceBookmarkLogRepository> {
 }

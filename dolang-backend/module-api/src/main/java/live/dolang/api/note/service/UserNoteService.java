@@ -4,7 +4,7 @@ import live.dolang.api.common.exception.NotFoundException;
 import live.dolang.api.common.response.BaseResponseStatus;
 import live.dolang.api.note.document.UserNoteDocument;
 import live.dolang.api.note.dto.UserNoteRequestDto;
-import live.dolang.api.note.repository.UserNoteSearchRepository;
+import live.dolang.api.note.repository.ElasticSearchUserNoteRepository;
 import live.dolang.core.domain.user.User;
 import live.dolang.core.domain.user.repository.UserRepository;
 import live.dolang.core.domain.user_note.UserNote;
@@ -24,7 +24,7 @@ import java.time.Instant;
 public class UserNoteService {
 
     private final UserNoteRepository userNoteRepository;
-    private final UserNoteSearchRepository userNoteSearchRepository;
+    private final ElasticSearchUserNoteRepository elasticSearchUserNoteRepository;
     private final UserRepository userRepository;
 
     // MySQL 과 Elasticsearch 에 저장
@@ -56,20 +56,19 @@ public class UserNoteService {
                 .interestLanguageId(requestDto.getInterestLanguageId())
                 .createdAt(userNote.getCreatedAt())
                 .build();
-        userNoteSearchRepository.save(userNoteDocument);
+        elasticSearchUserNoteRepository.save(userNoteDocument);
 
     }
 
     // Elasticsearch 에서 ID 로 조회 ( 장애 시 mysql )
     public Page<UserNoteDocument> getUserNoteById(Integer userId, int page, int size) {
         // 유저 정보 먼저 조회
-        return userNoteSearchRepository.findByUserId(userId, PageRequest.of(page, size));
+        return elasticSearchUserNoteRepository.findByUserId(userId, PageRequest.of(page, size));
     }
-
 
     // Elasticsearch 에서 키워드 검색
     public Page<UserNoteDocument> searchUserNotes(Integer userId, String keyword, int page, int size) {
-        return userNoteSearchRepository.searchNotesByUserIdAndKeyword(userId, keyword, PageRequest.of(page, size));
+        return elasticSearchUserNoteRepository.searchNotesByUserIdAndKeyword(userId, keyword, PageRequest.of(page, size));
     }
 
 

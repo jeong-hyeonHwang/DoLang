@@ -2,6 +2,8 @@ server:
   port: 8100
 
 spring:
+  config:
+    import: classpath:/env.yml
   application:
     name: api
   datasource:
@@ -23,6 +25,8 @@ spring:
         prefix: "feed"
       bookmark:
         postfix: "bookmark"
+      heart:
+        postfix: "heart"
       user:
         prefix: "user"
       count:
@@ -44,6 +48,9 @@ spring:
   batch:
     jdbc:
       initialize-schema: always
+    job:
+      name: redisBookmarkToDatabaseJob,redisHeartToDatabaseJob
+      enabled: false
 
   # Spring Cloud AWS 설정 명시적으로 추가
   cloud:
@@ -73,3 +80,7 @@ logging:
     org.hibernate.SQL_SLOW: info
     org.hibernate.SQL: debug
     org.hibernate.orm.jdbc.bind: trace
+
+openAi:
+  apiKey: ${OPENAI_API_KEY}
+  apiUrl: ${OPENAI_API_URL}

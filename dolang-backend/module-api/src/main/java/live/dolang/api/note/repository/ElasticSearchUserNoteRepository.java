@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 
 
 @Repository
-public interface UserNoteSearchRepository extends ElasticsearchRepository<UserNoteDocument, String> {
+public interface ElasticSearchUserNoteRepository extends ElasticsearchRepository<UserNoteDocument, String> {
 
     // 특정 유저의 모든 기록 조회
 

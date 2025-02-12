@@ -22,10 +22,10 @@ public class PostBookmarkService {
     private String feedPrefix;
 
     @Value("${spring.data.redis.bookmark.postfix}")
-    private String userSentenceBookmarkCountPrefix;
+    private String bookmarkPrefix;
 
     @Value("${spring.data.redis.count.postfix}")
-    private String userSentenceBookmarkCountPostfix;
+    private String countPostfix;
 
     // 기존 Hash를 통한 관리
     private final RedisTemplate<String, Object> redisTemplate;
@@ -66,7 +66,7 @@ public class PostBookmarkService {
             hashOperations.putAll(hashKey, hashData);
 
             // Sorted Set에 저장: key는 별도로 생성 (예, 기존 key에 ":sorted" 접미사를 추가)
-            String sortedKey = getFeedBookmarkSortedKey(getFeedIdFromKey(hashKey));
+            String sortedKey = getFeedBookmarkSortedKey(hashKey);
             for (Map.Entry<Object, Object> e : hashData.entrySet()) {
                 // score는 북마크 수(Double 타입)로 변환
                 double score = Double.parseDouble(e.getValue().toString());
@@ -74,26 +74,34 @@ public class PostBookmarkService {
             }
         }
     }
-
     /**
      * 특정 피드의 특정 포스트 북마크 수 조회
      * - Redis에 값이 없으면 DB에서 전체 복구 후 값 반환
      */
-    public void getPostBookmarkCount(Integer feedId, Integer postId) {
+    public Integer getPostBookmarkCount(Integer feedId, Integer postId) {
         String hashKey = getFeedBookmarkKey(feedId);
-        Object countObj = hashOperations.get(hashKey, postId.toString());
 
-        if (countObj == null) {
+        Integer count = (Integer) hashOperations.get(hashKey, postId.toString());
+
+        if (count == null) {
+            // 데이터가 없으면 DB에서 전체 복구
             recoverAllPostBookmarkCountsFromDB();
-            countObj = hashOperations.get(hashKey, postId.toString());
-            if (countObj == null) {
-                countObj = 0L;
-                hashOperations.put(hashKey, postId.toString(), countObj);
-                // Sorted Set에도 추가
-                String sortedKey = getFeedBookmarkSortedKey(feedId);
+            // 다시 조회
+            count = (Integer) hashOperations.get(hashKey, postId.toString());
+
+            // 그래도 null이면 (=DB에 해당 postId가 없다고 간주)
+            if (count == null) {
+                count = 0; // 기본값 0
+                // 해시에 정수만 put
+                hashOperations.put(hashKey, postId.toString(), count);
+
+                // Sorted Set에도 0으로 추가
+                String sortedKey = getFeedBookmarkSortedKey(hashKey);
                 zSetOperations.add(sortedKey, postId.toString(), 0);
             }
         }
+
+        return count;
     }
 
     /**
@@ -101,14 +109,12 @@ public class PostBookmarkService {
      */
     public void incrementPostBookmarkCount(Integer feedId, Integer postId) {
         String hashKey = getFeedBookmarkKey(feedId);
-        if (hashOperations.get(hashKey, postId.toString()) == null) {
-            // 값이 없으면 먼저 복구
-            getPostBookmarkCount(feedId, postId);
-        }
+        getPostBookmarkCount(feedId, postId);
+
         // Hash 업데이트
         hashOperations.increment(hashKey, postId.toString(), 1);
         // Sorted Set 업데이트
-        String sortedKey = getFeedBookmarkSortedKey(feedId);
+        String sortedKey = getFeedBookmarkSortedKey(hashKey);
 
         zSetOperations.incrementScore(sortedKey, postId.toString(), 1);
     }
@@ -122,7 +128,7 @@ public class PostBookmarkService {
         // Hash 업데이트
         hashOperations.increment(hashKey, postId.toString(), -1);
         // Sorted Set 업데이트
-        String sortedKey = getFeedBookmarkSortedKey(feedId);
+        String sortedKey = getFeedBookmarkSortedKey(hashKey);
         zSetOperations.incrementScore(sortedKey, postId.toString(), -1);
     }
 
@@ -133,25 +139,15 @@ public class PostBookmarkService {
     // Hash 자료구조에 사용될 피드별 key 생성
     private String getFeedBookmarkKey(Integer feedId) {
         return feedPrefix + ":" +
-                userSentenceBookmarkCountPrefix + ":" +
-                feedId + ":" + userSentenceBookmarkCountPostfix;
+                bookmarkPrefix + ":" +
+                feedId + ":" + countPostfix;
     }
 
     /**
      * Sorted Set에 사용될 key 생성
      * 기존 해시 key와는 별개로, ":sorted" 접미사를 붙여 구분
      */
-    private String getFeedBookmarkSortedKey(Integer feedId) {
-        return getFeedBookmarkKey(feedId) + ":sorted";
-    }
-
-    /**
-     * 해시 key에서 피드 아이디를 추출하는 헬퍼 메서드 (필요에 따라 구현)
-     */
-    private Integer getFeedIdFromKey(String key) {
-        // 예시: key가 "feed:bookmark:123:count" 형태라면, "123"을 추출
-        String withoutPrefix = key.replace(feedPrefix + userSentenceBookmarkCountPrefix, "");
-        String idStr = withoutPrefix.split(userSentenceBookmarkCountPostfix)[0];
-        return Integer.valueOf(idStr);
+    private String getFeedBookmarkSortedKey(String hashKey) {
+        return hashKey + ":sorted";
     }
 }

@@ -16,10 +16,10 @@ import java.time.Instant;
 public class UserBookmarkService {
 
     @Value("${spring.data.redis.user.prefix}")
-    private String userBookmarkPrefix;
+    private String userPrefix;
 
     @Value("${spring.data.redis.feed.prefix}")
-    private String feedBookmarkPrefix;
+    private String feedPrefix;
     @Value("${spring.data.redis.bookmark.postfix}")
     private String bookmarkPostfix;
 
@@ -39,7 +39,7 @@ public class UserBookmarkService {
         // 사용자와 피드 ID를 함께 사용하여 데이터 key와 필드 구성
         String dataKey = getDataKey(userId, feedId);
         String field = postId.toString();
-        // dirty 플래그용 key 구성 (예: "user:123:feed:456:bookmarks:dirty")
+        // dirty 플래그용 key 구성 (예: "user:123:feed:456:bookmark:dirty")
         String dirtySetKey = getDirtySetKey(userId, feedId);
 
         long timestamp = Instant.now().getEpochSecond();
@@ -75,7 +75,7 @@ public class UserBookmarkService {
      * 특정 포스트의 북마크 여부 조회 메서드
      * Redis에 값이 있으면 반환, 없으면 DB 조회
      */
-    private boolean isBookmarked(Integer userId, Integer feedId, Integer postId) {
+    public boolean isBookmarked(Integer userId, Integer feedId, Integer postId) {
         String dataKey = getDataKey(userId, feedId);
         String field = postId.toString();
         BookmarkDataDto data = bookmarkHashOperations.get(dataKey, field);
@@ -90,9 +90,9 @@ public class UserBookmarkService {
      * 예: "user:123:feed:456:bookmark"
      */
     private String getDataKey(Integer userId, Integer feedId) {
-        return userBookmarkPrefix + ":" +
+        return userPrefix + ":" +
                 userId + ":" +
-                feedBookmarkPrefix + ":" +
+                feedPrefix + ":" +
                 feedId + ":" +
                 bookmarkPostfix;
     }

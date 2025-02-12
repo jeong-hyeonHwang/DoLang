@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 @Repository
 @RequiredArgsConstructor
 public class CustomUserSentenceBookmarkLogRepositoryImpl implements CustomUserSentenceBookmarkLogRepository {
-
     private final JPAQueryFactory queryFactory;
 
     // 피드별, 포스트별 북마크 수를 집계

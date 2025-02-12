@@ -34,7 +34,7 @@ public class UserNote {
     private String interestNote;
 
     @CreationTimestamp
-    @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", updatable = false, nullable = false)
+    @Column(name = "created_at", columnDefinition = "TIMESTAMP", updatable = false, nullable = false)
     private Instant createdAt;
 
     @Column(name = "native_language_id", length = 2)

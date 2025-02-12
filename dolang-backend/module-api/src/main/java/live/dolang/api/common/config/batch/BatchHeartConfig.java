@@ -1,14 +1,14 @@
-package live.dolang.api.common.config;
+package live.dolang.api.common.config.batch;
 
-import live.dolang.api.post.dto.BookmarkDataDto;
+import live.dolang.api.post.dto.HeartDataDto;
 import live.dolang.core.domain.date_sentence.DateSentence;
 import live.dolang.core.domain.date_sentence.repository.DateSentenceRepository;
 import live.dolang.core.domain.user.User;
 import live.dolang.core.domain.user.repository.UserRepository;
 import live.dolang.core.domain.user_date_sentence.UserDateSentence;
 import live.dolang.core.domain.user_date_sentence.repository.UserDateSentenceRepository;
-import live.dolang.core.domain.user_sentence_bookmark_log.UserSentenceBookmarkLog;
-import live.dolang.core.domain.user_sentence_bookmark_log.repository.UserSentenceBookmarkLogRepository;
+import live.dolang.core.domain.user_sentence_like_log.UserSentenceLikeLog;
+import live.dolang.core.domain.user_sentence_like_log.repository.UserSentenceLikeLogRepository;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -37,13 +37,13 @@ import java.util.Set;
 
 @Configuration
 @RequiredArgsConstructor
-public class BatchConfig {
+public class BatchHeartConfig {
 
     @Value("${spring.data.redis.user.prefix}")
-    private String userBookmarkPrefix; // 예: "user:"
+    private String userPrefix; // 예: "user:"
 
-    @Value("${spring.data.redis.bookmark.postfix}")
-    private String bookmarkPostfix;    // 예: ":bookmark"
+    @Value("${spring.data.redis.heart.postfix}")
+    private String heartPostfix;    // 예: ":heart"
 
     private final JobRepository jobRepository;
     private final PlatformTransactionManager transactionManager;
@@ -51,15 +51,15 @@ public class BatchConfig {
     private final UserRepository userRepository;
     private final DateSentenceRepository dateSentenceRepository;
     private final UserDateSentenceRepository userDateSentenceRepository;
-    private final UserSentenceBookmarkLogRepository userSentenceBookmarkLogRepository;
+    private final UserSentenceLikeLogRepository userSentenceLikeLogRepository;
 
     /**
      * Redis에 저장된 dirty 플래그가 있는 북마크 데이터를 DB에 반영하는 Job
      */
     @Bean
-    public Job redisToDatabaseJob() {
-        return new JobBuilder("redisToDatabaseJob", jobRepository)
-                .start(redisToDatabaseStep())
+    public Job redisHeartToDatabaseJob() {
+        return new JobBuilder("redisHeartToDatabaseJob", jobRepository)
+                .start(redisHeartToDatabaseStep())
                 .build();
     }
 
@@ -68,12 +68,12 @@ public class BatchConfig {
      * Chunk 단위로 BookmarkLogWrapper를 읽고 처리한 후 DB 저장 및 dirty 플래그 제거
      */
     @Bean
-    public Step redisToDatabaseStep() {
-        return new StepBuilder("redisToDatabaseStep", jobRepository)
-                .<BookmarkLogWrapper, BookmarkLogWrapper>chunk(100, transactionManager)
-                .reader(redisItemReader())
-                .processor(redisItemProcessor())
-                .writer(redisItemWriter())
+    public Step redisHeartToDatabaseStep() {
+        return new StepBuilder("redisHeartToDatabaseStep", jobRepository)
+                .<HeartLogWrapper, HeartLogWrapper>chunk(100, transactionManager)
+                .reader(redisHeartItemReader())
+                .processor(redisHeartItemProcessor())
+                .writer(redisHeartItemWriter())
                 .faultTolerant()
                 .retryLimit(3)
                 .retry(Exception.class)
@@ -85,10 +85,10 @@ public class BatchConfig {
     // ItemReader: Redis에서 dirty 플래그가 있는 각 데이터 항목(키와 필드)을 읽어 BookmarkLogWrapper 목록을 생성
     @Bean
     @StepScope
-    public ItemReader<BookmarkLogWrapper> redisItemReader() {
-        List<BookmarkLogWrapper> wrapperList = new ArrayList<>();
-        // 키 패턴: "user:*:feed:*{bookmarkPostfix}"
-        String pattern = userBookmarkPrefix + "*:feed:*" + bookmarkPostfix;
+    public ItemReader<HeartLogWrapper> redisHeartItemReader() {
+        List<HeartLogWrapper> wrapperList = new ArrayList<>();
+        // 키 패턴: "user:*:feed:*{heartPostfix}"
+        String pattern = userPrefix + "*:feed:*" + heartPostfix;
         Set<String> dataKeys = redisTemplate.keys(pattern);
 
         if (dataKeys == null) {
@@ -120,7 +120,7 @@ public class BatchConfig {
             for (Object fieldObj : dirtyFields) {
                 String field = (String) fieldObj;
                 Object value = redisTemplate.opsForHash().get(dataKey, field);
-                if (!(value instanceof BookmarkDataDto bookmarkData)) {
+                if (!(value instanceof HeartDataDto heartData)) {
                     if (value != null) {
                         System.err.println("Unexpected data type in Redis: " + value.getClass());
                     }
@@ -151,17 +151,17 @@ public class BatchConfig {
                     continue;
                 }
 
-                LocalDateTime createdAt = LocalDateTime.ofEpochSecond(bookmarkData.getTimestamp(), 0, ZoneOffset.UTC);
+                LocalDateTime createdAt = LocalDateTime.ofEpochSecond(heartData.getTimestamp(), 0, ZoneOffset.UTC);
                 Instant instant = createdAt.atZone(ZoneOffset.UTC).toInstant();
-                UserSentenceBookmarkLog log = UserSentenceBookmarkLog.builder()
+                UserSentenceLikeLog log = UserSentenceLikeLog.builder()
                         .user(user)
                         .dateSentence(dateSentence)
                         .userDateSentence(userDateSentence)
-                        .bookmarkYn(bookmarkData.isBookmarked())
+                        .likeYn(heartData.isHearted())
                         .createdAt(instant)
                         .build();
                 // 각 dirty 항목과 관련된 dataKey와 field 정보를 함께 전달할 수 있도록 Wrapper에 담음
-                BookmarkLogWrapper wrapper = new BookmarkLogWrapper(log, dataKey, field);
+                HeartLogWrapper wrapper = new HeartLogWrapper(log, dataKey, field);
                 wrapperList.add(wrapper);
             }
         }
@@ -169,22 +169,22 @@ public class BatchConfig {
     }
 
     @Bean
-    public ItemProcessor<BookmarkLogWrapper, BookmarkLogWrapper> redisItemProcessor() {
+    public ItemProcessor<HeartLogWrapper, HeartLogWrapper> redisHeartItemProcessor() {
         return wrapper -> wrapper;
     }
 
     //ItemWriter: 로그를 DB에 저장한 후, 해당 dirty 플래그를 Redis에서 제거
     @Bean
-    public ItemWriter<BookmarkLogWrapper> redisItemWriter() {
+    public ItemWriter<HeartLogWrapper> redisHeartItemWriter() {
         return wrappers -> {
-            List<UserSentenceBookmarkLog> logsToSave = new ArrayList<>();
-            for (BookmarkLogWrapper wrapper : wrappers) {
+            List<UserSentenceLikeLog> logsToSave = new ArrayList<>();
+            for (HeartLogWrapper wrapper : wrappers) {
                 logsToSave.add(wrapper.getLog());
             }
             // DB 저장
-            userSentenceBookmarkLogRepository.saveAll(logsToSave);
+            userSentenceLikeLogRepository.saveAll(logsToSave);
             // 저장 후, 각 항목의 dirty 플래그 제거
-            for (BookmarkLogWrapper wrapper : wrappers) {
+            for (HeartLogWrapper wrapper : wrappers) {
                 String dirtySetKey = wrapper.getDataKey() + ":dirty";
                 redisTemplate.opsForSet().remove(dirtySetKey, wrapper.getField());
             }
@@ -196,8 +196,8 @@ public class BatchConfig {
      */
     @Getter
     @AllArgsConstructor
-    public static class BookmarkLogWrapper {
-        private final UserSentenceBookmarkLog log;
+    public static class HeartLogWrapper {
+        private final UserSentenceLikeLog log;
         private final String dataKey;
         private final String field;
     }
