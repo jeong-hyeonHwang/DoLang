@@ -23,6 +23,8 @@ spring:
         prefix: "feed"
       bookmark:
         postfix: "bookmark"
+      heart:
+        postfix: "heart"
       user:
         prefix: "user"
       count:
@@ -44,6 +46,9 @@ spring:
   batch:
     jdbc:
       initialize-schema: always
+    job:
+      name: redisBookmarkToDatabaseJob,redisHeartToDatabaseJob
+      enabled: false
 
   # Spring Cloud AWS 설정 명시적으로 추가
   cloud:
