@@ -38,6 +38,3 @@ out/
 ### SSH KEY ###
 *.jks
 *.p12
-
-### generated scripts ###
-/scripts/**

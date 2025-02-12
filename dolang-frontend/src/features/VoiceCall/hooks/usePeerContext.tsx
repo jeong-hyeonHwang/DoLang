@@ -36,7 +36,7 @@ export const PeerContextProvider = ({ children }: { children: React.ReactNode })
   const mediaStreamRef = useRef<MediaStream | null>(null);
 
   const peering = () => {
-    peer.current = new Peer();
+       peer.current = new Peer();
 
     // Emitted when a connection to the PeerServer is established.
     peer.current.on('open', (id) => {
@@ -74,12 +74,15 @@ export const PeerContextProvider = ({ children }: { children: React.ReactNode })
   };
 
   const initiateCall = (peerIdToCall) => {
+    console.log(peerIdToCall);
+
     if (peer.current) {
       navigator.mediaDevices
         .getUserMedia({ audio: true })
         .then((stream) => {
-          const mediaConnection = peer.current.call(peerIdToCall, stream);
+          const mediaConnection = peer.current!.call(peerIdToCall, stream);
           mediaConnectionRef.current = mediaConnection;
+          console.log('mediaStream' + mediaConnection);
           setEventsOnMediaConnection(mediaConnection);
           mediaStreamRef.current = stream;
         })
