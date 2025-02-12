@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useStompClientContext } from '../hooks/useClientContext';
 import VoiceCallMatchingIndicator from './VoiceCallMatchingIndicator';
 import { usePeerContext } from '../../VoiceCall/hooks/usePeerContext';
+import Cookies from 'js-cookie';
 
 export const MatchingComponent = () => {
   const { isConnected, isMatching, matchedUser, connectionError, connect, disconnect, startMatching, cancelMatching } =
@@ -10,7 +11,7 @@ export const MatchingComponent = () => {
   const { peerId } = usePeerContext();
 
   useEffect(() => {
-    const token = sessionStorage.getItem('accessToken');
+    const token = Cookies.get('access_token');
     if (!token) return;
     setAccessToken(token);
   }, []);
