@@ -2,6 +2,8 @@ server:
   port: 8100
 
 spring:
+  config:
+    import: classpath:/env.yml
   application:
     name: api
   datasource:

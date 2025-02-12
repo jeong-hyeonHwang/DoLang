@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import live.dolang.api.common.response.BaseResponse;
 import live.dolang.api.tag.document.TagDocument;
-import live.dolang.api.tag.dto.TagRequestDto;
+import live.dolang.api.tag.dto.TagSearchDto;
 import live.dolang.api.tag.service.TagService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -21,10 +21,10 @@ public class TagController {
 
     private final TagService tagService;
 
-    @Operation(hidden = true)
+    @Operation(hidden = true, summary = "태그의 MySQL 기준으로 ElasticSearch 과의 정합성 보장")
     @PostMapping
-    public BaseResponse<?> addTag(@RequestBody @Valid TagRequestDto requestDto) {
-        tagService.addTag(requestDto);
+    public BaseResponse<?> alignTagIntegrity() {
+        tagService.alignTagIntegrity();
         return BaseResponse.ok();
     }
 
@@ -37,13 +37,13 @@ public class TagController {
         return BaseResponse.ok(tagService.allTags(nativeLanguageId));
     }
 
-    // 기록 검색 (Elasticsearch 에서 키워드 검색)
+
     @Operation(
             summary = "태그 검색 조회",
             security = @SecurityRequirement(name = "BearerAuth")
     )
     @GetMapping("/search")
-    public BaseResponse<List<TagDocument>> searchNotes(@RequestParam String name) {
-        return BaseResponse.ok(tagService.searchTags(name));
+    public BaseResponse<List<TagDocument>> searchNotes(@ModelAttribute @Valid TagSearchDto requestDto) {
+        return BaseResponse.ok(tagService.searchTags(requestDto));
     }
 }

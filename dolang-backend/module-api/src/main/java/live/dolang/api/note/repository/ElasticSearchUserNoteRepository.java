@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface UserNoteSearchRepository extends ElasticsearchRepository<UserNoteDocument, String> {
+public interface ElasticSearchUserNoteRepository extends ElasticsearchRepository<UserNoteDocument, String> {
 
     // 특정 유저의 모든 기록 조회
     List<UserNoteDocument> findByUserId(Integer userId);

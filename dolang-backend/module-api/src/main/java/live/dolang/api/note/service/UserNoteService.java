@@ -4,7 +4,7 @@ import live.dolang.api.common.exception.NotFoundException;
 import live.dolang.api.common.response.BaseResponseStatus;
 import live.dolang.api.note.document.UserNoteDocument;
 import live.dolang.api.note.dto.UserNoteRequestDto;
-import live.dolang.api.note.repository.UserNoteSearchRepository;
+import live.dolang.api.note.repository.ElasticSearchUserNoteRepository;
 import live.dolang.core.domain.user.User;
 import live.dolang.core.domain.user.repository.UserRepository;
 import live.dolang.core.domain.user_note.UserNote;
@@ -23,7 +23,7 @@ import java.util.List;
 public class UserNoteService {
 
     private final UserNoteRepository userNoteRepository;
-    private final UserNoteSearchRepository userNoteSearchRepository;
+    private final ElasticSearchUserNoteRepository elasticSearchUserNoteRepository;
     private final UserRepository userRepository;
 
     // MySQL 과 Elasticsearch 에 저장
@@ -55,7 +55,7 @@ public class UserNoteService {
                 .interestLanguageId(requestDto.getInterestLanguageId())
                 .createdAt(userNote.getCreatedAt())
                 .build();
-        userNoteSearchRepository.save(userNoteDocument);
+        elasticSearchUserNoteRepository.save(userNoteDocument);
 
     }
 
@@ -67,7 +67,7 @@ public class UserNoteService {
 
         try {
             // Elasticsearch 에서 조회
-            return userNoteSearchRepository.findByUserId(userId);
+            return elasticSearchUserNoteRepository.findByUserId(userId);
         } catch (Exception e) {
             log.error(e.getMessage());
             // ES 장애 시, MySQL 에서 조회
@@ -77,7 +77,7 @@ public class UserNoteService {
 
     // Elasticsearch 에서 키워드 검색
     public List<UserNoteDocument> searchUserNotes(Integer userId, String keyword) {
-        return userNoteSearchRepository.searchNotesByUserIdAndKeyword(userId, keyword);
+        return elasticSearchUserNoteRepository.searchNotesByUserIdAndKeyword(userId, keyword);
     }
 
     // UserNote (MySQL 데이터) → UserNoteDocument (ES 문서) 변환
