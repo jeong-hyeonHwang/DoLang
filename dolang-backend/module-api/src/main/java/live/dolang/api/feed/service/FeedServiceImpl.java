@@ -9,9 +9,7 @@ import live.dolang.api.feed.dto.FeedParticipantsResponseDto;
 import live.dolang.api.feed.dto.TodayFeedResponseDto;
 import live.dolang.api.feed.projection.TodayFeedProjection;
 import live.dolang.api.feed.repository.FeedRepository;
-import live.dolang.api.post.service.CustomUserDateSentenceService;
-import live.dolang.api.post.service.PostBookmarkService;
-import live.dolang.api.post.service.UserBookmarkService;
+import live.dolang.api.post.service.*;
 import live.dolang.core.domain.date.repository.DateRepository;
 import live.dolang.core.domain.language.repository.LanguageRepository;
 import live.dolang.core.domain.language_level.repository.LanguageLevelRepository;
@@ -30,6 +28,8 @@ public class FeedServiceImpl implements FeedService{
     private final CustomUserDateSentenceService customDateSentenceService;
     private final UserBookmarkService userBookmarkService;
     private final PostBookmarkService postBookmarkService;
+    private final UserHeartService userHeartService;
+    private final PostHeartService postHeartService;
     // 예시: 사용자의 북마크 여부 조회
 
     private final FeedRepository feedRepository;
@@ -109,11 +109,9 @@ public class FeedServiceImpl implements FeedService{
         }
 
         if (proj.getPostId() == null) return dto;
-
-        // TODO: 0 대신 모국어 피드가 아닌 경우 postLikeService로부터 갱신하기
         // 모국어 피드에 따라 북마크 & 좋아요 관련 설정
         if (isNativeFeed) {
-            dto.getFeed().getUserParticipation().setHeartCount(0);
+            dto.getFeed().getUserParticipation().setHeartCount(postHeartService.getPostHeartCount(proj.getFeedId(), proj.getPostId()));
         } else {
             dto.getFeed().getUserParticipation().setBookmarkCount(postBookmarkService.getPostBookmarkCount(proj.getFeedId(), proj.getPostId()));
         }
@@ -152,9 +150,8 @@ public class FeedServiceImpl implements FeedService{
         FeedParticipantsResponseDto dto = feedRepository.selectTodayFeedParticipantsByLatest(feedId, length, nextCursor, isNativeFeed);
 
         if (isNativeFeed) { // 모국어 피드 - 하트
-            // TODO: 좋아요 기능 구현 후 수정
             for(FeedParticipantsResponseDto.FeedParticipant p : dto.getParticipants()) {
-                p.setHeartCount(0);
+                p.setHeartCount(postHeartService.getPostHeartCount(feedId, p.getPostId()));
             }
         } else { // 외국어 피드 - 북마크
             for(FeedParticipantsResponseDto.FeedParticipant p : dto.getParticipants()) {
@@ -164,9 +161,8 @@ public class FeedServiceImpl implements FeedService{
         // 회원인 경우
         if (userId != null) {
             if (isNativeFeed) { // 모국어 피드 - 하트
-                // TODO: 좋아요 기능 구현 후 수정
                 for(FeedParticipantsResponseDto.FeedParticipant p : dto.getParticipants()) {
-                    p.setIsUserHearted(false);
+                    p.setIsUserHearted(userHeartService.isHearted(userId, feedId, p.getPostId()));
                 }
             } else { // 외국어 피드 - 북마크
                 for(FeedParticipantsResponseDto.FeedParticipant p : dto.getParticipants()) {
