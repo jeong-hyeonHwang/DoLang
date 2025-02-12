@@ -11,11 +11,12 @@ import live.dolang.core.domain.user_note.UserNote;
 import live.dolang.core.domain.user_note.repository.UserNoteRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.List;
 
 @Slf4j
 @Service
@@ -60,39 +61,14 @@ public class UserNoteService {
     }
 
     // Elasticsearch 에서 ID 로 조회 ( 장애 시 mysql )
-    public List<UserNoteDocument> getUserNoteById(Integer userId) {
+    public Page<UserNoteDocument> getUserNoteById(Integer userId, int page, int size) {
         // 유저 정보 먼저 조회
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException(BaseResponseStatus.NOT_EXIST_USER));
-
-        try {
-            // Elasticsearch 에서 조회
-            return elasticSearchUserNoteRepository.findByUserId(userId);
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            // ES 장애 시, MySQL 에서 조회
-            return convertToDocumentList(userNoteRepository.findByUser(user));
-        }
+        return elasticSearchUserNoteRepository.findByUserId(userId, PageRequest.of(page, size));
     }
 
     // Elasticsearch 에서 키워드 검색
-    public List<UserNoteDocument> searchUserNotes(Integer userId, String keyword) {
-        return elasticSearchUserNoteRepository.searchNotesByUserIdAndKeyword(userId, keyword);
-    }
-
-    // UserNote (MySQL 데이터) → UserNoteDocument (ES 문서) 변환
-    private List<UserNoteDocument> convertToDocumentList(List<UserNote> userNotes) {
-        return userNotes.stream().map(note ->
-                UserNoteDocument.builder()
-                        .id(note.getId().toString())
-                        .userId(note.getUser().getId())
-                        .nativeNote(note.getNativeNote())
-                        .interestNote(note.getInterestNote())
-                        .nativeLanguageId(note.getNativeLanguageId())
-                        .interestLanguageId(note.getInterestLanguageId())
-                        .createdAt(note.getCreatedAt())
-                        .build()
-        ).toList();
+    public Page<UserNoteDocument> searchUserNotes(Integer userId, String keyword, int page, int size) {
+        return elasticSearchUserNoteRepository.searchNotesByUserIdAndKeyword(userId, keyword, PageRequest.of(page, size));
     }
 
 
