@@ -86,7 +86,7 @@ export const StompClientProvider = ({ children }: StompClientProviderProps) => {
 
       // 새 stompClient 인스턴스 생성
       const stompClient = new Client({
-        brokerURL: `ws://${MATCHING_SERVER_URL}/ws`,
+        brokerURL: `wss://${MATCHING_SERVER_URL}/wss`,
         connectHeaders: {
           Authorization: `Bearer ${accessToken}`,
         },
