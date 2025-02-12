@@ -5,7 +5,7 @@ import live.dolang.api.common.exception.InvalidSortTypeException;
 import java.util.Arrays;
 
 public enum SortType {
-    BOOKMARK, LIKE, LATEST;
+    LIKE, LATEST;
 
     /**
      * 주어진 문자열이 Enum에 존재하는 값인지 확인
@@ -23,5 +23,10 @@ public enum SortType {
                 .filter(s -> s.name().equalsIgnoreCase(sort))
                 .findFirst()
                 .orElseThrow(() -> new InvalidSortTypeException(sort));
+    }
+
+    @Override
+    public String toString() {
+        return name().toLowerCase();
     }
 }

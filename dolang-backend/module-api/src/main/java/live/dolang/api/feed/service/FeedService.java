@@ -1,11 +1,11 @@
 package live.dolang.api.feed.service;
 
+import live.dolang.api.common.enums.SortType;
 import live.dolang.api.feed.dto.FeedParticipantsResponseDto;
 import live.dolang.api.feed.dto.TodayFeedResponseDto;
-import org.springframework.http.ResponseEntity;
 
 public interface FeedService {
-    ResponseEntity<TodayFeedResponseDto> getTodayFeed(Integer userId, String lang, String langLevel);
+    TodayFeedResponseDto getTodayFeed(Integer userId, String lang, String langLevel);
 
-    ResponseEntity<FeedParticipantsResponseDto> getTodayFeedParticipants(Integer feedId, String sort, Integer length, Integer nextCursor);
+    FeedParticipantsResponseDto getTodayFeedParticipants(Integer userId, Integer feedId, SortType sort, Integer length, String nextCursor);
 }

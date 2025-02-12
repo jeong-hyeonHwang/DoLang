@@ -25,7 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class PostController {
 
     private final UserService userService;
-    private final CustomDateSentenceService customDatesentenceService;
+    private final CustomDateSentenceService customDateSentenceService;
     private final CustomUserDateSentenceService customUserDateSentenceService;
     private final BookmarkFacadeService bookmarkFacadeService;
     private final PostService postService;
@@ -49,7 +49,7 @@ public class PostController {
             throw new NotFoundException(BaseResponseStatus.NOT_EXIST_USER);
         }
 
-        if (customDatesentenceService.isDateSentenceExists(feedId)) {
+        if (customDateSentenceService.isDateSentenceExists(feedId)) {
             throw new NotFoundException(BaseResponseStatus.NOT_EXIST_FEED);
         }
         if (customUserDateSentenceService.isUserDateSentenceExists(postId)) {
