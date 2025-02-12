@@ -27,7 +27,6 @@ export const userPut = async (data: UserProfileData) => {
       body: JSON.stringify(data),
     });
 
-    // 🔥 401 에러 처리 (토큰 만료 시 로그아웃 처리)
     if (response.status === 401) {
       alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
       Cookies.remove('access_token'); // 토큰 삭제
@@ -40,7 +39,6 @@ export const userPut = async (data: UserProfileData) => {
       throw new Error(`서버 응답 오류: ${response.status}`);
     }
 
-    // 🔥 빈 응답 처리 (response.json() 실행 전 확인)
     const responseData = response.headers.get('content-type')?.includes('application/json')
       ? await response.json()
       : null;

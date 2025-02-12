@@ -14,9 +14,8 @@ import type { User } from '../../shared/types/UserInfo.type';
 import Cookies from 'js-cookie';
 
 type Interest = {
-  id: number;
-  nativeLanguageId: string;
-  name: string;
+  tagId: number;
+  tagName: string;
 };
 interface SignupFormData {
   nickname: string;
@@ -190,19 +189,21 @@ function SignupForm() {
     },
   });
 
+  const accessToken = Cookies.get('access_token');
+  // console.log('signuptk', accessToken);
+
   const onSubmit = async (data: SignupFormData) => {
     if (!isNicknameChecked) {
       setNicknameErrorMessage('닉네임 중복 확인이 필요합니다.');
       return;
     }
-
     try {
-      const response = await userPost(data);
-      console.log('Userdata: ', data);
-      if (response.status === 200) {
+      const responseData = await userPost(data, accessToken);
+      console.log('resData: ', responseData);
+      if (responseData.data.code === 200) {
         setAuth((prevAuth) => ({
           ...prevAuth,
-          user: data,
+          user: responseData?.config.data,
           isLoggedIn: true,
         }));
 
