@@ -36,21 +36,7 @@ export const PeerContextProvider = ({ children }: { children: React.ReactNode })
   const mediaStreamRef = useRef<MediaStream | null>(null);
 
   const peering = () => {
-       peer.current = new Peer(undefined, {
-         host: 'peer.imhyuk.kr',
-         port: 443,
-         pingInterval: 5000,
-         path: '/',
-         secure: true,
-         config: {
-           iceServers: [
-             { url: 'stun:stun.l.google.com:19302' },
-             { url: 'turn:13.125.99.196:3478', username: 'user', credential: '1234' },
-           ],
-           sdpSemantics: 'unified-plan',
-         },
-         debug: 3,
-       });
+       peer.current = new Peer();
 
     // Emitted when a connection to the PeerServer is established.
     peer.current.on('open', (id) => {
@@ -88,13 +74,15 @@ export const PeerContextProvider = ({ children }: { children: React.ReactNode })
   };
 
   const initiateCall = (peerIdToCall) => {
+    console.log(peerIdToCall);
+
     if (peer.current) {
-      const currentPeer = peer.current;
       navigator.mediaDevices
         .getUserMedia({ audio: true })
         .then((stream) => {
-          const mediaConnection = currentPeer.call(peerIdToCall, stream);
+          const mediaConnection = peer.current.call(peerIdToCall, stream);
           mediaConnectionRef.current = mediaConnection;
+          console.log('mediaStream' + mediaConnection);
           setEventsOnMediaConnection(mediaConnection);
           mediaStreamRef.current = stream;
         })

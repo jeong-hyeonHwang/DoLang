@@ -141,7 +141,7 @@ export default function MainViewComponent() {
   const handleOk = () => {
     if (matchedUser) {
       console.log('matchedUser', matchedUser);
-      initiateCall();
+      initiateCall(matchedUser);
       navigate('/call');
     }
   };
