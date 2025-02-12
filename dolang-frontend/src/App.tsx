@@ -2,10 +2,9 @@ import React from 'react';
 import { Routes, Route } from 'react-router';
 import LayoutDesign from './shared/Layout.tsx';
 import LayoutNoNav from './shared/LayoutNoNav.tsx';
-import MainPage from './app/routes/MainView.tsx';
+import MainView from './app/routes/MainView.tsx';
 import { StompClientProvider } from './features/Matching/hooks/useClientContext.tsx';
 import Layout from './shared/Layout.tsx';
-import MainView from './app/routes/MainView.tsx';
 import FeedView from './app/routes/FeedView.tsx';
 import SavedContentsView from './app/routes/SavedContentsView.tsx';
 import VoiceCallView from './app/routes/VoiceCallView.tsx';
@@ -26,9 +25,6 @@ function App() {
       <GlobalStyle />
       <Routes>
         <Route element={<LayoutDesign />}>
-          <Route index element={<MainPage />} />
-        {/* <Route element={<Layout />}> */}
-        <Route element={<Layout />}>
           <Route
             index
             element={
@@ -39,10 +35,11 @@ function App() {
               </PeerContextProvider>
             }
           />
+        </Route>
+        <Route element={<Layout />}>
           <Route path="feed" element={<FeedView />} />
           <Route path="savedContents" element={<SavedContentsView />} />
           <Route path="profile" element={<UserProfileView />} />
-          <Route path="/call" element={<VoiceCallView />} />
           <Route
             path="/call"
             element={

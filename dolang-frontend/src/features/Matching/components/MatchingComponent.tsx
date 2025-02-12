@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useStompClientContext } from '../hooks/useClientContext';
 import VoiceCallMatchingIndicator from './VoiceCallMatchingIndicator';
 import { usePeerContext } from '../../VoiceCall/hooks/usePeerContext';
@@ -8,19 +8,18 @@ export const MatchingComponent = () => {
     useStompClientContext();
   const [accessToken, setAccessToken] = useState('');
   const { peerId } = usePeerContext();
+
+  useEffect(() => {
+    const token = sessionStorage.getItem('accessToken');
+    console.log(token);
+    if (!token) return;
+    setAccessToken(token);
+  }, []);
+
   return (
     <div>
       <div>
         {peerId ? <div>peerId: {peerId}</div> : <div>peerId: null</div>}
-        <input
-          type="text"
-          placeholder="Enter Access Token"
-          value={accessToken}
-          onChange={(e) => {
-            setAccessToken(e.target.value);
-            console.log(accessToken);
-          }}
-        />
         {!isConnected ? (
           <button onClick={() => connect(accessToken)}>Connect</button>
         ) : (
@@ -55,4 +54,3 @@ export const MatchingComponent = () => {
     </div>
   );
 };
-
