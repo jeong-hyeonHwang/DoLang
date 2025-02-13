@@ -47,7 +47,12 @@ public enum BaseResponseStatus {
     /**
      * 날짜 에러
      */
-    NOT_EXIST_DATE(false, HttpStatus.NOT_FOUND.value(), "저장된 날짜를 찾을 수 없습니다.")
+    NOT_EXIST_DATE(false, HttpStatus.NOT_FOUND.value(), "저장된 날짜를 찾을 수 없습니다."),
+
+    /**
+     * ChatGPT API 에러
+     */
+    CHATGPT_RESPONSE_ERROR(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "ChatGPT의 응답이 잘못되었습니다.")
     ;
 
     private final boolean isSuccess;
