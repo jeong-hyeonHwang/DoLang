@@ -2,6 +2,7 @@ import { css } from '@emotion/react';
 import { Mic, Volume1 } from 'lucide-react';
 import { useCallContext } from '../hooks/useCallContext';
 import { usePeerContext } from '../hooks/usePeerContext';
+import VoiceCallChat from './VoiceCallChat';
 
 export const CallWaveIndicator = () => {
   const { progress, handleRecord, containerRef, waveSurferRef } = useCallContext();
@@ -61,6 +62,8 @@ export const CallWaveIndicator = () => {
         {mediaConnectionRef && <span> {progress}</span>}
         <button onClick={() => closeCall()}>Close</button>
       </div>
+
+      <VoiceCallChat />
     </>
   );
 };
