@@ -1,14 +1,18 @@
-package live.dolang.matching.swagger;
+package live.dolang.matching.config.swagger;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import live.dolang.matching.MatchedUser;
+import live.dolang.core.domain.user_profile.UserProfile;
 import live.dolang.matching.reqeust.MatchingStartRequest;
 import live.dolang.matching.reqeust.MatchingStopRequest;
 import live.dolang.matching.response.MatchedResponse;
+import live.dolang.matching.response.MatchedUser;
+import live.dolang.matching.response.MatchedUserTag;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/")
@@ -54,8 +58,9 @@ public class SwaggerController {
     public MatchedResponse match() {
         return MatchedResponse.builder()
                 .ownerYN(true)
-                .me(new MatchedUser(1, "임혁", "0e1a55c8-909b-4c60-b8fc-3c63993c4769", "en"))
-                .matchedUser(new MatchedUser(2, "수달", "323ecdaa-d177-41b9-b269-97af069406c0", "ko")).build();
+                .me(new MatchedUser("0e1a55c8-909b-4c60-b8fc-3c63993c4769", 1, "임혁", UserProfile.Gender.M, "https://asdsadas.png", "임혁 닉네임", "ko", "kr", "en", List.of(new MatchedUserTag(1, "코틀린"))))
+                .matchedUser(new MatchedUser("1232131321312312412asd123", 2, "수달", UserProfile.Gender.F, "https://asds123213adas.png", "수달 닉네임", "us", "en", "kr", List.of(new MatchedUserTag(1, "Kotlin"))))
+                .build();
     }
 
 }

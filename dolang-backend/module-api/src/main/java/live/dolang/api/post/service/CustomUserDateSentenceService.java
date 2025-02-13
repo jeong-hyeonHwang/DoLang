@@ -22,11 +22,12 @@ public class CustomUserDateSentenceService {
     private final S3Client s3Client;
     @Value("${aws.s3.bucket}")
     private String bucket;
-    public boolean isUserDateSentenceExists(Integer userDateSentenceId) {
-        return userDateSentenceRepository.findById(userDateSentenceId).isEmpty();
+
+    public boolean isUserDateSentenceExists(Integer postId) {
+        return userDateSentenceRepository.existsById(postId);
     }
 
-    public boolean isUserRecordedSentenceAt(Integer userId, Instant date) {
+    public boolean isUserDateSentenceExistsAt(Integer userId, Instant date) {
         return customUserDateSentenceRepository.existsByUserIdAndDate(userId, date);
     }
 

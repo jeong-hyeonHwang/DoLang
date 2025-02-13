@@ -25,7 +25,8 @@ public class FeedServiceImpl implements FeedService{
 
     private final UserService userService;
     private final CustomUserProfileService customUserProfileService;
-    private final CustomUserDateSentenceService customDateSentenceService;
+    private final CustomUserDateSentenceService customUserDateSentenceService;
+    private final CustomDateSentenceService customDateSentenceService;
     private final UserBookmarkService userBookmarkService;
     private final PostBookmarkService postBookmarkService;
     private final UserHeartService userHeartService;
@@ -65,23 +66,24 @@ public class FeedServiceImpl implements FeedService{
         Boolean isUserBookmarked = null;
         Boolean isNativeFeed = proj.getIsNativeFeed();
 
-        if (!isNativeFeed) {
-            // 사용자가 하나라도 어떤 기록을 남겼는지 본다.
-            // 근데 이제 이게 모국어 피드인지는 모르는...
-            boolean isRecordExist = customDateSentenceService.isUserRecordedSentenceAt(userId, todayUTCInstant);
-            if (!isRecordExist) {
-                throw new ForbiddenException(BaseResponseStatus.NOT_NATIVE_POST_UPLOADED);
+        if (userId != null) {
+            if (!isNativeFeed) {
+                // 사용자가 하나라도 어떤 기록을 남겼는지 본다.
+                // 근데 이제 이게 모국어 피드인지는 모르는...
+                boolean isRecordExist = customUserDateSentenceService.isUserDateSentenceExistsAt(userId, todayUTCInstant);
+                if (!isRecordExist) {
+                    throw new ForbiddenException(BaseResponseStatus.NOT_NATIVE_POST_UPLOADED);
+                }
             }
-        }
-
-        if (userId != null && proj.getFeedId() != null && proj.getPostId() != null) {
-            isUserBookmarked = userBookmarkService.isBookmarked(userId, proj.getFeedId(), proj.getPostId());
+            if (proj.getFeedId() != null && proj.getPostId() != null) {
+                isUserBookmarked = userBookmarkService.isBookmarked(userId, proj.getFeedId(), proj.getPostId());
+            }
         }
 
         TodayFeedResponseDto.Feed.FeedBuilder feedBuilder = TodayFeedResponseDto.Feed.builder()
                 .date(UTCTimeUtil.formatInstant(proj.getDate()))
                 .feedId(proj.getFeedId())
-                .lang(proj.getLang())
+                .lang(proj.getLanguage())
                 .isNativeFeed(isNativeFeed)
                 .sentenceInfo(TodayFeedResponseDto.SentenceInfo.builder()
                         .sentence(proj.getSentence())
@@ -97,6 +99,10 @@ public class FeedServiceImpl implements FeedService{
                             .voiceCreatedAt(UTCTimeUtil.formatInstant(proj.getVoiceCreatedAt()))
                             .build()
             );
+        } else {
+            feedBuilder.userParticipation(
+                    TodayFeedResponseDto.UserParticipation.builder().build()
+            ).build();
         }
 
         // 최종적으로 Feed 객체를 만들고, TodayFeedResponseDto에 세팅
@@ -132,17 +138,17 @@ public class FeedServiceImpl implements FeedService{
      */
     @Override
     public FeedParticipantsResponseDto getTodayFeedParticipants(Integer userId,
-                                                                   Integer feedId,
-                                                                   SortType sort,
-                                                                   Integer length,
-                                                                   String nextCursor) {
+                                                                Integer feedId,
+                                                                SortType sort,
+                                                                Integer length,
+                                                                String nextCursor) {
 
         // 존재하지 않는 사용자
         if (userId != null && !userService.isUserExists(userId)) {
             throw new NotFoundException(BaseResponseStatus.NOT_EXIST_USER);
         }
 
-        if (customDateSentenceService.isUserDateSentenceExists(feedId)) {
+        if (customDateSentenceService.isDateSentenceExists(feedId)) {
             throw new NotFoundException(BaseResponseStatus.NOT_EXIST_FEED);
         }
 

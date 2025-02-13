@@ -60,7 +60,7 @@ public class PostController {
         if (customDateSentenceService.isDateSentenceExists(feedId)) {
             throw new NotFoundException(BaseResponseStatus.NOT_EXIST_FEED);
         }
-        if (customUserDateSentenceService.isUserDateSentenceExists(postId)) {
+        if (!customUserDateSentenceService.isUserDateSentenceExists(postId)) {
             throw new NotFoundException(BaseResponseStatus.NOT_EXIST_POST);
         }
 
@@ -134,9 +134,10 @@ public class PostController {
             security = @SecurityRequirement(name = "BearerAuth") // JWT 인증 적용
     )
     public BaseResponse<Page<ResponseFeedDto>> getMyfeedList(@AuthenticationPrincipal Jwt jwt,
+                                                  @RequestParam(value = "lang", required = false)String lang,
                                                              @PageableDefault(size = 5, sort = "dateId", direction = Sort.Direction.DESC) Pageable pageable) {
         int userId = Integer.parseInt(jwt.getId());
-        Page<ResponseFeedDto> list = postService.getMyFeedList(userId,pageable);
+        Page<ResponseFeedDto> list = postService.getMyFeedList(userId, lang, pageable);
         return BaseResponse.ok(list);
     }
 }

@@ -15,7 +15,7 @@ public class TodayFeedProjection {
 
     private Instant date;
     private Integer feedId;
-    private String lang;
+    private String language;
     private Boolean isNativeFeed;
     private String sentence;
     private String level;
