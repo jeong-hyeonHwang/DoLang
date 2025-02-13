@@ -84,3 +84,7 @@ logging:
 openAi:
   apiKey: ${OPENAI_API_KEY}
   apiUrl: ${OPENAI_API_URL}
+
+deepl:
+  api:
+    key: ${DEEPL_API_KEY}
