@@ -1,10 +1,10 @@
-import FloatingRecord from '../../shared/components/FloatingButton/FloatingRecord';
+import { NoteComponent } from '@/features/Note/components/NoteComponent';
 import MainViewComponent from './MainView/MainViewComponent';
 
 const MainView = () => {
   return (
     <>
-      <FloatingRecord />
+      <NoteComponent />
       <MainViewComponent />
     </>
   );
