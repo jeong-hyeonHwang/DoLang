@@ -7,11 +7,11 @@ import live.dolang.core.domain.user_profile.repository.UserProfileRepository;
 import live.dolang.matching.reqeust.MatchingStartRequest;
 import live.dolang.matching.reqeust.MatchingStopRequest;
 import live.dolang.matching.response.MatchedResponse;
+import live.dolang.matching.response.MatchedUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 public class MatchingService {
 
     private final UserProfileRepository userProfileRepository;
-    private final MatchingUserTagRepository matchingUserTagRepository;
+    private final MatchingRepository matchingRepository;
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final RedisTemplate<String, String> redisTemplate;
     private final ObjectMapper objectMapper;
@@ -49,20 +49,20 @@ public class MatchingService {
     private void match() {
 
         // Process Korean queue for users with native=en
-        Set<String> krQueue = redisTemplate.opsForSet().members("matching:queue:kr");
-        List<MatchedUser> krCandidates = processQueue(krQueue, "en");
+        Set<String> koQueue = redisTemplate.opsForSet().members("matching:queue:ko");
+        List<MatchingUser> koCandidates = processQueue(koQueue, "en");
 
-        // Process English queue for users with native=kr
+        // Process English queue for users with native=ko
         Set<String> enQueue = redisTemplate.opsForSet().members("matching:queue:en");
-        List<MatchedUser> enCandidates = processQueue(enQueue, "kr");
-        log.info("Matching... kr: {} en: {}", krCandidates.size(), enCandidates.size());
+        List<MatchingUser> enCandidates = processQueue(enQueue, "ko");
+        log.info("Matching... ko: {} en: {}", koCandidates.size(), enCandidates.size());
 
         // 태그 비교를 통한 매칭
         List<MatchingPair> matchingPairs = new ArrayList<>();
-        for (MatchedUser krUser : krCandidates) {
-            for (MatchedUser enUser : enCandidates) {
-                if (hasCommonTag(krUser.getTagIdList(), enUser.getTagIdList())) {
-                    matchingPairs.add(new MatchingPair(krUser, enUser));
+        for (MatchingUser koUser : koCandidates) {
+            for (MatchingUser enUser : enCandidates) {
+                if (hasCommonTag(koUser.getTagIdList(), enUser.getTagIdList())) {
+                    matchingPairs.add(new MatchingPair(koUser, enUser));
                     enCandidates.remove(enUser); // 반복문에서 제거
                     break;
                 }
@@ -71,20 +71,36 @@ public class MatchingService {
 
 
         for (MatchingPair pair : matchingPairs) {
-            MatchedUser userK = pair.krUser;
-            MatchedUser userE = pair.enUser;
+            MatchingUser userK = pair.koUser;
+            MatchingUser userE = pair.enUser;
             log.info("Matched!!! userK: {} userE: {}", userK.getUserId(), userE.getUserId());
 
-            removeUserFromQueue("kr", userK);
+            removeUserFromQueue("ko", userK);
             removeUserFromQueue("en", userE);
 
+            // userK 의 좀더 자세한 사용자 프로필 정보 조회
+            MatchedUser detailUserK = matchingRepository.getMatchedDetailUser(userK.getUserId());
+            detailUserK.setPeerId(userK.getPeerId());
+            detailUserK.setUserId(userK.getUserId());
+            detailUserK.setUsername(userK.getUsername());
+            // 태그도 저장
+            detailUserK.setUserTagList(matchingRepository.getMatchedDetailUserTagList(userK.getUserId()));
+
+            // userE 의 좀더 자세한 사용자 프로필 정보 조회
+            MatchedUser detailUserE = matchingRepository.getMatchedDetailUser(userE.getUserId());
+            detailUserE.setPeerId(userE.getPeerId());
+            detailUserE.setUserId(userE.getUserId());
+            detailUserE.setUsername(userE.getUsername());
+            // 태그도 저장
+            detailUserE.setUserTagList(matchingRepository.getMatchedDetailUserTagList(userE.getUserId()));
+
             MatchedResponse responseE = MatchedResponse.builder()
-                    .matchedUser(userE)
-                    .me(userK)
+                    .matchedUser(detailUserE)
+                    .me(detailUserK)
                     .ownerYN(true).build();
             MatchedResponse responseK = MatchedResponse.builder()
-                    .matchedUser(userK)
-                    .me(userE)
+                    .matchedUser(detailUserK)
+                    .me(detailUserE)
                     .ownerYN(false).build();
 
             sendMessageToUser(userK.getUsername(), responseE);
@@ -119,7 +135,7 @@ public class MatchingService {
      * @param requiredNative 매칭에 필요한 모국어
      * @return 역시리얼화된 매칭 대기열
      */
-    private List<MatchedUser> processQueue(Set<String> queue, String requiredNative) {
+    private List<MatchingUser> processQueue(Set<String> queue, String requiredNative) {
         return Optional.ofNullable(queue).orElse(Collections.emptySet()).stream()
                 .map(this::parseUser)
                 .filter(Objects::nonNull)
@@ -133,9 +149,9 @@ public class MatchingService {
      * @param json 시리얼화 된 사용자 문자열
      * @return 역시리얼화 된 사용자
      */
-    private MatchedUser parseUser(String json) {
+    private MatchingUser parseUser(String json) {
         try {
-            return objectMapper.readValue(json, MatchedUser.class);
+            return objectMapper.readValue(json, MatchingUser.class);
         } catch (IOException e) {
             log.error("Failed to parse user JSON: {}", json, e);
             return null;
@@ -148,7 +164,7 @@ public class MatchingService {
      * @param user 매칭할 사용자
      * @return 시리얼화 된 사용자 문자열
      */
-    private String serializeUser(MatchedUser user) {
+    private String serializeUser(MatchingUser user) {
         try {
             return objectMapper.writeValueAsString(user);
         } catch (JsonProcessingException e) {
@@ -178,8 +194,8 @@ public class MatchingService {
      * @param tagIdList        태그 ID 목록
      */
     private void removeUserFromAllQueues(Integer userId, String username, String peerId, String nativeLanguageId, List<Integer> tagIdList) {
-        MatchedUser user = new MatchedUser(userId, username, peerId, nativeLanguageId, tagIdList);
-        removeUserFromQueue("kr", user);
+        MatchingUser user = new MatchingUser(userId, username, peerId, nativeLanguageId, tagIdList);
+        removeUserFromQueue("ko", user);
         removeUserFromQueue("en", user);
     }
 
@@ -189,7 +205,7 @@ public class MatchingService {
      * @param queue 대기열 큐 이름
      * @param user  제거할 사용자
      */
-    private void removeUserFromQueue(String queue, MatchedUser user) {
+    private void removeUserFromQueue(String queue, MatchingUser user) {
         String userJson = serializeUser(user);
         if (userJson != null) {
             redisTemplate.opsForSet().remove("matching:queue:" + queue, userJson);
@@ -200,18 +216,17 @@ public class MatchingService {
      * 사용자를 대기열에 등록합니다.
      *
      * @param request   대기 시작 요청 객체
-     * @param accessor  Stomp 메시지 헤더
      * @param principal 인증 객체
      */
-    public void enrollUser(MatchingStartRequest request, StompHeaderAccessor accessor, JwtAuthenticationToken principal) {
+    public void enrollUser(MatchingStartRequest request, JwtAuthenticationToken principal) {
         Integer userId = getUserId(principal);
         String username = principal.getName();
         String peerId = request.getPeerId();
         UserProfile userProfile = userProfileRepository.findById(userId).orElseThrow();
         String interestLanguageId = userProfile.getInterestLanguageId();
         String nativeLanguageId = userProfile.getNativeLanguageId();
-        List<Integer> tagIdList = matchingUserTagRepository.findUserTagIdListOrderByTagId(userId);
-        MatchedUser user = new MatchedUser(userId, username, peerId, nativeLanguageId, tagIdList);
+        List<Integer> tagIdList = matchingRepository.findUserTagIdListOrderByTagId(userId);
+        MatchingUser user = new MatchingUser(userId, username, peerId, nativeLanguageId, tagIdList);
         try {
             String userJson = objectMapper.writeValueAsString(user);
             redisTemplate.opsForSet().add("matching:queue:" + interestLanguageId, userJson);
@@ -224,16 +239,15 @@ public class MatchingService {
      * 사용자를 대기열에서 빼냅니다.
      *
      * @param request   대기 시작 요청 객체
-     * @param accessor  Stomp 메시지 헤더
      * @param principal 인증 객체
      */
-    public void dropOutUser(MatchingStopRequest request, StompHeaderAccessor accessor, JwtAuthenticationToken principal) {
+    public void dropOutUser(MatchingStopRequest request, JwtAuthenticationToken principal) {
         Integer userId = getUserId(principal);
         String username = principal.getName();
         String peerId = request.getPeerId();
         UserProfile userProfile = userProfileRepository.findById(userId).orElseThrow();
         String nativeLanguageId = userProfile.getNativeLanguageId();
-        List<Integer> tagIdList = matchingUserTagRepository.findUserTagIdListOrderByTagId(userId);
+        List<Integer> tagIdList = matchingRepository.findUserTagIdListOrderByTagId(userId);
         removeUserFromAllQueues(userId, username, peerId, nativeLanguageId, tagIdList);
     }
 

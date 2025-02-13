@@ -6,6 +6,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class MatchingPair {
-    MatchedUser krUser;
-    MatchedUser enUser;
+    MatchingUser koUser;
+    MatchingUser enUser;
 }

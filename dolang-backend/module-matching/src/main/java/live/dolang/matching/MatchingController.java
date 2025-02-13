@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Controller;
 
@@ -18,14 +17,16 @@ public class MatchingController {
 
     private final MatchingService matchingService;
 
+    // StompHeaderAccessor accessor
+
     @MessageMapping("start")
-    public void matchStart(@Payload MatchingStartRequest request, StompHeaderAccessor accessor, JwtAuthenticationToken principal) {
-        matchingService.enrollUser(request, accessor, principal);
+    public void matchStart(@Payload MatchingStartRequest request, JwtAuthenticationToken principal) {
+        matchingService.enrollUser(request, principal);
     }
 
     @MessageMapping("stop")
-    public void matchEnd(@Payload MatchingStopRequest request, StompHeaderAccessor accessor, JwtAuthenticationToken principal) {
-        matchingService.dropOutUser(request, accessor, principal);
+    public void matchEnd(@Payload MatchingStopRequest request, JwtAuthenticationToken principal) {
+        matchingService.dropOutUser(request, principal);
     }
 
     @MessageExceptionHandler
