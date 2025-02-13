@@ -1,1 +1,1 @@
-export type { MatchRequest, MatchResponse } from './Matching.type.tsx';
+export type { MatchRequest, MatchResponse } from './Matching.type.ts';

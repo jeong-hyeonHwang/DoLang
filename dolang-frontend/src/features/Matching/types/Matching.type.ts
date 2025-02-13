@@ -9,6 +9,12 @@ export interface MatchResponse {
   matchId: number;
 }
 
+export interface MatchingResult {
+  me: MatchedUser;
+  matchedUser: MatchedUser;
+  ownerYN: boolean;
+}
+
 export interface MatchedUser {
   peerId: string;
   userId: string;
