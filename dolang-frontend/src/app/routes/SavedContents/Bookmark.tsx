@@ -1,6 +1,11 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import styled from '@emotion/styled';
 import { CalendarIcon, Play, User, ChevronDown } from 'lucide-react';
+import DatePicker from '../../../shared/components/antd/DatePicker';
+import LanguagePicker from '../../../shared/components/Picker/LanguagePicker';
+
+const userData = JSON.parse(sessionStorage.getItem('user') || '{}');
+const targetLang = userData?.targetLanguage;
 
 const Container = styled.div`
   max-width: 800px;
@@ -155,15 +160,10 @@ export default function Bookmarks() {
       <Header>
         <Title>북마크</Title>
         <Controls>
-          <Button onClick={() => setShowCalendar(!showCalendar)}>
-            <CalendarIcon size={18} />
-            날짜 선택
-          </Button>
-          <Button>
-            <Flag src="https://flagcdn.com/w40/us.png" alt="US Flag" />
-            English
-            <ChevronDown size={18} />
-          </Button>
+          <DatePicker>
+            <Button onClick={() => setShowCalendar(!showCalendar)}>날짜 선택</Button>
+          </DatePicker>
+          {/* <LanguagePicker render={({ field }) => <LanguagePicker {...field}/>} */}
         </Controls>
       </Header>
 

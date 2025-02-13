@@ -4,6 +4,21 @@ import Cookies from 'js-cookie';
 
 const accessToken = Cookies.get('access_token');
 
+type Interest = {
+  tagId: number;
+  // nativeLanguageId: string;
+  name: string;
+};
+
+interface PutData {
+  nickname: string;
+  nationality: string;
+  nativeLanguage: string;
+  targetLanguage: string;
+  proficiencyLevel: string;
+  interests: Interest[];
+  profileImageUrl?: string;
+}
 interface ImportMetaEnv {
   readonly VITE_USER_SERVER_URL: string;
 }
@@ -15,7 +30,8 @@ interface ImportMeta {
 const SERVER_URL = import.meta.env.VITE_USER_SERVER_URL;
 const token = accessToken;
 
-export const userPut = async (data: UserProfileData) => {
+export const userPut = async (data: PutData, access_token?: string) => {
+  const token = access_token || accessToken;
   try {
     const response = await fetch(`${SERVER_URL}/api/user`, {
       method: 'PUT',
@@ -39,6 +55,7 @@ export const userPut = async (data: UserProfileData) => {
       throw new Error(`서버 응답 오류: ${response.status}`);
     }
 
+    console.log('puttt: ', response);
     const responseData = response.headers.get('content-type')?.includes('application/json')
       ? await response.json()
       : null;
@@ -50,87 +67,3 @@ export const userPut = async (data: UserProfileData) => {
     alert('업데이트에 실패했습니다.');
   }
 };
-
-// import Cookies from 'js-cookie';
-
-// const accessToken = Cookies.get('access_token');
-
-// interface ImportMetaEnv {
-//   readonly VITE_USER_SERVER_URL: string;
-// }
-
-// interface ImportMeta {
-//   readonly env: ImportMetaEnv;
-// }
-
-// const SERVER_URL = import.meta.env.VITE_USER_SERVER_URL;
-// const token = accessToken;
-
-// export const userPut = async (data: UserProfileData) => {
-//   try {
-//     const response = await fetch(`${SERVER_URL}/api/user`, {
-//       method: 'PUT',
-//       headers: {
-//         Accept: 'application/json',
-//         'Content-Type': 'application/json',
-//         Authorization: `Bearer ${token}`,
-//       },
-//       body: JSON.stringify(data),
-//     });
-
-//     if (!response.ok) {
-//       const errorData = await response.json();
-//       throw new Error(errorData.message || '업데이트에 실패했습니다.');
-//     }
-//     console.log(response);
-//     return await response.json();
-//   } catch (error: any) {
-//     console.error('프로필 업데이트 중 오류 발생: ', error.message);
-//     alert(error.message);
-//     return null;
-//   }
-// };
-
-// =========================================
-// import axios from 'axios';
-// import { useNavigate } from 'react-router';
-// import Cookies from 'js-cookie';
-
-// const accessToken = Cookies.get('access_token');
-
-// interface ImportMetaEnv {
-//   readonly VITE_USER_SERVER_URL: string;
-// }
-
-// interface ImportMeta {
-//   readonly env: ImportMetaEnv;
-// }
-
-// const SERVER_URL = import.meta.env.VITE_USER_SERVER_URL;
-// const token = accessToken;
-
-// export const userPut = async (data: string, navigate: ReturnType<typeof useNavigate>) => {
-//   try {
-//     const response = await fetch(`${SERVER_URL}/api/user`, {
-//       method: 'PUT',
-//       headers: {
-//         accept: '*/*',
-//         'Content-Type': 'application/json',
-//         Authorization: `Bearer ${token}`,
-//       },
-//       body: JSON.stringify(data),
-//     });
-
-//     const responseData = response;
-//     console.log('put', responseData);
-//     if (responseData.status === 200) {
-//       return response;
-//     } else {
-//       alert('다시 시도해주세요.');
-//     }
-//   } catch (error: any) {
-//     console.log('Error', error);
-//     const errorMessage = error.response?.data?.message || '다시 시도해주세요.';
-//     alert(errorMessage);
-//   }
-// };

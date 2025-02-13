@@ -15,13 +15,14 @@ const token = accessToken;
 
 export const tagsAllGet = async (navigate: ReturnType<typeof useNavigate>) => {
   try {
-    const response = await fetch(`${SERVER_URL}/api/user/tags`, {
+    const response = await fetch(`${SERVER_URL}/api/tag/search?nativeLanguageId=kr&name=string`, {
       method: 'GET',
       headers: {
         accept: '*/*',
         Authorization: `Bearer ${token}`,
       },
     });
+    console.log(response);
     if (response.ok) {
       console.log(response);
     }

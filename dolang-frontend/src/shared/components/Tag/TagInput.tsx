@@ -1,21 +1,25 @@
 import type React from 'react';
-import { useState, useRef, useEffect, type KeyboardEvent } from 'react';
+import { useState, useRef, useEffect, type KeyboardEvent, FormEvent } from 'react';
 import styled from '@emotion/styled';
 import { X } from 'lucide-react';
-import { debounce } from 'lodash';
+import { tagsSearchGet } from '../../../api/utils/tagsSearch_get';
+import Cookies from 'js-cookie';
 
 interface TagInputProps {
-  value: string[];
-  onChange: (tags: string[]) => void;
+  value: { tagId: number; name: string }[];
+  onChange: (tags: { tagId: number; name: string }[]) => void;
   maxTags?: number;
   minTags?: number;
   error?: string;
+  nativeLanguageId: string;
 }
 
 interface SearchResult {
-  id: number;
-  nativeLanguageId: string;
-  name: string;
+  tag: {
+    tagId: number;
+    name: string;
+  };
+  count: number;
 }
 
 const InputContainer = styled.div`
@@ -136,81 +140,37 @@ const SuggestionItem = styled.button`
   }
 `;
 
-export default function TagInput({ value, onChange, maxTags = 10, minTags = 3, error }: TagInputProps) {
+export default function TagInput({
+  value,
+  onChange,
+  maxTags = 10,
+  minTags = 3,
+  error,
+  nativeLanguageId,
+}: TagInputProps) {
   const [inputValue, setInputValue] = useState('');
   const [suggestions, setSuggestions] = useState<SearchResult[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
+  const access_token = Cookies.get('access_token');
 
-  const fetchRandomTags = async () => {
-    try {
-      const response = await fetch('/api/tag/all');
-      if (!response.ok) throw new Error('Failed to fetch random tags');
-      const tags = await response.json();
-      setSuggestions(tags.slice(0, 10));
-    } catch (error) {
-      console.error('Error fetching random tags:', error);
-    }
-  };
-
-  const searchTags = async (query: string): Promise<SearchResult[]> => {
-    try {
-      const response = await fetch(`/api/tag/search?name=${encodeURIComponent(query)}`);
-      if (!response.ok) throw new Error('Failed to fetch tags');
-      return await response.json();
-    } catch (error) {
-      console.error('Tag search error:', error);
-      return [];
-    }
-  };
-
-  const debouncedSearch = debounce(async (query: string) => {
-    if (query.length >= 2) {
-      const results = await searchTags(query);
-      setSuggestions(results);
+  const searchTags = async (query: string) => {
+    const stringQuery = query.replace(/^#/, '');
+    if (query.length >= 1) {
+      const results = await tagsSearchGet(nativeLanguageId, stringQuery, access_token);
+      setSuggestions(results.map((tag) => ({ tag: { tagId: tag.tagId, name: tag.name }, count: 0 })));
     } else {
       setSuggestions([]);
     }
-  }, 300);
+  };
 
-  useEffect(() => {
-    if (inputValue && !inputValue.startsWith('#')) {
-      debouncedSearch(inputValue);
-    }
-    return () => {
-      debouncedSearch.cancel();
-    };
-  }, [inputValue, debouncedSearch]);
-
-  useEffect(() => {
-    const handleFocus = () => {
-      fetchRandomTags();
-    };
-    const inputElement = inputRef.current;
-    if (inputElement) {
-      inputElement.addEventListener('focus', handleFocus);
-    }
-    return () => {
-      if (inputElement) {
-        inputElement.removeEventListener('focus', handleFocus);
-      }
-    };
-  }, []);
+  const handleKeyUp = (e: KeyboardEvent<HTMLInputElement>) => {
+    const query = (e.target as HTMLInputElement).value;
+    searchTags(query);
+  };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' || e.key === ',') {
       e.preventDefault();
-      addTag();
-    } else if (e.key === 'Backspace' && !inputValue && value.length > 0) {
-      removeTag(value.length - 1);
-    }
-  };
-
-  const addTag = () => {
-    const tag = inputValue.trim().replace(/^#/, '');
-    if (tag && !value.includes(tag) && value.length < maxTags) {
-      onChange([...value, tag]);
-      setInputValue('');
-      setSuggestions([]);
     }
   };
 
@@ -226,9 +186,11 @@ export default function TagInput({ value, onChange, maxTags = 10, minTags = 3, e
     }
 
     if (newValue.endsWith(',')) {
-      const tag = newValue.slice(1, -1).trim();
-      if (tag && !value.includes(tag) && value.length < maxTags) {
-        onChange([...value, tag]);
+      const name = newValue.slice(1, -1).trim();
+      const tag = suggestions.find((s) => s.tag.name.toLowerCase() === name.toLowerCase());
+
+      if (tag && !value.some((t) => t.tagId === tag.tag.tagId) && value.length < maxTags) {
+        onChange([...value, { tagId: tag.tag.tagId, name: tag.tag.name }]);
         setInputValue('');
         setSuggestions([]);
       }
@@ -237,9 +199,15 @@ export default function TagInput({ value, onChange, maxTags = 10, minTags = 3, e
     }
   };
 
-  const handleSuggestionClick = (tag: string) => {
-    if (!value.includes(tag) && value.length < maxTags) {
-      onChange([...value, tag]);
+  const handleSuggestionClick = (tag: { tagId: number; name: string }, e: React.MouseEvent) => {
+    e.preventDefault();
+
+    if (value.some((t) => t.tagId === tag.tagId)) {
+      alert('이미 추가된 태그입니다.');
+    }
+
+    if (!value.some((t) => t.tagId === tag.tagId) && value.length < maxTags) {
+      onChange([...value, { tagId: tag.tagId, name: tag.name }]);
       setInputValue('');
       setSuggestions([]);
     }
@@ -253,6 +221,7 @@ export default function TagInput({ value, onChange, maxTags = 10, minTags = 3, e
             ref={inputRef}
             value={inputValue}
             onChange={handleInputChange}
+            onKeyUp={handleKeyUp}
             onKeyDown={handleKeyDown}
             placeholder={
               value.length < maxTags
@@ -261,23 +230,25 @@ export default function TagInput({ value, onChange, maxTags = 10, minTags = 3, e
             }
             disabled={value.length >= maxTags}
           />
-          {suggestions.length > 0 && (
-            <SuggestionsContainer>
-              {suggestions.map((suggestion, index) => (
-                <SuggestionItem key={index} onClick={() => handleSuggestionClick(suggestion.tag)}>
-                  #{suggestion.tag}
-                  <span>({suggestion.count})</span>
+
+          <SuggestionsContainer>
+            {suggestions.length === 0 ? (
+              <span>검색 결과가 없습니다.</span>
+            ) : (
+              suggestions.slice(0, 10).map((suggestion, index) => (
+                <SuggestionItem key={index} onClick={(e) => handleSuggestionClick(suggestion.tag, e)}>
+                  #{suggestion.tag.name}
                 </SuggestionItem>
-              ))}
-            </SuggestionsContainer>
-          )}
+              ))
+            )}
+          </SuggestionsContainer>
         </SearchSection>
 
         <TagSection>
           <TagsContainer>
             {value.map((tag, index) => (
               <Tag key={index}>
-                #{tag}
+                #{tag.name}
                 <button
                   type="button"
                   onClick={(e) => {
