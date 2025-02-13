@@ -4,6 +4,7 @@ import live.dolang.api.prompt.dto.RequestChatQuestionDto;
 import live.dolang.api.prompt.service.PromptService;
 import live.dolang.core.domain.date_sentence.DateSentence;
 import live.dolang.core.domain.date_sentence.repository.DateSentenceRepository;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,6 +24,7 @@ public class PromptTest {
 
 
     @Test
+    @DisplayName("관심사 질문 추천 테스트")
     @Transactional
     @Rollback
     public void getChatQuestionListTest() {
@@ -45,6 +47,7 @@ public class PromptTest {
     }
 
     @Test
+    @DisplayName("하루 한 문장 추가 테스트")
     @Transactional
     @Rollback
     public void addDateSentenceTest() {
