@@ -1,9 +1,10 @@
-import { getNoteList } from '../services/noteService';
-import { useQuery } from '@tanstack/react-query';
+import { getNoteListPage } from '../services/noteService';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 
-export const useNoteListQuery = () => {
+export const useNoteListQuery = (page: number) => {
   return useQuery({
-    queryKey: ['noteListData'],
-    queryFn: getNoteList,
+    queryKey: ['notePageListData', page],
+    queryFn: () => getNoteListPage(page),
+    placeholderData: keepPreviousData,
   });
 };

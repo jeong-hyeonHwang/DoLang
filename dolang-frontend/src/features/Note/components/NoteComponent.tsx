@@ -12,11 +12,12 @@ export const NoteComponent = () => {
   const [isSearching, setIsSearching] = useState(false);
   const noteRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const [page, setPage] = useState(0);
 
   const handleNoteOpen = () => setIsNoteOpen((prev) => !prev);
   const handleNoteClose = () => setIsNoteOpen(false);
 
-  const { data: noteData, isError: isNoteError } = useNoteListQuery();
+  const { data: noteData, isError: isNoteError } = useNoteListQuery(page);
   const { data: searchResults, refetch, isFetching: isSearchingData } = useNoteWithKeywordQuery(keyword);
 
   useEffect(() => {
@@ -46,7 +47,23 @@ export const NoteComponent = () => {
       {isNoteOpen && (
         <div ref={noteRef} css={noteContainer}>
           <NoteInput setKeyword={setKeyword} refetch={refetch} setIsSearching={setIsSearching} />
-          <NoteList noteData={isSearching ? searchResults : noteData} isSearching={isSearchingData} />
+          <NoteList noteData={isSearching ? searchResults?.content : noteData?.content} isSearching={isSearchingData} />
+          <div className="pagenation" style={{ display: 'flex', gap: '5px', margin: '0 auto' }}>
+            {Array.from({ length: noteData?.pageable.pageSize || 0 }).map((_, index) => (
+              <span
+                key={index}
+                onClick={() => setPage(index)}
+                style={{
+                  backgroundColor: index === page ? '#000' : 'transparent',
+                  color: index === page ? '#fff' : '#000',
+                  cursor: 'pointer',
+                  padding: '5px 10px',
+                }}
+              >
+                {index + 1}
+              </span>
+            ))}
+          </div>
         </div>
       )}
     </div>
