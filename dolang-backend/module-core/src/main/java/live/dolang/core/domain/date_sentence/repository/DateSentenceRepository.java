@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface DateSentenceRepository extends JpaRepository<DateSentence, Integer> {
     Optional<DateSentence> findById(Integer dateSentenceId);
+    boolean existsById(Integer dateSentenceId);
 }

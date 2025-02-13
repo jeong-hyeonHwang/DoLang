@@ -10,6 +10,7 @@ import live.dolang.api.common.enums.SortType;
 import live.dolang.api.feed.dto.FeedParticipantsResponseDto;
 import live.dolang.api.feed.projection.TodayFeedProjection;
 import live.dolang.core.domain.date_sentence.QDateSentence;
+import live.dolang.core.domain.language.Language;
 import live.dolang.core.domain.user.QUser;
 import live.dolang.core.domain.user_date_sentence.QUserDateSentence;
 import live.dolang.core.domain.user_date_sentence.UserDateSentence;
@@ -40,6 +41,7 @@ public class FeedRepositoryImpl implements FeedRepository {
                 .where(
                         qDateSentence.dateId.eq(todayUTCInstant)
                                 .and(qDateSentence.level.eq(langLevel))
+                                .and(qDateSentence.language.eq(Language.builder().id(lang).build()))
                 );
 
         // (2) userId != null이면 JOIN
@@ -84,7 +86,7 @@ public class FeedRepositoryImpl implements FeedRepository {
         // (4) fetch
         TodayFeedProjection result = (TodayFeedProjection) query.fetchOne();
         if (result != null) {
-            result.setLang(lang);
+            result.setLanguage(lang);
         }
         return result;
     }

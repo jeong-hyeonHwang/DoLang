@@ -60,7 +60,7 @@ public class PostController {
         if (customDateSentenceService.isDateSentenceExists(feedId)) {
             throw new NotFoundException(BaseResponseStatus.NOT_EXIST_FEED);
         }
-        if (customUserDateSentenceService.isUserDateSentenceExists(postId)) {
+        if (!customUserDateSentenceService.isUserDateSentenceExists(postId)) {
             throw new NotFoundException(BaseResponseStatus.NOT_EXIST_POST);
         }
 

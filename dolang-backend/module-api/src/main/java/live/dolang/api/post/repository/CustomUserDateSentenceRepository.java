@@ -1,6 +1,7 @@
 package live.dolang.api.post.repository;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import live.dolang.api.common.util.UTCTimeUtil;
 import live.dolang.core.domain.user_date_sentence.QUserDateSentence;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -21,15 +22,18 @@ public class CustomUserDateSentenceRepository {
      */
     public boolean existsByUserIdAndDate(Integer userId, Instant targetDate) {
         QUserDateSentence uds = QUserDateSentence.userDateSentence;
+        Instant startInstant = UTCTimeUtil.getStartOfDayUTC(targetDate);
+        Instant endInstant = UTCTimeUtil.getEndOfDayUTC(targetDate);
 
-        // 해당 사용자(userId)가 생성시간(createdAt)이 [startOfDay, endOfDay) 범위에 속하는 기록이 존재하는지 확인
-
+        // (2) QueryDSL에서 조건 설정
+        //     createdAt이 [startInstant, endInstant) 범위에 속하면 하루 내에 속하는 것으로 본다.
         return queryFactory
                 .selectOne()
                 .from(uds)
                 .where(
-                        uds.user.id.eq(userId)
-                                .and(uds.createdAt.eq(targetDate))
+                        uds.user.id.eq(userId),
+                        uds.createdAt.goe(startInstant),
+                        uds.createdAt.lt(endInstant)
                 )
                 .fetchFirst() != null;
     }

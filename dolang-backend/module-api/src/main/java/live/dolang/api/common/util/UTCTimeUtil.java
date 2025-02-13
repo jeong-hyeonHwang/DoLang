@@ -5,8 +5,6 @@ import java.time.format.DateTimeFormatter;
 
 public class UTCTimeUtil {
 
-    private static final DateTimeFormatter ISO_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
-
     // 새 포맷: "yyyy-MM-dd HH:mm:ss" (UTC 기준)
     private static final DateTimeFormatter CUSTOM_FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneOffset.UTC);
@@ -33,14 +31,25 @@ public class UTCTimeUtil {
     }
 
     /**
-     * 주어진 밀리초(ms) 타임스탬프를 UTC 00:00:00 기준으로 변환 후, ISO 8601 포맷 문자열 반환
+     * 주어진 Instant가 속한 'UTC 날짜'의 시작(00:00:00) Instant 반환
      */
-    public static String getUtcMidnightISO(long timestampMillis) {
-        // UTC 00:00:00 Instant 생성
-        Instant utcMidnight = getUtcMidnightInstant(timestampMillis);
+    public static Instant getStartOfDayUTC(Instant instant) {
+        return instant.atZone(ZoneOffset.UTC)
+                .toLocalDate()
+                .atStartOfDay(ZoneOffset.UTC)
+                .toInstant();
+    }
 
-        // ISO 8601 포맷으로 변환 후 반환
-        return ISO_FORMATTER.format(utcMidnight.atOffset(ZoneOffset.UTC));
+    /**
+     * 주어진 Instant가 속한 'UTC 날짜'의 다음날 자정 Instant 반환
+     * - 예: 2025-02-12의 자정부터 2025-02-13 자정 직전까지
+     */
+    public static Instant getEndOfDayUTC(Instant instant) {
+        return instant.atZone(ZoneOffset.UTC)
+                .toLocalDate()
+                .plusDays(1)
+                .atStartOfDay(ZoneOffset.UTC)
+                .toInstant();
     }
 
     /**
