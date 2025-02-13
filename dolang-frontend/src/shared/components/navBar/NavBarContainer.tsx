@@ -140,6 +140,8 @@ const activeLinkStyle = css`
 const nameCardContainerStyle = css`
   margin-top: 30px;
   display: flex;
+  align-self: start;
+  padding: 0 1rem;
   justify-content: center;
 `;
 
