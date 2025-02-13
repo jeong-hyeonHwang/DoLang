@@ -1,6 +1,7 @@
 package live.dolang.api.post.service;
 
 import jakarta.annotation.PostConstruct;
+import live.dolang.api.feed.service.CustomUserProfileServiceImpl;
 import live.dolang.api.post.dto.BookmarkDataDto;
 import live.dolang.api.post.dto.ResponseFeedDto;
 import live.dolang.api.post.repository.CustomPostRepository;
@@ -22,12 +23,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class PostService {
 
+    private final CustomUserProfileServiceImpl customUserProfileServiceImpl;
     @Value("${spring.data.redis.feed.prefix}")
     private String feedPrefix;
 
@@ -40,6 +41,10 @@ public class PostService {
     @Value("${spring.data.redis.bookmark.postfix}")
     private String bookmarkPostfix;
 
+    private final PostBookmarkService postBookmarkService;
+    private final UserBookmarkService userBookmarkService;
+    private final PostHeartService postHeartService;
+    private final UserHeartService userHeartService;
 
     private final UserDateSentenceRepository userDateSentenceRepository;
     private final UserRepository userRepository;
@@ -136,9 +141,21 @@ public class PostService {
     }
 
 
-    public Page<ResponseFeedDto> getMyFeedList(int userId, Pageable pageable) {
-        Page<ResponseFeedDto> list = customPostRepository.getMyFeedList(userId, pageable);
-        //TODO: 좋아요 수 REDIS에서 가져와서 붙이기
+    public Page<ResponseFeedDto> getMyFeedList(int userId, String language, Pageable pageable) {
+        Page<ResponseFeedDto> list = customPostRepository.getMyFeedList(userId, language, pageable);
+
+        boolean isNativeLanguageSelected = customUserProfileServiceImpl.isUserNativeLanguage(userId, language);
+        if (isNativeLanguageSelected) { // 모국어 피드 - 하트
+            list.forEach(dto -> {
+                dto.setHeartCount(postHeartService.getPostHeartCount(dto.getFeedId(), dto.getPostId()));
+                dto.setIsSelfHearted(userHeartService.isHearted(userId, dto.getFeedId(), dto.getPostId()));
+            });
+        } else { // 외국어 피드 - 북마크
+            list.forEach(dto -> {
+                dto.setBookmarkCount(postBookmarkService.getPostBookmarkCount(dto.getFeedId(), dto.getPostId()));
+                dto.setIsSelfBookmarked(userBookmarkService.isBookmarked(userId, dto.getFeedId(), dto.getPostId()));
+            });
+        }
         return list;
     }
 }

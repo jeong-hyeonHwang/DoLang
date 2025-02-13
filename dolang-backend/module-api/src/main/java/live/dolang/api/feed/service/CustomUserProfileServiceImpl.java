@@ -48,4 +48,8 @@ public class CustomUserProfileServiceImpl implements CustomUserProfileService {
         // 실제로는 DateSentence에 언어 정보를 별도로 두거나, 다른 방식으로 비교할 수 있습니다.
         return profile.getNativeLanguageId().equalsIgnoreCase(sentence.getLevel());
     }
+
+    public boolean isUserNativeLanguage(Integer userId, String languageId) {
+        return userProfileRepository.existsByUserIdAndNativeLanguageId(userId, languageId);
+    }
 }
