@@ -57,7 +57,7 @@ const ProgressBar = styled.div<{ progress: number }>`
   pointer-events: none;
 `;
 
-export default function AudioPlayer({ url, onPlay, onPause, playing }: AudioPlayerProps) {
+export default function MyAudioPlayer({ url, onPlay, onPause, playing }: AudioPlayerProps) {
   const [progress, setProgress] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);

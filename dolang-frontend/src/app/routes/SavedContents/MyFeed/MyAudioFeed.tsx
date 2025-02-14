@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import styled from '@emotion/styled';
 import { Heart, Calendar, ChevronDown } from 'lucide-react';
-import AudioPlayer from './AudioPlayer';
+import AudioPlayer from './MyAudioPlayer';
+import LanguagePicker from '@/shared/components/Picker/LanguagePicker';
 
 interface FeedItem {
   id: string;
@@ -25,39 +26,13 @@ const Header = styled.div`
   margin-bottom: 32px;
 `;
 
-const Title = styled.h1`
-  font-size: 28px;
-  font-weight: bold;
-  color: #212529;
-`;
-
 const Controls = styled.div`
   display: flex;
-  gap: 16px;
 `;
 
-const Button = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  background-color: white;
-  border: 1px solid #ced4da;
-  border-radius: 8px;
-  font-size: 14px;
-  color: #495057;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background-color: #f8f9fa;
-  }
-`;
-
-const Flag = styled.img`
-  width: 24px;
-  height: 16px;
-  object-fit: contain;
+const FeedContainer = styled.div`
+  background-color: #919191;
+  padding: 10px;
 `;
 
 const Feed = styled.div`
@@ -137,6 +112,14 @@ const LikeButton = styled.button<{ isLiked: boolean }>`
   }
 `;
 
+interface SpeechBubbleProps {
+  children: React.ReactNode;
+}
+const SpeechBubbleSvg = styled.svg`
+  width: 100%;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+`;
+
 const sampleFeedItems: FeedItem[] = [
   {
     id: '1',
@@ -148,6 +131,14 @@ const sampleFeedItems: FeedItem[] = [
   },
   {
     id: '2',
+    date: '2024-01-15',
+    koreanText: '인생에서 가장 큰 영광은 넘어지지 않는 것이 아니라 매번 일어서는 것이다.',
+    englishText: 'The greatest glory in living lies not in never falling, but in rising every time we fall.',
+    audioUrl: '/audio2.mp3',
+    likes: 18,
+  },
+  {
+    id: '3',
     date: '2024-01-14',
     koreanText: '인생에서 가장 큰 영광은 넘어지지 않는 것이 아니라 매번 일어서는 것이다.',
     englishText: 'The greatest glory in living lies not in never falling, but in rising every time we fall.',
@@ -156,7 +147,7 @@ const sampleFeedItems: FeedItem[] = [
   },
 ];
 
-export default function AudioFeed() {
+export default function MyAudioFeed() {
   const [likedItems, setLikedItems] = useState<Set<string>>(new Set());
   const [playingId, setPlayingId] = useState<string | null>(null);
 
@@ -183,17 +174,8 @@ export default function AudioFeed() {
   return (
     <Container>
       <Header>
-        <Title>내 피드</Title>
         <Controls>
-          <Button>
-            <Calendar size={18} />
-            날짜 선택
-          </Button>
-          <Button>
-            <Flag src="https://flagcdn.com/w40/us.png" alt="US Flag" />
-            English
-            <ChevronDown size={18} />
-          </Button>
+          <LanguagePicker />
         </Controls>
       </Header>
 

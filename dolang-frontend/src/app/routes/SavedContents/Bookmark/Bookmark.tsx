@@ -1,8 +1,8 @@
 import { useState, useMemo } from 'react';
 import styled from '@emotion/styled';
 import { CalendarIcon, Play, User, ChevronDown } from 'lucide-react';
-import DatePicker from '../../../shared/components/antd/DatePicker';
-import LanguagePicker from '../../../shared/components/Picker/LanguagePicker';
+import DatePicker from '../../../../shared/components/antd/DatePicker';
+import LanguagePicker from '../../../../shared/components/Picker/LanguagePicker';
 
 const userData = JSON.parse(sessionStorage.getItem('user') || '{}');
 const targetLang = userData?.targetLanguage;
