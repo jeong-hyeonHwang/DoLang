@@ -4,6 +4,8 @@ import { useStompClientContext } from '../../features/Matching/hooks/useClientCo
 import { usePeerContext } from '../../features/VoiceCall/hooks/usePeerContext.tsx';
 import { User } from '@/shared/types/UserInfo.type.ts';
 import { styles } from '../../features/VoiceCall/components/styles.ts';
+import { useCallContext } from '../../features/VoiceCall/hooks/useCallContext.tsx';
+import VoiceCallChat from '@/features/VoiceCall/components/VoiceCallChat.tsx';
 
 function VoiceCallView() {
   const { matchingResult } = useStompClientContext();
@@ -16,20 +18,23 @@ function VoiceCallView() {
   }, []);
 
   return (
-    <div css={styles.voiceCallView}>
-      {/* 통화 상태 표시 */}
-      <div>{callStatus}</div>
+    <>
+      <div css={styles.voiceCallView}>
+        {/* 통화 상태 표시 */}
+        <div>{callStatus}</div>
 
-      {/* 통화 참여자 & 오디오 */}
-      <div css={styles.callParticipantsContainer}>
-        {user && <CallParticipant user={user} />}
-        <CallTopic audioRef={audioRef} />
-        {user && <CallParticipant user={user} />}
+        {/* 통화 참여자 & 오디오 */}
+        <div css={styles.callParticipantsContainer}>
+          {user && <CallParticipant user={user} />}
+          <CallTopic audioRef={audioRef} />
+          {user && <CallParticipant user={user} />}
+        </div>
+
+        {/* 통화 컨트롤 버튼 */}
+        <CallControls />
       </div>
-
-      {/* 통화 컨트롤 버튼 */}
-      <CallControls />
-    </div>
+      <VoiceCallChat />
+    </>
   );
 }
 
