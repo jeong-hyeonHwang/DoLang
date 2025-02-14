@@ -2,10 +2,13 @@ import { RefObject, useEffect, useState } from 'react';
 import { Mic, PhoneOff } from 'lucide-react';
 import { useStompClientContext } from '../../features/Matching/hooks/useClientContext.tsx';
 import { usePeerContext } from '../../features/VoiceCall/hooks/usePeerContext.tsx';
+import { CallTimer } from '@/features/VoiceCall/components/CallTimer.tsx';
 import { styles } from '../../features/VoiceCall/components/styles.ts';
 import { MatchedUser, Tag } from '@/features/Matching/types/Matching.type.ts';
 import VoiceCallChat from '@/features/VoiceCall/components/VoiceCallChat.tsx';
 import { useNavigate } from 'react-router';
+import { User } from 'lucide-react';
+import { useCallContext } from '@/features/VoiceCall/hooks/useCallContext.tsx';
 
 function VoiceCallView() {
   const { audioRef } = usePeerContext();
@@ -15,7 +18,7 @@ function VoiceCallView() {
 
   useEffect(() => {
     if (!matchingResult) navigate('/');
-  });
+  }, [matchingResult, navigate]);
 
   if (!matchingResult) return null;
 
@@ -23,6 +26,7 @@ function VoiceCallView() {
     <div css={styles.voiceCallView}>
       {/* 통화 참여자 & 오디오 */}
       <div css={styles.callParticipantsContainer}>
+        <CallTimer />
         {matchingResult && (
           <>
             <CallParticipant user={matchingResult.me} />
@@ -44,7 +48,7 @@ function VoiceCallView() {
 
 const CallParticipant = ({ user }: { user: MatchedUser }) => (
   <div css={styles.callParticipant}>
-    <img src={user.profileImageUrl || ''} css={styles.userImage} />
+    {user.profileImageUrl ? <img src={user.profileImageUrl} css={styles.userImage} alt="user" /> : <User size={100} />}
     <div css={styles.userInfo}>
       <span>{user.nickname}</span>
       <span className={`fi fi-${user.countryId}`} css={styles.countryFlag} />
@@ -57,7 +61,7 @@ const CallTopic = ({ audioRef, tags }: { audioRef: RefObject<HTMLAudioElement>; 
     <CallTagsContainer tags={tags} />
     <CallTopicContent topic={''} question={''} />
     <CallSttWrapper />
-    <audio ref={audioRef} autoPlay controls />
+    <audio ref={audioRef} autoPlay controls style={{ visibility: 'hidden' }} />
   </div>
 );
 
@@ -83,7 +87,7 @@ const CallSttWrapper = () => {
 const CallTagsContainer = ({ tags }: { tags: Tag[] }) => (
   <div css={styles.callTagsContainer}>
     {tags.map((tag) => (
-      <span key={tag.tagId}>{tag.translatedName}</span>
+      <span key={tag.tagId}>#{tag.translatedName}</span>
     ))}
   </div>
 );
@@ -97,7 +101,14 @@ const CallControls = () => (
 
 const EndCallButton = () => {
   const navigate = useNavigate();
-  return <PhoneOff css={styles.endCallButton} onClick={() => navigate('/endcall')} />;
+  const { endCall } = useCallContext();
+
+  const handleEndCall = () => {
+    endCall();
+    navigate('/endcall');
+  };
+
+  return <PhoneOff css={styles.endCallButton} onClick={handleEndCall} />;
 };
 
 export default VoiceCallView;

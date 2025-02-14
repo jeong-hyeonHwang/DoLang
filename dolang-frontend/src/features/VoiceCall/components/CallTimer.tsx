@@ -22,8 +22,10 @@ export const CallTimer = () => {
 };
 
 const timerStyle = css`
+  position: absolute;
+  left: 1rem;
+  top: 1rem;
   display: flex;
-  align-self: flex-end;
   gap: 0.5rem;
   padding: 1rem;
   & span,
