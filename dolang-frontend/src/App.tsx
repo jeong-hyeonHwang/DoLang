@@ -24,69 +24,46 @@ function App() {
   return (
     <>
       <GlobalStyle />
-      <Routes>
-        <Route element={<LayoutDesign />}>
-          <Route
-            index
-            element={
-              <PeerContextProvider>
-                <StompClientProvider>
-                  <MainView />
-                </StompClientProvider>
-              </PeerContextProvider>
-            }
-          />
-        </Route>
-        <Route element={<Layout />}>
-          <Route path="feed" element={<FeedView />} />
-          <Route path="savedContents" element={<SavedContentsView />} />
-          <Route path="profile" element={<UserProfileView />} />
+      <PeerContextProvider>
+        <StompClientProvider>
+          <CallContextProvider>
+            <Routes>
+              <Route element={<LayoutDesign />}>
+                <Route index element={<MainView />} />
+              </Route>
+              <Route element={<Layout />}>
+                <Route path="feed" element={<FeedView />} />
+                <Route path="savedContents" element={<SavedContentsView />} />
+                <Route path="profile" element={<UserProfileView />} />
 
-          {/* Auth */}
-          <Route path="oauth2" element={<GoogleLoginView />} />
-          <Route path="oauth2/code" element={<GoogleLoginView />} />
-          <Route path="/signup" element={<GoogleSignupView />} />
+                {/* Auth */}
+                <Route path="oauth2" element={<GoogleLoginView />} />
+                <Route path="oauth2/code" element={<GoogleLoginView />} />
+                <Route path="/signup" element={<GoogleSignupView />} />
 
-          {/* savedContetns */}
-          <Route path="savedContents/bookmark" element={<Bookmarks />} />
-          <Route path="savedContents/calls" element={<> 음성기록 </>} />
-          <Route path="savedContents/feed" element={<AudioFeed />} />
+                {/* savedContetns */}
+                <Route path="savedContents/bookmark" element={<Bookmarks />} />
+                <Route path="savedContents/calls" element={<> 음성기록 </>} />
+                <Route path="savedContents/feed" element={<AudioFeed />} />
 
-          <Route path="guide" element={<>서비스 가이드</>} />
-          {/* User */}
-        </Route>
-        {/* Auth */}
-        <Route>
-          <Route element={<LayoutNoNav />}>
-            <Route path="oauth2/code" element={<GoogleLogin />} />
-            <Route path="signup" element={<GoogleSignupView />} />
-            <Route path="signup/register" element={<SignupForm />} />
-          </Route>
-        </Route>
+                <Route path="guide" element={<>서비스 가이드</>} />
+                {/* User */}
+              </Route>
+              {/* Auth */}
+              <Route>
+                <Route element={<LayoutNoNav />}>
+                  <Route path="oauth2/code" element={<GoogleLogin />} />
+                  <Route path="signup" element={<GoogleSignupView />} />
+                  <Route path="signup/register" element={<SignupForm />} />
+                </Route>
+              </Route>
 
-        <Route
-          path="/call"
-          element={
-            <PeerContextProvider>
-              <StompClientProvider>
-                <CallContextProvider>
-                  <VoiceCallView />
-                </CallContextProvider>
-              </StompClientProvider>
-            </PeerContextProvider>
-          }
-        />
-        <Route
-          path="endCall"
-          element={
-            <PeerContextProvider>
-              <StompClientProvider>
-                <EndCallView />
-              </StompClientProvider>
-            </PeerContextProvider>
-          }
-        />
-      </Routes>
+              <Route path="/call" element={<VoiceCallView />} />
+              <Route path="endCall" element={<EndCallView />} />
+            </Routes>
+          </CallContextProvider>
+        </StompClientProvider>
+      </PeerContextProvider>
     </>
   );
 }

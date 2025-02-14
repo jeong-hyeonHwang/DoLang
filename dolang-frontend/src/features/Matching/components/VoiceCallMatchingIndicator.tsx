@@ -19,7 +19,7 @@ const VoiceCallMatchingIndicator = () => {
       <PulseLoader
         color={color}
         cssOverride={override}
-        size={20}
+        size={40}
         speedMultiplier={0.5}
         aria-label="Loading Spinner"
         data-testid="loader"

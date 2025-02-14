@@ -1,32 +1,42 @@
-import { useEffect, useState } from 'react';
+import { RefObject, useEffect, useState } from 'react';
 import { Mic, PhoneOff } from 'lucide-react';
 import { useStompClientContext } from '../../features/Matching/hooks/useClientContext.tsx';
 import { usePeerContext } from '../../features/VoiceCall/hooks/usePeerContext.tsx';
-import { User } from '@/shared/types/UserInfo.type.ts';
+import { CallTimer } from '@/features/VoiceCall/components/CallTimer.tsx';
 import { styles } from '../../features/VoiceCall/components/styles.ts';
-import { useCallContext } from '../../features/VoiceCall/hooks/useCallContext.tsx';
+import { MatchedUser, Tag } from '@/features/Matching/types/Matching.type.ts';
 import VoiceCallChat from '@/features/VoiceCall/components/VoiceCallChat.tsx';
+import { useNavigate } from 'react-router';
+import { User } from 'lucide-react';
+import { useCallContext } from '@/features/VoiceCall/hooks/useCallContext.tsx';
 
 function VoiceCallView() {
+  const { audioRef } = usePeerContext();
   const { matchingResult } = useStompClientContext();
-  const { callStatus, audioRef } = usePeerContext();
-  const [user, setUser] = useState<User | null>(null);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const storedUser = JSON.parse(sessionStorage.getItem('user') || 'false');
-    setUser(storedUser);
-  }, []);
+    if (!matchingResult) navigate('/');
+  }, [matchingResult, navigate]);
+
+  if (!matchingResult) return null;
 
   return (
     <div css={styles.voiceCallView}>
-      {/* 통화 상태 표시 */}
-      <div>{callStatus}</div>
-
       {/* 통화 참여자 & 오디오 */}
       <div css={styles.callParticipantsContainer}>
-        {user && <CallParticipant user={user} />}
-        <CallTopic audioRef={audioRef} />
-        {user && <CallParticipant user={user} />}
+        <CallTimer />
+        {matchingResult && (
+          <>
+            <CallParticipant user={matchingResult.me} />
+            <CallTopic
+              audioRef={audioRef}
+              tags={[...matchingResult.matchedUser.userTagList, ...matchingResult.me.userTagList]}
+            />
+            <CallParticipant user={matchingResult.matchedUser} />
+          </>
+        )}
       </div>
 
       {/* 통화 컨트롤 버튼 */}
@@ -36,44 +46,48 @@ function VoiceCallView() {
   );
 }
 
-const CallParticipant = ({ user }: { user: User }) => (
+const CallParticipant = ({ user }: { user: MatchedUser }) => (
   <div css={styles.callParticipant}>
-    <img src={user.profileImageUrl || ''} css={styles.userImage} />
+    {user.profileImageUrl ? <img src={user.profileImageUrl} css={styles.userImage} alt="user" /> : <User size={100} />}
     <div css={styles.userInfo}>
       <span>{user.nickname}</span>
-      <span className={`fi fi-${user.nationality}`} css={styles.countryFlag} />
+      <span className={`fi fi-${user.countryId}`} css={styles.countryFlag} />
     </div>
   </div>
 );
 
-const CallTopic = ({ audioRef }: { audioRef: React.RefObject<HTMLAudioElement> }) => (
+const CallTopic = ({ audioRef, tags }: { audioRef: RefObject<HTMLAudioElement>; tags: Tag[] }) => (
   <div css={styles.callTopicContainer}>
-    <CallTagsContainer tags={['tag1', 'tag2', 'tag3']} />
-    <CallTopicContent />
+    <CallTagsContainer tags={tags} />
+    <CallTopicContent topic={''} question={''} />
     <CallSttWrapper />
-    <audio ref={audioRef} autoPlay controls />
+    <audio ref={audioRef} autoPlay controls style={{ visibility: 'hidden' }} />
   </div>
 );
 
-const CallTopicContent = () => (
+const CallTopicContent = ({ topic, question }: { topic: string; question: string }) => (
   <div css={styles.callTopicContent}>
-    <div>topic</div>
-    <div>questions</div>
+    <div>{topic}</div>
+    <div>{question}</div>
   </div>
 );
 
-const CallSttWrapper = () => (
-  <div css={styles.callSttWrapper}>
-    <p>stt</p>
-    <div css={styles.sttDivider} />
-    <p>stt</p>
-  </div>
-);
+const CallSttWrapper = () => {
+  const [stt, setStt] = useState<string>('');
+  const [translated, setTranslated] = useState<string>('');
+  return (
+    <div css={styles.callSttWrapper}>
+      <p>{stt}</p>
+      <div css={styles.sttDivider} />
+      <p>{translated}</p>
+    </div>
+  );
+};
 
-const CallTagsContainer = (data: { tags: string[] }) => (
+const CallTagsContainer = ({ tags }: { tags: Tag[] }) => (
   <div css={styles.callTagsContainer}>
-    {data.tags.map((tag) => (
-      <span key={tag}>{tag}</span>
+    {tags.map((tag) => (
+      <span key={tag.tagId}>#{tag.translatedName}</span>
     ))}
   </div>
 );
@@ -85,6 +99,16 @@ const CallControls = () => (
   </div>
 );
 
-const EndCallButton = () => <PhoneOff css={styles.endCallButton} />;
+const EndCallButton = () => {
+  const navigate = useNavigate();
+  const { endCall } = useCallContext();
+
+  const handleEndCall = () => {
+    endCall();
+    navigate('/endcall');
+  };
+
+  return <PhoneOff css={styles.endCallButton} onClick={handleEndCall} />;
+};
 
 export default VoiceCallView;
