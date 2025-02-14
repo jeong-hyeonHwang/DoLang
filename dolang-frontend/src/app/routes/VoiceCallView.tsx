@@ -1,58 +1,87 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
+import { Mic, PhoneOff } from 'lucide-react';
 import { useStompClientContext } from '../../features/Matching/hooks/useClientContext.tsx';
-import { CallWaveIndicator } from '../../features/VoiceCall/components/CallWaveIndicator.tsx';
 import { usePeerContext } from '../../features/VoiceCall/hooks/usePeerContext.tsx';
-import { useCallContext } from '../../features/VoiceCall/hooks/useCallContext.tsx';
+import { User } from '@/shared/types/UserInfo.type.ts';
+import { styles } from '../../features/VoiceCall/components/styles.ts';
 
 function VoiceCallView() {
   const { matchingResult } = useStompClientContext();
-  const { localStream, remoteStream, startCall, endCall } = useCallContext();
+  const { callStatus, audioRef } = usePeerContext();
+  const [user, setUser] = useState<User | null>(null);
 
-  const { peerId, callStatus, remotePeerId, audioRef } = usePeerContext();
-  // 오디오 태그에 localStream, remoteStream을 바인딩
+  useEffect(() => {
+    const storedUser = JSON.parse(sessionStorage.getItem('user') || 'false');
+    setUser(storedUser);
+  }, []);
+
   return (
-    <div>
-      <div className="call-participants-container">
-        <div>
-          <h2>Your Peer ID: {peerId}</h2>
-          <p>Status: {callStatus}</p>
-          <p>Remote Peer ID: {remotePeerId}</p>
-          <div>
-            <audio ref={audioRef} autoPlay controls />
-          </div>
-          <div></div>
-        </div>
+    <div css={styles.voiceCallView}>
+      {/* 통화 상태 표시 */}
+      <div>{callStatus}</div>
+
+      {/* 통화 참여자 & 오디오 */}
+      <div css={styles.callParticipantsContainer}>
+        {user && <CallParticipant user={user} />}
+        <CallTopic audioRef={audioRef} />
+        {user && <CallParticipant user={user} />}
       </div>
 
-      {/* 로컬 오디오 */}
-
-      {localStream && (
-        <audio
-          autoPlay
-          controls
-          muted
-          ref={(audio) => {
-            if (audio && localStream) {
-              audio.srcObject = localStream;
-            }
-          }}
-        />
-      )}
-
-      {/* 리모트 오디오 */}
-      {remoteStream && (
-        <audio
-          autoPlay
-          controls
-          ref={(video) => {
-            if (video && remoteStream) {
-              video.srcObject = remoteStream;
-            }
-          }}
-        />
-      )}
+      {/* 통화 컨트롤 버튼 */}
+      <CallControls />
     </div>
   );
 }
+
+const CallParticipant = ({ user }: { user: User }) => (
+  <div css={styles.callParticipant}>
+    <img src={user.profileImageUrl || ''} css={styles.userImage} />
+    <div css={styles.userInfo}>
+      <span>{user.nickname}</span>
+      <span className={`fi fi-${user.nationality}`} css={styles.countryFlag} />
+    </div>
+  </div>
+);
+
+const CallTopic = ({ audioRef }: { audioRef: React.RefObject<HTMLAudioElement> }) => (
+  <div css={styles.callTopicContainer}>
+    <CallTagsContainer tags={['tag1', 'tag2', 'tag3']} />
+    <CallTopicContent />
+    <CallSttWrapper />
+    <audio ref={audioRef} autoPlay controls />
+  </div>
+);
+
+const CallTopicContent = () => (
+  <div css={styles.callTopicContent}>
+    <div>topic</div>
+    <div>questions</div>
+  </div>
+);
+
+const CallSttWrapper = () => (
+  <div css={styles.callSttWrapper}>
+    <p>stt</p>
+    <div css={styles.sttDivider} />
+    <p>stt</p>
+  </div>
+);
+
+const CallTagsContainer = (data: { tags: string[] }) => (
+  <div css={styles.callTagsContainer}>
+    {data.tags.map((tag) => (
+      <span key={tag}>{tag}</span>
+    ))}
+  </div>
+);
+
+const CallControls = () => (
+  <div css={styles.callControlsContainer}>
+    <Mic />
+    <EndCallButton />
+  </div>
+);
+
+const EndCallButton = () => <PhoneOff css={styles.endCallButton} />;
 
 export default VoiceCallView;
