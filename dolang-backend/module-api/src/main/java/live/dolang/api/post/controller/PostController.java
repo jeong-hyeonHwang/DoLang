@@ -52,7 +52,7 @@ public class PostController {
             throw new NotFoundException(BaseResponseStatus.NOT_EXIST_USER);
         }
 
-        if (customDateSentenceService.isDateSentenceExists(feedId)) {
+        if (!customDateSentenceService.isDateSentenceExists(feedId)) {
             throw new NotFoundException(BaseResponseStatus.NOT_EXIST_FEED);
         }
         if (!customUserDateSentenceService.isUserDateSentenceExists(postId)) {
@@ -82,10 +82,10 @@ public class PostController {
             throw new NotFoundException(BaseResponseStatus.NOT_EXIST_USER);
         }
 
-        if (customDateSentenceService.isDateSentenceExists(feedId)) {
+        if (!customDateSentenceService.isDateSentenceExists(feedId)) {
             throw new NotFoundException(BaseResponseStatus.NOT_EXIST_FEED);
         }
-        if (customUserDateSentenceService.isUserDateSentenceExists(postId)) {
+        if (!customUserDateSentenceService.isUserDateSentenceExists(postId)) {
             throw new NotFoundException(BaseResponseStatus.NOT_EXIST_POST);
         }
 

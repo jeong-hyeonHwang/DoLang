@@ -28,7 +28,7 @@ public class MyFeedServiceImpl implements MyFeedService {
             throw new NotFoundException(BaseResponseStatus.NOT_EXIST_USER);
         }
 
-        if (customDateSentenceService.isDateSentenceExists(feedId)) {
+        if (!customDateSentenceService.isDateSentenceExists(feedId)) {
             throw new NotFoundException(BaseResponseStatus.NOT_EXIST_FEED);
         }
 
