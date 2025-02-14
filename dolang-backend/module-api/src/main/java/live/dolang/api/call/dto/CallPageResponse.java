@@ -3,30 +3,28 @@ package live.dolang.api.call.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
 
 @Schema(description = "통화 기록 페이징 조회 결과")
-@NoArgsConstructor
 @Getter
 public class CallPageResponse {
 
     @Schema(description = "현재 페이지 내용")
-    private List<CallPageDto> content;
+    private final List<CallPageDto> content;
 
     @Schema(description = "지금이 몇 페이지 인가?")
-    private int page;
+    private final int page;
 
     @Schema(description = "페이지의 총 크기는 어떻게 되는가?")
-    private int size;
+    private final int size;
 
     @Schema(description = "실제 현재 페이지에 표시되는게 몇개인가?")
-    private long totalElements;
+    private final long totalElements;
 
     @Schema(description = "전체적으로 몇 페이지로 이루어져있는가?")
-    private int totalPages;
+    private final int totalPages;
 
     /**
      * {@link CallPageResponse} 생성자.
