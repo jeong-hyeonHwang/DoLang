@@ -178,6 +178,27 @@ export default function TagInput({
     onChange(value.filter((_, i) => i !== index));
   };
 
+  // const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   let newValue = e.target.value;
+
+  //   if (newValue && !newValue.startsWith('#')) {
+  //     newValue = `#${newValue}`;
+  //   }
+
+  //   if (newValue.endsWith(',')) {
+  //     const name = newValue.slice(1, -1).trim();
+  //     const tag = suggestions.find((s) => s.tag.name.toLowerCase() === name.toLowerCase());
+
+  //     if (tag && !value.some((t) => t.tagId === tag.tag.tagId) && value.length < maxTags) {
+  //       onChange([...value, { tagId: tag.tag.tagId, name: tag.tag.name }]);
+  //       setInputValue('');
+  //       setSuggestions([]);
+  //     }
+  //   } else {
+  //     setInputValue(newValue);
+  //   }
+  // };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let newValue = e.target.value;
 
@@ -190,7 +211,7 @@ export default function TagInput({
       const tag = suggestions.find((s) => s.tag.name.toLowerCase() === name.toLowerCase());
 
       if (tag && !value.some((t) => t.tagId === tag.tag.tagId) && value.length < maxTags) {
-        onChange([...value, { tagId: tag.tag.tagId, name: tag.tag.name }]);
+        onChange([...value, { tagId: tag.tag.tagId, name: typeof tag.tag.name === 'string' ? tag.tag.name : '' }]);
         setInputValue('');
         setSuggestions([]);
       }
@@ -199,15 +220,30 @@ export default function TagInput({
     }
   };
 
+  // const handleSuggestionClick = (tag: { tagId: number; name: string }, e: React.MouseEvent) => {
+  //   e.preventDefault();
+
+  //   if (value.some((t) => t.tagId === tag.tagId)) {
+  //     alert('이미 추가된 태그입니다.');
+  //   }
+
+  //   if (!value.some((t) => t.tagId === tag.tagId) && value.length < maxTags) {
+  //     onChange([...value, { tagId: tag.tagId, name: tag.name }]);
+  //     setInputValue('');
+  //     setSuggestions([]);
+  //   }
+  // };
+
   const handleSuggestionClick = (tag: { tagId: number; name: string }, e: React.MouseEvent) => {
     e.preventDefault();
 
     if (value.some((t) => t.tagId === tag.tagId)) {
       alert('이미 추가된 태그입니다.');
+      return; // 중복 태그일 경우 함수 종료
     }
 
     if (!value.some((t) => t.tagId === tag.tagId) && value.length < maxTags) {
-      onChange([...value, { tagId: tag.tagId, name: tag.name }]);
+      onChange([...value, { tagId: tag.tagId, name: typeof tag.name === 'string' ? tag.name : '' }]);
       setInputValue('');
       setSuggestions([]);
     }
@@ -248,14 +284,8 @@ export default function TagInput({
           <TagsContainer>
             {value.map((tag, index) => (
               <Tag key={index}>
-                #{tag.name}
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    removeTag(index);
-                  }}
-                >
+                #{typeof tag.name === 'string' ? tag.name : tag.name?.name || ''} {/* 문자열만 출력 */}
+                <button type="button" onClick={() => removeTag(index)}>
                   <X size={14} />
                 </button>
               </Tag>

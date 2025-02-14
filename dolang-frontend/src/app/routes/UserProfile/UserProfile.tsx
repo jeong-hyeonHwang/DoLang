@@ -228,11 +228,24 @@ function UserProfile() {
   const onSubmit = async (data: UserProfileData) => {
     setLoading(true);
     try {
-      const formattedDate = {
+      // const formattedData = {
+      //   ...data,
+      //   interests: data.interests.map((item) => item.name.tagId),
+      // };
+      // const formattedData = {
+      //   ...data,
+      //   interests: data.interests
+      //     .map((item) => (typeof item.name === 'object' && item.name !== null ? item.name.tagId : null))
+      //     .filter((id) => id !== null),
+      // };
+      const formattedData = {
         ...data,
-        interests: data.interests.map((item) => item.name.tagId),
+        interests: data.interests.map((item) => ({
+          tagId: item.tagId,
+          name: typeof item.name === 'string' ? item.name : item.name?.name || '', // 객체일 경우 문자열만 가져옴
+        })),
       };
-      const res = await userPut(formattedDate, accessToken);
+      const res = await userPut(formattedData, accessToken);
       if (res) {
         alert('프로필이 성공적으로 업데이트되었습니다.');
         setUser(data);
@@ -324,14 +337,18 @@ function UserProfile() {
             rules={{ required: '최소 3개의 관심사를 입력해주세요.' }}
             render={({ field }) => {
               const tagNames = Array.isArray(field.value)
-                ? field.value.map((interest: Interest | string, index) =>
-                    typeof interest === 'string'
-                      ? { tagId: index, name: interest }
-                      : { tagId: interest.tagId ?? index, name: interest.name ?? interest?.tagName ?? '' }
-                  )
+                ? field.value.map((interest: Interest | string, index) => {
+                    if (typeof interest === 'string') {
+                      return { tagId: index, name: interest };
+                    } else if (interest && typeof interest === 'object') {
+                      return {
+                        tagId: interest.tagId ?? index,
+                        name: interest.name ?? interest?.tagName ?? '',
+                      };
+                    }
+                    return { tagId: index, name: '' };
+                  })
                 : [];
-
-              console.log('field', tagNames);
 
               return (
                 <TagInput
@@ -344,7 +361,9 @@ function UserProfile() {
                   onChange={(tags) => {
                     const formattedTags = tags
                       .filter((tag) => tag !== undefined && tag !== null)
-                      .map((tag) => ({ name: tag }));
+                      .map((tag) => {
+                        return { tagId: tag.tagId, name: tag.name };
+                      });
                     field.onChange(formattedTags);
                   }}
                 />
