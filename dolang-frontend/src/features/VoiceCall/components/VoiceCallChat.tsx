@@ -47,15 +47,17 @@ const VoiceCallChat = () => {
 const styles: { [key: string]: React.CSSProperties } = {
   chatContainer: {
     padding: '10px',
-    border: '1px solid #ddd',
-    borderRadius: '10px',
-    marginTop: '20px',
+    display: 'flex',
+    flexDirection: 'column',
     backgroundColor: '#f8f9fa',
+    position: 'fixed',
+    right: 0,
+    height: '100vh',
   },
   chatBox: {
-    maxHeight: '200px',
     overflowY: 'auto',
     border: '1px solid #ddd',
+    flexGrow: 1,
     borderRadius: '5px',
     padding: '10px',
     backgroundColor: '#fff',

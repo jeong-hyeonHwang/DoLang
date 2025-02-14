@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
 import styled from '@emotion/styled';
 import { CalendarIcon, Play, User, ChevronDown } from 'lucide-react';
-import DatePicker from '../../../shared/components/antd/DatePicker';
 import LanguagePicker from '../../../shared/components/Picker/LanguagePicker';
 
 const userData = JSON.parse(sessionStorage.getItem('user') || '{}');
@@ -159,12 +158,7 @@ export default function Bookmarks() {
     <Container>
       <Header>
         <Title>북마크</Title>
-        <Controls>
-          <DatePicker>
-            <Button onClick={() => setShowCalendar(!showCalendar)}>날짜 선택</Button>
-          </DatePicker>
-          {/* <LanguagePicker render={({ field }) => <LanguagePicker {...field}/>} */}
-        </Controls>
+        <Controls>{/* <LanguagePicker render={({ field }) => <LanguagePicker {...field}/>} */}</Controls>
       </Header>
 
       <BookmarkList>

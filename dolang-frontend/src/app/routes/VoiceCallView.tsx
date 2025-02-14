@@ -18,23 +18,21 @@ function VoiceCallView() {
   }, []);
 
   return (
-    <>
-      <div css={styles.voiceCallView}>
-        {/* 통화 상태 표시 */}
-        <div>{callStatus}</div>
+    <div css={styles.voiceCallView}>
+      {/* 통화 상태 표시 */}
+      <div>{callStatus}</div>
 
-        {/* 통화 참여자 & 오디오 */}
-        <div css={styles.callParticipantsContainer}>
-          {user && <CallParticipant user={user} />}
-          <CallTopic audioRef={audioRef} />
-          {user && <CallParticipant user={user} />}
-        </div>
-
-        {/* 통화 컨트롤 버튼 */}
-        <CallControls />
+      {/* 통화 참여자 & 오디오 */}
+      <div css={styles.callParticipantsContainer}>
+        {user && <CallParticipant user={user} />}
+        <CallTopic audioRef={audioRef} />
+        {user && <CallParticipant user={user} />}
       </div>
+
+      {/* 통화 컨트롤 버튼 */}
+      <CallControls />
       <VoiceCallChat />
-    </>
+    </div>
   );
 }
 
