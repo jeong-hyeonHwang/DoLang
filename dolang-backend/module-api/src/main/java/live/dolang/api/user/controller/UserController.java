@@ -84,6 +84,21 @@ public class UserController {
         List<ResponseUserTagIdDto> userTagIdList = userService.getUserTagIds(userId);
         return BaseResponse.ok(userTagIdList);
     }
+
+    /**
+     * 유저 탈퇴
+     */
+    @Operation(
+            summary = "유저 탈퇴",
+            description = "현재 로그인된 사용자를 탈퇴시킵니다.",
+            security = @SecurityRequirement(name = "BearerAuth") // JWT 인증 적용
+    )
+    @DeleteMapping()
+    public void deleteUser(@AuthenticationPrincipal Jwt jwt) {
+        int userId = Integer.parseInt(jwt.getId());
+        userService.deleteUser(userId);
+    }
+
 }
 
 

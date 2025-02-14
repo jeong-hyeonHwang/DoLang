@@ -147,4 +147,14 @@ public class CustomUserService {
                 .toList();
     }
 
+    /**
+     * 회원 탈퇴
+     */
+    public void deleteUser(int userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException(BaseResponseStatus.NOT_EXIST_USER));
+        user.deleteUser();
+        //TODO: 탈퇴한 회원이 재가입할 떄 로직을 처리해야함
+    }
+
 }

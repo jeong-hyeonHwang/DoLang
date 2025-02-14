@@ -60,4 +60,8 @@ public class UserProfile {
         this.interestLanguageId = newProfile.getInterestLanguageId();
         this.nativeLanguageId = newProfile.getNativeLanguageId();
     }
+    public void deleteUser() {
+        this.nickname = "탈퇴한 사용자";
+        this.profileImageUrl = "";
+    }
 }
