@@ -228,25 +228,20 @@ function UserProfile() {
   const onSubmit = async (data: UserProfileData) => {
     setLoading(true);
     try {
-      // const formattedData = {
-      //   ...data,
-      //   interests: data.interests.map((item) => item.name.tagId),
-      // };
-      // const formattedData = {
-      //   ...data,
-      //   interests: data.interests
-      //     .map((item) => (typeof item.name === 'object' && item.name !== null ? item.name.tagId : null))
-      //     .filter((id) => id !== null),
-      // };
       const formattedData = {
         ...data,
         interests: data.interests.map((item) => ({
           tagId: item.tagId,
-          name: typeof item.name === 'string' ? item.name : item.name?.name || '', // 객체일 경우 문자열만 가져옴
+          name: typeof item.name === 'string' ? item.name : item.name?.name || '',
         })),
       };
-      const res = await userPut(formattedData, accessToken);
-      if (res) {
+      const formattedInter = {
+        ...data,
+        interests: data.interests.map((value) => value.tagId),
+      };
+
+      const res = await userPut(formattedInter, accessToken);
+      if (res.code === 200) {
         alert('프로필이 성공적으로 업데이트되었습니다.');
         setUser(data);
         sessionStorage.setItem('user', JSON.stringify(data));
