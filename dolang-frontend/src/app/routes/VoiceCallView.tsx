@@ -1,4 +1,4 @@
-import { RefObject, useEffect } from 'react';
+import { RefObject, useEffect, useState } from 'react';
 import { Mic, PhoneOff } from 'lucide-react';
 import { useStompClientContext } from '../../features/Matching/hooks/useClientContext.tsx';
 import { usePeerContext } from '../../features/VoiceCall/hooks/usePeerContext.tsx';
@@ -24,14 +24,14 @@ function VoiceCallView() {
       {/* 통화 참여자 & 오디오 */}
       <div css={styles.callParticipantsContainer}>
         {matchingResult && (
-          <div>
+          <>
             <CallParticipant user={matchingResult.me} />
             <CallTopic
               audioRef={audioRef}
               tags={[...matchingResult.matchedUser.userTagList, ...matchingResult.me.userTagList]}
             />
             <CallParticipant user={matchingResult.matchedUser} />
-          </div>
+          </>
         )}
       </div>
 
@@ -68,13 +68,17 @@ const CallTopicContent = ({ topic, question }: { topic: string; question: string
   </div>
 );
 
-const CallSttWrapper = () => (
-  <div css={styles.callSttWrapper}>
-    <p>stt</p>
-    <div css={styles.sttDivider} />
-    <p>stt</p>
-  </div>
-);
+const CallSttWrapper = () => {
+  const [stt, setStt] = useState<string>('');
+  const [translated, setTranslated] = useState<string>('');
+  return (
+    <div css={styles.callSttWrapper}>
+      <p>{stt}</p>
+      <div css={styles.sttDivider} />
+      <p>{translated}</p>
+    </div>
+  );
+};
 
 const CallTagsContainer = ({ tags }: { tags: Tag[] }) => (
   <div css={styles.callTagsContainer}>

@@ -3,12 +3,19 @@ import WaveSurfer from 'wavesurfer.js';
 import RecordPlugin from 'wavesurfer.js/dist/plugins/record.esm.js';
 
 interface CallContextValue {
+  hour: number;
+  minute: number;
+  second: number;
   isRecording: boolean;
   progress: string;
+  totalSeconds: number;
   recordingsRef: React.RefObject<HTMLDivElement>;
   containerRef: React.RefObject<HTMLDivElement>;
   waveSurferRef: React.RefObject<WaveSurfer>;
   handleRecord: () => void;
+  hours: number;
+  minutes: number;
+  seconds: number;
 }
 
 const CallContext = createContext<CallContextValue | null>(null);
@@ -28,6 +35,19 @@ export const CallContextProvider = ({ children }: { children: React.ReactNode })
   const recordPluginRef = useRef<RecordPlugin | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [progress, setProgress] = useState('00:00');
+  const [totalSeconds, setTotalSeconds] = useState<number>(0);
+
+  // 총 통화 시간 표시
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTotalSeconds((prev) => prev + 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [totalSeconds]);
+
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
 
   const createWaveSurfer = () => {
     // 이전 인스턴스 제거
@@ -107,12 +127,18 @@ export const CallContextProvider = ({ children }: { children: React.ReactNode })
     }
   };
   const value = {
+    hour: 0,
+    minute: 0,
+    second: 0,
     isRecording,
     progress,
     recordingsRef,
     containerRef,
     waveSurferRef,
     handleRecord,
+    hours,
+    minutes,
+    seconds,
   };
 
   return <CallContext.Provider value={value}>{children}</CallContext.Provider>;
