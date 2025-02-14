@@ -3,7 +3,7 @@ import { css } from '@emotion/react';
 import { Heart, Bookmark, Volume1 } from 'lucide-react';
 import { NameCard } from '../../../shared/components/nameCard/NameCard.tsx';
 import { useRef, useState } from 'react';
-import { FeedParticipation } from '../types/feedParticipation.type.ts';
+import { FeedParticipation } from '../types/FeedParticipantsRequest.type.ts';
 
 const feedStyle = css`
   display: flex;

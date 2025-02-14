@@ -1,4 +1,4 @@
-export interface FeedParticipation {
+export interface FeedParticipantsResponse {
   profileImage: string;
   country: string;
   countryImageUrl: string;

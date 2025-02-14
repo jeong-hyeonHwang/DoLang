@@ -2,9 +2,9 @@ import FeedList from '../../features/Feed/components/FeedList.tsx';
 import { useEffect, useState } from 'react';
 import { css } from '@emotion/react';
 import { nativeFeedTestData, nativeFeedSentenceTestData } from '../../features/Feed/tests/feedTestData.ts';
-import { FeedParticipation } from '../../features/Feed/types/feedParticipation.type.ts';
+import { FeedSentenceResponse } from '../../features/Feed/types/FeedSentenceResponse.type.ts';
 import Recorder from '../../features/Feed/components/Recorder.tsx';
-
+import { useFeeds } from '../../features/Feed/hooks/useFeed.ts';
 const FeedView = () => {
   const feedContainerStyle = css`
     min-width: 30rem;
@@ -31,20 +31,12 @@ const FeedView = () => {
     gap: 1rem;
   `;
 
-  const feedRecordButtonStyle = css`
-    background-color: #a11800;
-    border-radius: 50%;
-    cursor: pointer;
-    padding: 0.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  `;
-  const [feedListData, setFeedListData] = useState<FeedParticipation[]>([]);
-
+  const { data: feedListData } = useFeeds();
   useEffect(() => {
-    setFeedListData(nativeFeedTestData);
-  }, []);
+    if (feedListData) {
+      console.log(feedListData);
+    }
+  }, [feedListData]);
 
   return (
     <>

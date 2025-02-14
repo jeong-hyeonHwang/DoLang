@@ -1,5 +1,5 @@
-import { FeedParticipation } from '../types/feedParticipation.type.ts';
-import { FeedSentence } from '../types/feedSentence.type.ts';
+import { FeedParticipation } from '../types/FeedParticipantsRequest.type.ts';
+import { FeedSentence } from '../types/FeedSentenceResponse.type.ts';
 // 모국어 피드 문장
 
 export const userNativeParticipationTestData: Partial<FeedParticipation> = {

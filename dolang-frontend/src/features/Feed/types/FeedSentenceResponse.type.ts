@@ -1,11 +1,11 @@
-import { FeedParticipation } from './feedParticipation.type.ts';
-export interface FeedSentence {
+import { FeedParticipantsResponse } from './FeedParticipantsResponse.type.ts';
+export interface FeedSentenceResponse {
   date: string;
   feedId: number;
   lang: string;
   isNativeFeed: boolean;
   sentenceInfo: SentenceInfo;
-  userParticipation: Partial<FeedParticipation>;
+  userParticipation: Partial<FeedParticipantsResponse>;
 }
 
 export interface SentenceInfo {

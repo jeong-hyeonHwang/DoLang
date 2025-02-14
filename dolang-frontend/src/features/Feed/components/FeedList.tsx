@@ -1,8 +1,8 @@
-import type { FeedProps } from '../types/feedSentence.type.ts';
+import type { FeedSentenceResponse } from '../types/FeedSentenceResponse.type.ts';
 import Feed from './Feed.tsx';
 import { css } from '@emotion/react';
 
-const FeedList = ({ feeds }: { feeds: FeedProps[] }) => {
+const FeedList = ({ feeds }: { feeds: FeedSentenceResponse[] }) => {
   const feedListLayoutStyle = css`
     padding: 1rem;
     margin: 0.6rem;
@@ -19,10 +19,10 @@ const FeedList = ({ feeds }: { feeds: FeedProps[] }) => {
     <section className="feed-list-section" css={feedListLayoutStyle}>
       {feeds.map((feed) => (
         <Feed
-          key={feed.id}
+          key={feed.feedId}
           {...feed}
           userInfo={{
-            ...feed.userInfo,
+            ...feed.userParticipation,
             interestingLanguageLevelId: '',
           }}
         />
