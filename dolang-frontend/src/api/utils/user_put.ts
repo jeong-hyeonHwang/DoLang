@@ -55,7 +55,7 @@ export const userPut = async (data: PutData, access_token?: string) => {
       throw new Error(`서버 응답 오류: ${response.status}`);
     }
 
-    console.log('puttt: ', response);
+    // console.log('puttt: ', response);
     const responseData = response.headers.get('content-type')?.includes('application/json')
       ? await response.json()
       : null;
