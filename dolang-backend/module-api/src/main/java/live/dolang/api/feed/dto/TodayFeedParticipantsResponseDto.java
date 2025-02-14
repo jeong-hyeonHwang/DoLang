@@ -9,7 +9,7 @@ import java.util.List;
 
 @Getter
 @Builder
-public class FeedParticipantsResponseDto {
+public class TodayFeedParticipantsResponseDto {
     private List<FeedParticipant> participants;
     private Meta meta;
 
