@@ -1,7 +1,7 @@
 import Waveform from '../../../shared/components/waveform/Waveform.tsx';
 import { css } from '@emotion/react';
 import { Heart, Bookmark, Volume1 } from 'lucide-react';
-import NameCard from '../../../shared/components/nameCard/NameCard.tsx';
+import { NameCard } from '../../../shared/components/nameCard/NameCard.tsx';
 import { useRef, useState } from 'react';
 import { FeedParticipation } from '../types/feedParticipation.type.ts';
 
