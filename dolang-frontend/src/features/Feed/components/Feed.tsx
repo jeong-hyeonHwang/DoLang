@@ -29,7 +29,7 @@ const Feed = (feedProps: FeedParticipation) => {
   const [isChecked, setIsChecked] = useState(false);
   return (
     <div css={feedStyle}>
-      <NameCard userCountry={feedProps.country} userNickname={feedProps.profileImage} style="compact" />
+      <NameCard userCountry={feedProps.country} userNickname={'null'} style="compact" userImage={''} />
       <div className="feed-content" css={feedContentStyle}>
         <Volume1 />
         <Waveform audioSrc={feedProps.voiceUrl} />

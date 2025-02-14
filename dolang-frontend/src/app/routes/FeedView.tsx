@@ -1,14 +1,8 @@
 import FeedList from '../../features/Feed/components/FeedList.tsx';
 import { useEffect, useState } from 'react';
 import { css } from '@emotion/react';
-import { Mic } from 'lucide-react';
-import {
-  nativeFeedTestData,
-  learningLanguageFeedTestData,
-  nativeFeedSentenceTestData,
-} from '../../features/Feed/tests/feedTestData.ts';
+import { nativeFeedTestData, nativeFeedSentenceTestData } from '../../features/Feed/tests/feedTestData.ts';
 import { FeedParticipation } from '../../features/Feed/types/feedParticipation.type.ts';
-import Waveform from '@/shared/components/waveform/Waveform.tsx';
 import Recorder from '../../features/Feed/components/Recorder.tsx';
 
 const FeedView = () => {
@@ -63,6 +57,7 @@ const FeedView = () => {
           <p>{nativeFeedSentenceTestData.sentenceInfo.sentence}</p>
         </div>
         <Recorder />
+
         <FeedList feeds={feedListData} />
       </div>
     </>
