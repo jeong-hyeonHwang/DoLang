@@ -37,7 +37,7 @@ public class TodayFeedResponseDto {
         private String voiceUrl;
         private Integer bookmarkCount;
         private Integer heartCount;
-        private Boolean isSelfHearted; // TODO: 좋아요 기능
+        private Boolean isSelfHearted;
         private Boolean isSelfBookmarked;
         private String voiceCreatedAt;
 

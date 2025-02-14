@@ -13,7 +13,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "오늘의 피드")
+@Tag(name = "메인 페이지 오늘의 피드")
 @RestController
 @RequestMapping("/api/feed")
 @RequiredArgsConstructor

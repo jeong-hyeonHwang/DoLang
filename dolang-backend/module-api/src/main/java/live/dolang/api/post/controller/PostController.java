@@ -20,7 +20,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-@Tag(name = "2. POST")
+@Tag(name = "POST")
 @RestController
 @RequestMapping("/api/post")
 @RequiredArgsConstructor
