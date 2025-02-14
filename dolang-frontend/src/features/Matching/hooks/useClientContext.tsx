@@ -1,24 +1,10 @@
-import { createContext, useContext, useRef, useState, useCallback, useEffect } from 'react';
-import React from 'react';
+import { createContext, useContext, useRef, useState, useCallback, useEffect, ReactNode } from 'react';
 import { Client } from '@stomp/stompjs';
-import { UserInfo } from '../../../shared/types/UserInfo.type';
 import { usePeerContext } from '../../VoiceCall/hooks/usePeerContext';
+import { MatchedUser, MatchingResult } from '../types/Matching.type';
 
 interface StompClientProviderProps {
-  children: React.ReactNode;
-}
-
-interface MatchedUser extends UserInfo {
-  nativeLanguageId: string;
-  peerId: string;
-  userId: string;
-  username: string;
-}
-
-interface MatchingResult {
-  me: MatchedUser;
-  matchedUser: MatchedUser;
-  ownerYN: boolean;
+  children: ReactNode;
 }
 
 export interface StompContextValue {
