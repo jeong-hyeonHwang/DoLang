@@ -18,6 +18,7 @@ import Bookmarks from './app/routes/SavedContents/Bookmark.tsx';
 import AudioFeed from './app/routes/SavedContents/AudioFeed.tsx';
 import { CallContextProvider } from './features/VoiceCall/hooks/useCallContext.tsx';
 import { PeerContextProvider } from './features/VoiceCall/hooks/usePeerContext.tsx';
+import EndCallView from './app/routes/EndCallView.tsx';
 
 function App() {
   return (
@@ -40,18 +41,6 @@ function App() {
           <Route path="feed" element={<FeedView />} />
           <Route path="savedContents" element={<SavedContentsView />} />
           <Route path="profile" element={<UserProfileView />} />
-          <Route
-            path="/call"
-            element={
-              <PeerContextProvider>
-                <StompClientProvider>
-                  <CallContextProvider>
-                    <VoiceCallView />
-                  </CallContextProvider>
-                </StompClientProvider>
-              </PeerContextProvider>
-            }
-          />
 
           {/* Auth */}
           <Route path="oauth2" element={<GoogleLoginView />} />
@@ -74,6 +63,29 @@ function App() {
             <Route path="signup/register" element={<SignupForm />} />
           </Route>
         </Route>
+
+        <Route
+          path="/call"
+          element={
+            <PeerContextProvider>
+              <StompClientProvider>
+                <CallContextProvider>
+                  <VoiceCallView />
+                </CallContextProvider>
+              </StompClientProvider>
+            </PeerContextProvider>
+          }
+        />
+        <Route
+          path="endCall"
+          element={
+            <PeerContextProvider>
+              <StompClientProvider>
+                <EndCallView />
+              </StompClientProvider>
+            </PeerContextProvider>
+          }
+        />
       </Routes>
     </>
   );
