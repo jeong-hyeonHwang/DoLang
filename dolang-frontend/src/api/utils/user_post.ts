@@ -12,7 +12,7 @@ interface ImportMeta {
 
 type Interest = {
   tagId: number;
-  tagName: string;
+  name: string;
 };
 interface PostData {
   nickname: string;

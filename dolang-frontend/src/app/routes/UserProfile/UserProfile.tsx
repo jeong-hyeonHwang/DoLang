@@ -11,11 +11,11 @@ import { userPut } from '../../../api/utils/user_put';
 import languages from '../../../shared/components/Picker/languages.json';
 import countries from '../../../shared/components/Picker/countries.json';
 import proficiencyLevel from '../../../shared/components/Picker/proficiencyLevel.json';
+import Cookies from 'js-cookie';
 
 type Interest = {
-  tagId: number;
-  nativeLanguageId: string;
-  tagName: string;
+  tagId?: number;
+  name?: string;
 };
 
 interface UserProfileData {
@@ -25,7 +25,7 @@ interface UserProfileData {
   targetLanguage: string;
   proficiencyLevel: string;
   interests: Interest[];
-  profileImageUrl: string;
+  profileImageUrl?: string;
 }
 
 const getLanguageLabel = (code: string) => {
@@ -177,6 +177,7 @@ function UserProfile() {
     register,
     handleSubmit,
     control,
+    setValue,
     formState: { errors },
     reset,
   } = useForm<UserProfileData>({
@@ -192,7 +193,6 @@ function UserProfile() {
   });
 
   useEffect(() => {
-    // user 값이 변할 때마다 reset 호출
     if (user) {
       reset({
         nickname: user.nickname ?? '',
@@ -202,13 +202,11 @@ function UserProfile() {
         proficiencyLevel: user.proficiencyLevel ?? '',
         interests: user.interests ?? [],
         profileImageUrl: user.profileImageUrl ?? '',
-        // profileImageUrl: user.profileImageUrl ?? '/placeholder.svg',
       });
       setProfileImageUrl(user.profileImageUrl ?? '');
     }
   }, [user, reset]);
 
-  // 프로필 이미지 업로드 처리
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -220,11 +218,21 @@ function UserProfile() {
     }
   };
 
-  // 프로필 업데이트 요청
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleSubmit(onSubmit)();
+  };
+
+  const accessToken = Cookies.get('access_token');
+
   const onSubmit = async (data: UserProfileData) => {
-    setLoading(true); // 로딩 시작
+    setLoading(true);
     try {
-      const res = await userPut(data);
+      const formattedDate = {
+        ...data,
+        interests: data.interests.map((item) => item.name.tagId),
+      };
+      const res = await userPut(formattedDate, accessToken);
       if (res) {
         alert('프로필이 성공적으로 업데이트되었습니다.');
         setUser(data);
@@ -236,14 +244,14 @@ function UserProfile() {
       console.error('프로필 업데이트 중 오류 발생: ', error);
       alert('업데이트에 실패했습니다.');
     } finally {
-      setLoading(false); // 로딩 종료
+      setLoading(false);
     }
   };
 
   return (
     <PageContainer>
       <Title>사용자 프로필</Title>
-      <Form onSubmit={handleSubmit(onSubmit)}>
+      <Form>
         <ProfileImageContainer>
           <ProfileImage src={profileImageUrl} alt="Profile" />
           <ImageUploadButton>
@@ -315,21 +323,39 @@ function UserProfile() {
             control={control}
             rules={{ required: '최소 3개의 관심사를 입력해주세요.' }}
             render={({ field }) => {
-              const mappedIterests = field.value.map((interest: Interest) => interest.tagName);
+              const tagNames = Array.isArray(field.value)
+                ? field.value.map((interest: Interest | string, index) =>
+                    typeof interest === 'string'
+                      ? { tagId: index, name: interest }
+                      : { tagId: interest.tagId ?? index, name: interest.name ?? interest?.tagName ?? '' }
+                  )
+                : [];
+
+              console.log('field', tagNames);
+
               return (
                 <TagInput
                   {...field}
-                  value={mappedIterests}
+                  value={tagNames}
                   maxTags={10}
                   minTags={3}
                   error={errors.interests?.message}
+                  nativeLanguageId={user?.nativeLanguage}
+                  onChange={(tags) => {
+                    const formattedTags = tags
+                      .filter((tag) => tag !== undefined && tag !== null)
+                      .map((tag) => ({ name: tag }));
+                    field.onChange(formattedTags);
+                  }}
                 />
               );
             }}
           />
         </FormGroup>
 
-        <SubmitButton type="submit">프로필 업데이트</SubmitButton>
+        <SubmitButton type="submit" onClick={handleFormSubmit}>
+          프로필 업데이트
+        </SubmitButton>
       </Form>
     </PageContainer>
   );

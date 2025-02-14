@@ -1,11 +1,6 @@
-// export interface Interest {
-//   tagId: number;
-//   tagName: string;
-// }
-
 export interface Interest {
-  id: number;
-  nativeLanguageId: string;
+  tagId: number;
+  // nativeLanguageId: string;
   name: string;
 }
 

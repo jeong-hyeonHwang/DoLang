@@ -15,7 +15,7 @@ import Cookies from 'js-cookie';
 
 type Interest = {
   tagId: number;
-  tagName: string;
+  name: string;
 };
 interface SignupFormData {
   nickname: string;
@@ -198,7 +198,12 @@ function SignupForm() {
       return;
     }
     try {
-      const responseData = await userPost(data, accessToken);
+      const formattedDate = {
+        ...data,
+        interests: data.interests.map((item) => item.name.tagId),
+      };
+
+      const responseData = await userPost(formattedDate, accessToken);
       console.log('resData: ', responseData);
       if (responseData.data.code === 200) {
         setAuth((prevAuth) => ({
@@ -322,14 +327,47 @@ function SignupForm() {
 
           <FormGroup>
             <Label>관심사 태그</Label>
+            <Controller
+              name="interests"
+              control={control}
+              rules={{ required: '최소 3개의 관심사를 입력해주세요.' }}
+              render={({ field }) => {
+                // const tagNames = field.value.map((interest: Interest) => interest.name);
+                const names = Array.isArray(field.value)
+                  ? field.value.map((interest: Interest) => interest?.name ?? '')
+                  : [];
+
+                return (
+                  <TagInput
+                    {...field}
+                    value={names}
+                    maxTags={10}
+                    minTags={3}
+                    error={errors.interests?.message}
+                    nativeLanguageId={watch('nativeLanguage')}
+                    onChange={(tags) => {
+                      const formattedTags = tags
+                        .filter((tag) => tag !== undefined && tag !== null)
+                        .map((tag) => ({ name: tag }));
+                      field.onChange(formattedTags);
+                    }}
+                  />
+                );
+              }}
+            />
+          </FormGroup>
+
+          {/* <FormGroup>
+            <Label>관심사 태그</Label>
             <TagInput
               value={watch('interests')}
-              onChange={(tags) => setValue('interests', tags)}
               maxTags={10}
               minTags={3}
               error={errors.interests?.message}
+              nativeLanguageId={watch('nativeLanguage')}
+              onChange={(tags) => setValue('interests', tags)}
             />
-          </FormGroup>
+          </FormGroup> */}
 
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>

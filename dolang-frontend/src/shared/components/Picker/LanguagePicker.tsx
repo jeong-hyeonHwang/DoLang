@@ -13,6 +13,8 @@ const LanguagePicker = React.forwardRef<HTMLDivElement, LanguagePickerProps>(({ 
 
   const handleChange = (value: string) => {
     const selected = languages.find((lang) => lang.value === value);
+    console.log(selected);
+
     if (selected) {
       setSelectedLanguage(selected.value);
       if (onChange) {
