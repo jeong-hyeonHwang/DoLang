@@ -1,68 +1,72 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { css } from '@emotion/react';
-import { Link, useLocation } from 'react-router';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import { authState } from '../../../features/Auth/authState.ts';
+import { Link, useLocation } from 'react-router-dom';
 import NameCard from '../nameCard/NameCard.tsx';
 import { useUserQuery } from '../../hooks/useUserQuery.ts';
 import { useAuth } from '../../hooks/useAuth.ts';
-import { useEffect, useState } from 'react';
 import Logo from '../Logo/Logo.tsx';
-import { Home, Radio, FileText, User, Settings, Dot, Check } from 'lucide-react';
-import GoogleLogout from '@/features/Auth/GoogleLogout.tsx';
+import { Home, Radio, FileText, User, Settings, Check, ChevronUp, ChevronDown } from 'lucide-react';
+import LogInModal from '../../../features/Auth/LoginModal.tsx';
+import SignUpModal from '../../../features/Auth/SignupModal.tsx';
+import GoogleLogout from '../../../features/Auth/GoogleLogout.tsx';
 
 const sidebarStyle = css`
+  height: 100vh;
+  top: 0;
+  left: 0;
+  bottom: 0;
   padding: 1rem;
   display: flex;
   position: fixed;
   flex-direction: column;
-  left: 0;
-  top: 0;
   height: 100%;
-  width: 14.5rem;
+  width: 15rem;
+  background-color: #fff;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const navStyle = css`
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 20px;
-  /* padding: 30px 20px; */
-  /* margin-top: 20px; */
-  /* text-align: start; */
+  padding-top: 20px;
+  padding-left: 20px;
 `;
 
 const topSectionStyle = css`
   display: flex;
   flex-direction: column;
   gap: 10px;
-  /* padding: 15px 0; */
 `;
 
 const middleSectionStyle = css`
   display: flex;
   flex-direction: column;
-  margin-top: 10px;
-  /* position: absolute; */
-  /* padding: 20px 0; */
+  margin-bottom: auto;
 `;
 
 const middleSectionStyle2 = css`
-  position: absolute;
-  bottom: 50px;
+  margin-top: auto;
   display: flex;
   flex-direction: column;
-  /* position: absolute; */
+  align-items: center;
+  width: 11rem;
 `;
 
 const bottomSectionStyle = css`
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
   text-align: center;
-  /* padding: 20px 0; */
+  cursor: pointer;
+  margin-top: 20px;
 `;
 
 const linkStyle = css`
@@ -71,18 +75,13 @@ const linkStyle = css`
   text-decoration: none;
   display: flex;
   align-items: center;
-  /* flex-grow: 1; */
   border-radius: 10px;
   color: #333;
   transition: 0.3s ease;
 
   &:hover {
-    /* color: #007bff; */
-    /* color: #4caf50; */
-    /* background: rgba(122, 185, 116, 0.12); */
-    background: rgba(198, 210, 132, 0.12);
-    /* color: #7ab974; */
-    color: #4caf50;
+    background: #7ab9741c;
+    color: #2e7d32;
   }
 
   svg {
@@ -114,9 +113,10 @@ const subLinkStyle = css`
     padding: 8px 10px;
     text-decoration: none;
     white-space: nowrap;
-    /* color: #333; */
     color: #525252;
-    /* border-radius: 5px; */
+    width: 120px;
+    margin-top: 5px;
+    height: 35px;
     &:hover {
       color: #7ab974;
     }
@@ -125,7 +125,6 @@ const subLinkStyle = css`
 
 const bottomLinkStyle = css`
   font-size: 15px;
-  margin-top: 40px;
   justify-content: center;
 
   svg {
@@ -138,25 +137,18 @@ const bottomLinkStyle = css`
 const activeLinkStyle = css`
   font-weight: bold;
   color: #2e7d32;
-`;
-
-const extraButtonsContainerStyle = css`
-  margin-top: 20px;
-  padding: 20px;
-  text-align: center;
-  cursor: pointer;
+  background-color: #7ab9741c;
 `;
 
 const nameCardContainerStyle = css`
   margin-top: 30px;
-  /* margin-bottom: -20px; */
   display: flex;
   justify-content: center;
 `;
 
 interface LinkItem {
   key: string;
-  href: string;
+  href?: string;
   title: string;
   icon: React.ReactNode;
   children?: LinkItem[];
@@ -209,6 +201,12 @@ const NavLinks = ({ linkItems, customLinkStyle }: NavLinksProps) => {
             >
               {item.icon}
               {item.title}
+              {item.key === '3' &&
+                (isOpen ? (
+                  <ChevronUp style={{ marginLeft: 'auto', marginRight: '10px', opacity: 0.5 }} />
+                ) : (
+                  <ChevronDown style={{ marginLeft: 'auto', marginRight: '10px', opacity: 0.5 }} />
+                ))}
             </Link>
 
             {item.key === '3' && (
@@ -223,12 +221,6 @@ const NavLinks = ({ linkItems, customLinkStyle }: NavLinksProps) => {
                       css={[linkStyle, customLinkStyle, location.pathname === child.href && activeLinkStyle]}
                     >
                       <span style={{ color: isChildActive ? '#2e7d32' : '#525252' }}>{child.title}</span>
-
-                      {isChildActive && child.icon && (
-                        <span style={{ marginLeft: '0.5rem', display: 'inline-flex', color: '#2e7d32' }}>
-                          {child.icon}
-                        </span>
-                      )}
                     </Link>
                   );
                 })}
@@ -246,7 +238,6 @@ const linkItems: LinkItem[] = [
   { key: '2', href: '/feed', title: '피드', icon: <Radio /> },
   {
     key: '3',
-    href: '/savedContents',
     title: '내 기록',
     icon: <FileText />,
     children: [
@@ -276,7 +267,10 @@ const linkItems: LinkItem[] = [
 const BottomLinkItems: LinkItem[] = [{ key: '1', href: '/guide', title: '서비스 가이드', icon: <Settings /> }];
 
 export const NavBarContainer = () => {
-  const { logoutMutation } = useAuth();
+  const auth = useRecoilState(authState);
+  const isLoggedIn = JSON.parse(sessionStorage.getItem('isLoggedIn') || 'false');
+  const user = JSON.parse(sessionStorage.getItem('user') || 'false');
+  console.log('login: ', auth);
   const { data: userInfo, isLoading } = useUserQuery();
 
   return (
@@ -286,9 +280,47 @@ export const NavBarContainer = () => {
           <Logo />
         </Link>
 
-        <div css={nameCardContainerStyle}>
-          <NameCard style={{ border: 'none', backgroundColor: 'transparent' }} />
-        </div>
+        {isLoggedIn && user ? (
+          <div css={nameCardContainerStyle}>
+            <NameCard style={{ border: 'none', backgroundColor: 'transparent' }} />
+          </div>
+        ) : (
+          <div
+            css={nameCardContainerStyle}
+            style={{ display: 'flex', justifyContent: 'space-evenly', marginTop: '2.2rem', marginBottom: '1rem' }}
+          >
+            {/* <SignUpModal /> */}
+            {/* <LogInModal /> */}
+            <Link to="oauth2/code">
+              <button
+                style={{
+                  backgroundColor: '#ffffff',
+                  color: '#202022',
+                  width: '80px',
+                  height: '35px',
+                  border: '1px solid #a0a0a0',
+                  borderRadius: '6px',
+                }}
+              >
+                SignUp
+              </button>
+            </Link>
+            <Link to="oauth2/code">
+              <button
+                style={{
+                  backgroundColor: '#202022',
+                  color: '#ffffff',
+                  width: '80px',
+                  height: '35px',
+                  border: '1px solid #a0a0a0',
+                  borderRadius: '6px',
+                }}
+              >
+                Login
+              </button>
+            </Link>
+          </div>
+        )}
       </div>
 
       <div css={middleSectionStyle}>
@@ -299,15 +331,8 @@ export const NavBarContainer = () => {
       </div>
 
       <div css={bottomSectionStyle}>
-        <div css={extraButtonsContainerStyle}>
-          {isLoading ? (
-            <div>Loading...</div>
-          ) : (
-            <div>{userInfo?.userName && <div onClick={() => logoutMutation.mutate()}>로그아웃</div>}</div>
-          )}
-        </div>
+        {isLoading ? <div>Loading...</div> : isLoggedIn && user ? <GoogleLogout /> : null}
       </div>
-      <GoogleLogout />
     </div>
   );
 };

@@ -1497,7 +1497,8 @@ window.translations = {
       let e = document.getElementById(location.hash.substring(1));
       if (!e) return;
       let n = e.parentElement;
-      for (; n && n.tagName !== 'SECTION'; ) n = n.parentElement;
+      // for (; n && n.tagName !== 'SECTION'; ) n = n.parentElement;
+      for (; n && n.name !== 'SECTION'; ) n = n.parentElement;
       if (!n) return;
       let r = n.offsetParent == null,
         i = n;
@@ -1923,7 +1924,7 @@ window.translations = {
   function Ye() {
     document.addEventListener('click', (r) => {
       let i = r.target;
-      for (; i.parentElement && i.parentElement.tagName != 'LI'; ) i = i.parentElement;
+      for (; i.parentElement && i.parentElement.name != 'LI'; ) i = i.parentElement;
       i.dataset.dropdown && (i.dataset.dropdown = String(i.dataset.dropdown !== 'true'));
     });
     let t = new Map(),

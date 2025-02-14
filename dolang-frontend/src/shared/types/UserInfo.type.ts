@@ -1,13 +1,15 @@
-export type UserInfo = {
-  profileImageUrl: string | null;
-  nickname: string;
-  countryId: string;
-  nativeLanguageId: string | null;
-  interestLanguageId: string | null;
-  interestingLanguageLevelId: string | null;
-  tags: Tag[];
-};
+export interface Interest {
+  tagId: number;
+  // nativeLanguageId: string;
+  name: string;
+}
 
-export type Tag = {
-  text: string;
-};
+export interface User {
+  profileImageUrl?: string | null;
+  nickname: string;
+  nationality: string;
+  nativeLanguage: string | null;
+  targetLanguage: string | null;
+  proficiencyLevel: string | null;
+  interests: Interest[];
+}

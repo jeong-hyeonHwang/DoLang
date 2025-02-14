@@ -1,7 +1,13 @@
-export default function MainView() {
+import { NoteComponent } from '@/features/Note/components/NoteComponent';
+import MainViewComponent from './MainView/MainViewComponent';
+
+const MainView = () => {
   return (
     <>
-      <div>MainView</div>;
+      <NoteComponent />
+      <MainViewComponent />
     </>
   );
-}
+};
+
+export default MainView;
