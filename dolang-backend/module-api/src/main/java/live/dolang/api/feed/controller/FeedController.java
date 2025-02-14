@@ -5,16 +5,13 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import live.dolang.api.common.enums.SortType;
 import live.dolang.api.common.response.BaseResponse;
-import live.dolang.api.feed.dto.FeedParticipantsResponseDto;
+import live.dolang.api.feed.dto.TodayFeedParticipantsResponseDto;
 import live.dolang.api.feed.dto.TodayFeedResponseDto;
 import live.dolang.api.feed.service.FeedService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "오늘의 피드")
 @RestController
@@ -45,7 +42,7 @@ public class FeedController {
             security = @SecurityRequirement(name = "BearerAuth") // JWT 인증 적용
     )
     @GetMapping("/today/participants")
-    public BaseResponse<FeedParticipantsResponseDto> getTodayFeedParticipants(
+    public BaseResponse<TodayFeedParticipantsResponseDto> getTodayFeedParticipants(
             @AuthenticationPrincipal Jwt jwt,
             @RequestParam(value = "feedId") Integer feedId,
             @RequestParam(value = "sort", defaultValue = "LATEST") String sort,
@@ -53,7 +50,7 @@ public class FeedController {
             @RequestParam(value = "nextCursor", required = false) String nextCursor
     ) {
         Integer userId = jwt == null ? null : Integer.parseInt(jwt.getId());
-        FeedParticipantsResponseDto dto = feedService.getTodayFeedParticipants(userId, feedId, SortType.valueOf(sort), length, nextCursor);
+        TodayFeedParticipantsResponseDto dto = feedService.getTodayFeedParticipants(userId, feedId, SortType.valueOf(sort), length, nextCursor);
         return BaseResponse.ok(dto);
     }
 }
