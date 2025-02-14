@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import NameCard from './NameCard.tsx';
+import { NameCard } from './NameCard.tsx';
 
 const meta: Meta<typeof NameCard> = {
   component: NameCard,
