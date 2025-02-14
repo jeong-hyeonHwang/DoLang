@@ -34,11 +34,11 @@ public class UserProfile {
     private String nickname;
 
     @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP")
+    @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Instant createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMP")
+    @Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Instant updatedAt;
 
     @Column(name = "country_id", length = 2, columnDefinition = "CHAR(2)")
@@ -59,5 +59,9 @@ public class UserProfile {
         this.countryId = newProfile.getCountryId();
         this.interestLanguageId = newProfile.getInterestLanguageId();
         this.nativeLanguageId = newProfile.getNativeLanguageId();
+    }
+    public void deleteUser() {
+        this.nickname = "탈퇴한 사용자";
+        this.profileImageUrl = "";
     }
 }

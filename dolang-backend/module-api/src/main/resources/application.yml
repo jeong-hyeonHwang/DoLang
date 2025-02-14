@@ -2,6 +2,8 @@ server:
   port: 8100
 
 spring:
+  config:
+    import: classpath:/env.yml
   application:
     name: api
   datasource:
@@ -19,14 +21,16 @@ spring:
     redis:
       host: localhost
       port: 6379
-      user-sentence:
-        prefix: "userSentence:"
-      user:
-        prefix: "user:"
+      feed:
+        prefix: "feed"
       bookmark:
-        postfix: ":bookmarks:"
-        count:
-          postfix: ":bookmarkCount:"
+        postfix: "bookmark"
+      heart:
+        postfix: "heart"
+      user:
+        prefix: "user"
+      count:
+        postfix: "count"
   jpa:
     open-in-view: false
     properties:
@@ -44,6 +48,31 @@ spring:
   batch:
     jdbc:
       initialize-schema: always
+    job:
+      name: redisBookmarkToDatabaseJob,redisHeartToDatabaseJob
+      enabled: false
+
+  # Spring Cloud AWS 설정 명시적으로 추가
+  cloud:
+    aws:
+      region:
+        static: ap-northeast-2  # ✅ Spring Cloud AWS 전용 설정
+      credentials:
+        access-key: ${aws.s3.accessKey}
+        secret-key: ${aws.s3.secretKey}
+
+  #서버로 넘어오는 파일 크기제한
+  servlet:
+    multipart:
+      max-file-size: 50MB   # 개별 파일 최대 크기 (32MB보다 큰 값)
+      max-request-size: 50MB  # 전체 요청 최대 크기
+# AWS S3 설정
+aws:
+  region: ap-northeast-2
+  s3:
+    bucket: dolang
+    accessKey: ${AWS_S3_ACCESS_KEY}
+    secretKey: ${AWS_S3_SECRET_KEY}
 
 logging:
   level:
@@ -51,3 +80,11 @@ logging:
     org.hibernate.SQL_SLOW: info
     org.hibernate.SQL: debug
     org.hibernate.orm.jdbc.bind: trace
+
+openAi:
+  apiKey: ${OPENAI_API_KEY}
+  apiUrl: ${OPENAI_API_URL}
+
+deepl:
+  api:
+    key: ${DEEPL_API_KEY}

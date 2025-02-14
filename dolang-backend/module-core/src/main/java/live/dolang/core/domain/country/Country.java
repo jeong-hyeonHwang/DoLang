@@ -15,7 +15,6 @@ import lombok.NoArgsConstructor;
 public class Country {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "country_id", columnDefinition = "CHAR(2)")
     private String id;
 

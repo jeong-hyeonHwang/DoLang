@@ -39,5 +39,5 @@ out/
 *.jks
 *.p12
 
-### generated scripts ###
-/scripts/**
+### env ###
+**/env.yml

@@ -40,7 +40,14 @@ public class User {
     @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "fk_user_profile_user_id_to_user_id"))
     private UserProfile userProfile;
 
+    @Column(name = "is_deleted", columnDefinition = "TINYINT(1)", nullable = false)
+    private boolean isDeleted;
+
     public void updateProfile(UserProfile newProfile) {
         this.userProfile.updateUserProfile(newProfile);
+    }
+    public void deleteUser() {
+        this.isDeleted = true;
+        this.userProfile.deleteUser();
     }
 }

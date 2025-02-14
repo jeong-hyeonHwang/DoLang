@@ -19,7 +19,7 @@ public class Tag {
     @Column(name = "tag_id")
     private Integer id;
 
-    @Column(name = "name", nullable = false, length = 100)
-    private String name;
+    @Column(name = "tag_code", nullable = false, length = 50, unique = true)
+    private String code;
 
 }

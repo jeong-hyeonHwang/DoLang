@@ -36,6 +36,6 @@ public class UserDateSentence {
     private String userDateSentencesUrl;
 
     @CreationTimestamp
-    @Column(name = "created_at", updatable = false, nullable = false)
+    @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", updatable = false, nullable = false)
     private Instant createdAt;
 }

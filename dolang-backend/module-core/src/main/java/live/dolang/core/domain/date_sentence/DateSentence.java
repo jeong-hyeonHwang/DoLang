@@ -1,6 +1,7 @@
 package live.dolang.core.domain.date_sentence;
 
 import jakarta.persistence.*;
+import live.dolang.core.domain.language.Language;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,6 +23,10 @@ public class DateSentence {
 
     @Column(name = "sentence", columnDefinition = "VARCHAR(255)", nullable = false)
     private String sentence;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "language_id", nullable = false)
+    private Language language;
 
     @Column(name = "date_id", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", nullable = false)
     private Instant dateId;

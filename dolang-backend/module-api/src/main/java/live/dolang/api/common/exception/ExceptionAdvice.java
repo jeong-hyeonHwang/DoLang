@@ -3,9 +3,8 @@ package live.dolang.api.common.exception;
 import live.dolang.api.common.response.BaseResponse;
 import live.dolang.api.common.response.BaseResponseStatus;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @Slf4j
@@ -13,37 +12,56 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class ExceptionAdvice {
 
     @ExceptionHandler(BadRequestException.class)
-    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public BaseResponse<BaseResponseStatus> BadRequestExceptionExceptionHandler(BadRequestException exception) {
-        log.warn("BadRequestException has occurred. %s %s %s".formatted(exception.getMessage(), exception.getCause(), exception.getStackTrace()[0]));
-        return new BaseResponse<>(exception.getStatus());
+    public BaseResponse<BaseResponseStatus> badRequestExceptionExceptionHandler(BadRequestException exception) {
+        log.error("BadRequestException has occurred. {} {} {}", exception.getMessage(), exception.getCause(), exception.getStackTrace()[0]);
+        return BaseResponse.status(exception.getStatus());
     }
 
     @ExceptionHandler(UnauthorizedException.class)
-    @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
-    public BaseResponse<BaseResponseStatus> UnauthorizedExceptionHandler(UnauthorizedException exception) {
-        log.warn("UnauthorizedException has occurred. %s %s %s".formatted(exception.getMessage(), exception.getCause(), exception.getStackTrace()[0]));
-        return new BaseResponse<>(exception.getStatus());
+    public BaseResponse<BaseResponseStatus> unauthorizedExceptionHandler(UnauthorizedException exception) {
+        log.error("UnauthorizedException has occurred. {} {} {}", exception.getMessage(), exception.getCause(), exception.getStackTrace()[0]);
+        return BaseResponse.status(exception.getStatus());
     }
 
     @ExceptionHandler(ForbiddenException.class)
-    @ResponseStatus(value = HttpStatus.FORBIDDEN)
-    public BaseResponse<BaseResponseStatus> ForbiddenExceptionHandler(ForbiddenException exception) {
-        log.warn("ForbiddenException has occurred. %s %s %s".formatted(exception.getMessage(), exception.getCause(), exception.getStackTrace()[0]));
-        return new BaseResponse<>(exception.getStatus());
+    public BaseResponse<BaseResponseStatus> forbiddenExceptionHandler(ForbiddenException exception) {
+        log.error("ForbiddenException has occurred. {} {} {}", exception.getMessage(), exception.getCause(), exception.getStackTrace()[0]);
+        return BaseResponse.status(exception.getStatus());
     }
 
     @ExceptionHandler(NotFoundException.class)
-    @ResponseStatus(value = HttpStatus.NOT_FOUND)
-    public BaseResponse<BaseResponseStatus> UserProfileNotFoundExceptionHandler(NotFoundException exception) {
-        log.warn("NotFoundException has occurred. %s %s %s".formatted(exception.getMessage(), exception.getCause(), exception.getStackTrace()[0]));
-        return new BaseResponse<>(exception.getStatus());
+    public BaseResponse<BaseResponseStatus> userProfileNotFoundExceptionHandler(NotFoundException exception) {
+        log.error("NotFoundException has occurred. {} {} {}", exception.getMessage(), exception.getCause(), exception.getStackTrace()[0]);
+        return BaseResponse.status(exception.getStatus());
     }
 
     @ExceptionHandler(InternalServerException.class)
-    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
-    public BaseResponse<BaseResponseStatus> InternalServerExceptionHandler(InternalServerException exception) {
-        log.warn("InternalServerException has occurred. %s %s %s".formatted(exception.getMessage(), exception.getCause(), exception.getStackTrace()[0]));
-        return new BaseResponse<>(exception.getStatus());
+    public BaseResponse<BaseResponseStatus> internalServerExceptionHandler(InternalServerException exception) {
+        log.error("InternalServerException has occurred. {} {} {}", exception.getMessage(), exception.getCause(), exception.getStackTrace()[0]);
+        return BaseResponse.status(exception.getStatus());
+    }
+
+    @ExceptionHandler(DuplicateException.class)
+    public BaseResponse<BaseResponseStatus> internalServerExceptionHandler(DuplicateException exception) {
+        log.error("DuplicateException has occurred. {} {} {}", exception.getMessage(), exception.getCause(), exception.getStackTrace()[0]);
+        return BaseResponse.status(exception.getStatus());
+    }
+
+    @ExceptionHandler(RequestParameterException.class)
+    public BaseResponse<BaseResponseStatus> requestParameterExceptionHandler(RequestParameterException exception) {
+        log.error("RequestParameterException has occurred. {} {} {}", exception.getMessage(), exception.getCause(), exception.getStackTrace()[0]);
+        return BaseResponse.status(exception.getStatus());
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public BaseResponse<BaseResponseStatus> requestParameterExceptionHandler(MissingServletRequestParameterException exception) {
+        log.error("MissingServletRequestParameterException has occurred. {} {} {}", exception.getMessage(), exception.getCause(), exception.getStackTrace()[0]);
+        return BaseResponse.status(new RequestParameterException(BaseResponseStatus.INVALID_PARAMETER).getStatus());
+    }
+
+    @ExceptionHandler(Exception.class)
+    public BaseResponse<BaseResponseStatus> exceptionHandler(Exception exception) {
+        log.error(exception.getMessage(), exception);
+        return BaseResponse.status(BaseResponseStatus.INTERNAL_SERVER_ERROR);
     }
 }
