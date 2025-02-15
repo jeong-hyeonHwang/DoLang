@@ -27,4 +27,11 @@ public class UserCall {
     @Column(name = "ended_at", columnDefinition = "TIMESTAMP", nullable = false)
     private Instant endedAt;
 
+    /**
+     * 통화 종료 시각을 현재 시각으로 지정합니다.
+     */
+    public void endCall() {
+        this.endedAt = Instant.now();
+    }
+
 }

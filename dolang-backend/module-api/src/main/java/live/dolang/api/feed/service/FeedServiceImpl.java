@@ -5,7 +5,7 @@ import live.dolang.api.common.exception.ForbiddenException;
 import live.dolang.api.common.exception.NotFoundException;
 import live.dolang.api.common.response.BaseResponseStatus;
 import live.dolang.api.common.util.UTCTimeUtil;
-import live.dolang.api.feed.dto.FeedParticipantsResponseDto;
+import live.dolang.api.feed.dto.TodayFeedParticipantsResponseDto;
 import live.dolang.api.feed.dto.TodayFeedResponseDto;
 import live.dolang.api.feed.projection.TodayFeedProjection;
 import live.dolang.api.feed.repository.FeedRepository;
@@ -31,12 +31,64 @@ public class FeedServiceImpl implements FeedService{
     private final PostBookmarkService postBookmarkService;
     private final UserHeartService userHeartService;
     private final PostHeartService postHeartService;
-    // 예시: 사용자의 북마크 여부 조회
 
     private final FeedRepository feedRepository;
     private final LanguageRepository languageRepository;
     private final DateRepository dateRepository;
     private final LanguageLevelRepository languageLevelRepository;
+    /**
+     * 정렬 옵션(LATEST/LIKE)에 따라 서로 다른 방식으로 데이터 조회
+     * - LATEST: DB(QueryDSL)에서 createdAt desc 로 조회 (커서 = user_date_sentence.id)
+     * - LIKE  : Redis Sorted Set에서 좋아요(또는 점수) 순으로 user_date_sentence.id 목록을 가져온 뒤,
+     *           다시 DB에서 해당 ID들의 레코드를 조회
+     *
+     * @param feedId     : 어떤 feed(date_sentence)인가
+     * @param sort       : 정렬 옵션 (예: LATEST, LIKE)
+     * @param length     : 가져올 데이터 개수
+     * @param nextCursor : 커서 (user_date_sentence_id)
+     */
+    @Override
+    public TodayFeedParticipantsResponseDto getTodayFeedParticipants(Integer userId,
+                                                                     Integer feedId,
+                                                                     SortType sort,
+                                                                     Integer length,
+                                                                     String nextCursor) {
+
+        // 존재하지 않는 사용자
+        if (userId != null && !userService.isUserExists(userId)) {
+            throw new NotFoundException(BaseResponseStatus.NOT_EXIST_USER);
+        }
+
+        if (!customDateSentenceService.isDateSentenceExists(feedId)) {
+            throw new NotFoundException(BaseResponseStatus.NOT_EXIST_FEED);
+        }
+
+        boolean isNativeFeed = userId != null && customUserProfileService.isNativeFeed(userId, feedId);
+        TodayFeedParticipantsResponseDto dto = feedRepository.selectFeedParticipantsByLatest(feedId, length, nextCursor);
+
+        if (isNativeFeed) { // 모국어 피드 - 하트
+            for(TodayFeedParticipantsResponseDto.FeedParticipant p : dto.getParticipants()) {
+                p.setHeartCount(postHeartService.getPostHeartCount(feedId, p.getPostId()));
+            }
+        } else { // 외국어 피드 - 북마크
+            for(TodayFeedParticipantsResponseDto.FeedParticipant p : dto.getParticipants()) {
+                p.setBookmarkCount(postBookmarkService.getPostBookmarkCount(feedId, p.getPostId()));
+            }
+        }
+        // 회원인 경우
+        if (userId != null) {
+            if (isNativeFeed) { // 모국어 피드 - 하트
+                for(TodayFeedParticipantsResponseDto.FeedParticipant p : dto.getParticipants()) {
+                    p.setIsUserHearted(userHeartService.isHearted(userId, feedId, p.getPostId()));
+                }
+            } else { // 외국어 피드 - 북마크
+                for(TodayFeedParticipantsResponseDto.FeedParticipant p : dto.getParticipants()) {
+                    p.setIsUserBookmarked(userBookmarkService.isBookmarked(userId, feedId, p.getPostId()));
+                }
+            }
+        }
+        return dto;
+    }
 
     @Override
     public TodayFeedResponseDto getTodayFeed(Integer userId, String language, String languageLevel) {
@@ -125,57 +177,5 @@ public class FeedServiceImpl implements FeedService{
         return dto;
     }
 
-    /**
-     * 정렬 옵션(LATEST/LIKE)에 따라 서로 다른 방식으로 데이터 조회
-     * - LATEST: DB(QueryDSL)에서 createdAt desc 로 조회 (커서 = user_date_sentence.id)
-     * - LIKE  : Redis Sorted Set에서 좋아요(또는 점수) 순으로 user_date_sentence.id 목록을 가져온 뒤,
-     *           다시 DB에서 해당 ID들의 레코드를 조회
-     *
-     * @param feedId     : 어떤 feed(date_sentence)인가
-     * @param sort       : 정렬 옵션 (예: LATEST, LIKE)
-     * @param length     : 가져올 데이터 개수
-     * @param nextCursor : 커서 (user_date_sentence_id)
-     */
-    @Override
-    public FeedParticipantsResponseDto getTodayFeedParticipants(Integer userId,
-                                                                Integer feedId,
-                                                                SortType sort,
-                                                                Integer length,
-                                                                String nextCursor) {
 
-        // 존재하지 않는 사용자
-        if (userId != null && !userService.isUserExists(userId)) {
-            throw new NotFoundException(BaseResponseStatus.NOT_EXIST_USER);
-        }
-
-        if (customDateSentenceService.isDateSentenceExists(feedId)) {
-            throw new NotFoundException(BaseResponseStatus.NOT_EXIST_FEED);
-        }
-
-        boolean isNativeFeed = userId != null && customUserProfileService.isNativeFeed(userId, feedId);
-        FeedParticipantsResponseDto dto = feedRepository.selectTodayFeedParticipantsByLatest(feedId, length, nextCursor, isNativeFeed);
-
-        if (isNativeFeed) { // 모국어 피드 - 하트
-            for(FeedParticipantsResponseDto.FeedParticipant p : dto.getParticipants()) {
-                p.setHeartCount(postHeartService.getPostHeartCount(feedId, p.getPostId()));
-            }
-        } else { // 외국어 피드 - 북마크
-            for(FeedParticipantsResponseDto.FeedParticipant p : dto.getParticipants()) {
-                p.setBookmarkCount(postBookmarkService.getPostBookmarkCount(feedId, p.getPostId()));
-            }
-        }
-        // 회원인 경우
-        if (userId != null) {
-            if (isNativeFeed) { // 모국어 피드 - 하트
-                for(FeedParticipantsResponseDto.FeedParticipant p : dto.getParticipants()) {
-                    p.setIsUserHearted(userHeartService.isHearted(userId, feedId, p.getPostId()));
-                }
-            } else { // 외국어 피드 - 북마크
-                for(FeedParticipantsResponseDto.FeedParticipant p : dto.getParticipants()) {
-                    p.setIsUserBookmarked(userBookmarkService.isBookmarked(userId, feedId, p.getPostId()));
-                }
-            }
-        }
-        return dto;
-    }
 }

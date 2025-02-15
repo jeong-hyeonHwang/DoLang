@@ -2,6 +2,7 @@ package live.dolang.api.post.service;
 
 import jakarta.annotation.PostConstruct;
 import live.dolang.api.feed.service.CustomUserProfileServiceImpl;
+import live.dolang.api.myfeed.dto.ResponseLikedFeedDto;
 import live.dolang.api.post.dto.BookmarkDataDto;
 import live.dolang.api.post.dto.ResponseFeedDto;
 import live.dolang.api.post.repository.CustomPostRepository;
@@ -140,7 +141,6 @@ public class PostService {
         return getDataKey(userId, feedId) + ":dirty";
     }
 
-
     public Page<ResponseFeedDto> getMyFeedList(int userId, String language, Pageable pageable) {
         Page<ResponseFeedDto> list = customPostRepository.getMyFeedList(userId, language, pageable);
 
@@ -157,6 +157,10 @@ public class PostService {
             });
         }
         return list;
+    }
+
+    public Page<ResponseLikedFeedDto> getMyLikedFeedList(int userId, String language, Pageable pageable) {
+        return customPostRepository.getMyLikedFeedList(userId, language, pageable);
     }
 }
 

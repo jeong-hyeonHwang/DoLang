@@ -10,6 +10,6 @@ public class CustomDateSentenceService {
     private final DateSentenceRepository dateSentenceRepository;
 
     public boolean isDateSentenceExists(Integer dateSentenceId) {
-        return dateSentenceRepository.findById(dateSentenceId).isEmpty();
+        return dateSentenceRepository.existsById(dateSentenceId);
     }
 }
