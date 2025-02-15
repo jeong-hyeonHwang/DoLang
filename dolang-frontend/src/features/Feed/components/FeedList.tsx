@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import type { FeedSentenceResponse } from '../types/FeedSentenceResponse.type.ts';
 import Feed from './Feed.tsx';
 import { css } from '@emotion/react';
 import { getFeedParticipation } from '../services/feedService.ts';
@@ -12,33 +11,57 @@ const FeedList = () => {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    max-height: 50vh;
+    height: 50vh;
     overflow-y: scroll;
-    border: 1px solid #d1d1d1;
-    border-radius: 1rem;
   `;
   const [feedParticipants, setFeedParticipants] = useState<FeedParticipant[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchFeedParticipation = async () => {
-      const response = await getFeedParticipation({ feedId: '1', length: 5 });
-      console.log(response);
-      setFeedParticipants(response.participants);
+      try {
+        setIsLoading(true);
+        const response = await getFeedParticipation({ feedId: '1', length: 5 });
+        console.log(response);
+        setFeedParticipants(response.participants);
+        setIsLoading(false);
+      } catch (error) {
+        setError(error as string);
+        setIsLoading(false);
+      }
     };
     fetchFeedParticipation();
   }, []);
 
+  if (error) {
+    return (
+      <section className="feed-list-section" css={feedListLayoutStyle}>
+        <p>오류가 발생했습니다.</p>
+      </section>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <section className="feed-list-section" css={feedListLayoutStyle}>
+        <p>피드를 불러오는 중입니다...</p>
+      </section>
+    );
+  }
+
+  if (feedParticipants.length === 0) {
+    return (
+      <section className="feed-list-section" css={feedListLayoutStyle}>
+        <p>참여자가 없습니다. 오늘의 첫 참여자가 되어 보세요!</p>
+      </section>
+    );
+  }
+
   return (
     <section className="feed-list-section" css={feedListLayoutStyle}>
       {feedParticipants.map((feed) => (
-        <Feed
-          key={feed.postId}
-          {...feed}
-          userInfo={{
-            ...feed,
-            interestingLanguageLevelId: '',
-          }}
-        />
+        <Feed key={feed.postId} {...feed} />
       ))}
     </section>
   );
