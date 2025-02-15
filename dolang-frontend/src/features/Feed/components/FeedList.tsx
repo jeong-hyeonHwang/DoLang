@@ -1,8 +1,11 @@
+import { useState, useEffect } from 'react';
 import type { FeedSentenceResponse } from '../types/FeedSentenceResponse.type.ts';
 import Feed from './Feed.tsx';
 import { css } from '@emotion/react';
+import { getFeedParticipation } from '../services/feedService.ts';
+import { FeedParticipant } from '../types/FeedParticipantsResponse.type.ts';
 
-const FeedList = ({ feeds }: { feeds: FeedSentenceResponse[] }) => {
+const FeedList = () => {
   const feedListLayoutStyle = css`
     padding: 1rem;
     margin: 0.6rem;
@@ -14,15 +17,25 @@ const FeedList = ({ feeds }: { feeds: FeedSentenceResponse[] }) => {
     border: 1px solid #d1d1d1;
     border-radius: 1rem;
   `;
+  const [feedParticipants, setFeedParticipants] = useState<FeedParticipant[]>([]);
+
+  useEffect(() => {
+    const fetchFeedParticipation = async () => {
+      const response = await getFeedParticipation({ feedId: '1', length: 5 });
+      console.log(response);
+      setFeedParticipants(response.participants);
+    };
+    fetchFeedParticipation();
+  }, []);
 
   return (
     <section className="feed-list-section" css={feedListLayoutStyle}>
-      {feeds.map((feed) => (
+      {feedParticipants.map((feed) => (
         <Feed
-          key={feed.feedId}
+          key={feed.postId}
           {...feed}
           userInfo={{
-            ...feed.userParticipation,
+            ...feed,
             interestingLanguageLevelId: '',
           }}
         />

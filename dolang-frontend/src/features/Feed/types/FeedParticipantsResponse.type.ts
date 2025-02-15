@@ -1,9 +1,21 @@
 export interface FeedParticipantsResponse {
-  profileImage: string;
+  meta: FeedParticipationMeta;
+  participants: FeedParticipant[];
+}
+
+export interface FeedParticipationMeta {
+  hasNext: boolean;
+  limit: number;
+  nextCursor: string;
+  sort: string;
+  participants: FeedParticipantsResponse[];
+}
+
+export interface FeedParticipant {
+  postId: number;
+  profileImageUrl: string;
   country: string;
-  countryImageUrl: string;
   voiceUrl: string;
   voiceCreatedAt: string;
-  heartCount?: number;
   bookmarkCount?: number;
 }
