@@ -59,7 +59,7 @@ public class UserBookmarkService {
         BookmarkDataDto newData = new BookmarkDataDto(newBookmarkStatus, timestamp);
 
         // 메인 해시 업데이트
-        bookmarkHashOperations.put(dataKey, feedId, newData);
+        bookmarkHashOperations.put(dataKey, postId, newData);
         // 변경된 항목을 dirty 세트에 추가하여 변경됨을 표시
         redisTemplate.opsForSet().add(dirtySetKey, feedId);
 
