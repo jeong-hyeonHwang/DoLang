@@ -36,7 +36,7 @@ export const NameCard = ({ ...props }: NameCardProps) => {
           <UserImageWrapper
             profileImageUrl={props.userImage}
             userNickname={props.userNickname || ''}
-            userCountry={props.userCountry.toLowerCase()}
+            userCountry={props.userCountry?.toLowerCase()}
           />
 
           <div css={nameStyle}>

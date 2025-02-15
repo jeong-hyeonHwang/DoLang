@@ -4,7 +4,7 @@ import { Heart, Bookmark } from 'lucide-react';
 import { NameCard } from '../../../shared/components/nameCard/NameCard.tsx';
 import { useRef, useState } from 'react';
 import { FeedParticipant } from '../types/FeedParticipantsResponse.type.ts';
-import kahn4 from '../../../assets/test-audios/556012__timkahn__we-regret-to-inform-you 1.m4a';
+import { usePostBookmark, usePostHeart } from '../hooks/useReactions';
 
 const feedStyle = css`
   display: flex;
@@ -24,28 +24,54 @@ const feedContentStyle = css`
   gap: 1rem;
 `;
 
-export const FeedItem = (feedProps: FeedParticipant) => {
+export const FeedItem = ({ feedId, feedProps }: { feedId: number; feedProps: FeedParticipant }) => {
+  const { mutate: postBookmark } = usePostBookmark((data) => console.log(data));
+  const { mutate: postHeart } = usePostHeart((data) => console.log(data));
+
+  const handleBookmark = async (): Promise<void> => {
+    setIsBookmarked((prev) => !prev);
+    try {
+      postBookmark({ feedId, postId: feedProps.postId });
+    } catch (err) {
+      console.error(err);
+      setIsBookmarked((prev) => !prev);
+    }
+  };
+  const handleHeart = async (): Promise<void> => {
+    setIsHearted((prev) => !prev);
+    try {
+      postHeart({ feedId, postId: feedProps.postId });
+    } catch (err) {
+      console.error(err);
+      setIsHearted((prev) => !prev);
+    }
+  };
+
   // 모국어 여부 확인
-  const isMotherTongue = useRef(false);
-  const [isChecked, setIsChecked] = useState(false);
+  const isNativeLanguage = useRef(true);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [isHearted, setIsHearted] = useState(false);
+
   return (
     <div css={feedStyle}>
       <NameCard userCountry={feedProps.country} style="compact" userImage={feedProps.profileImageUrl} />
       <div className="feed-content" css={feedContentStyle}>
         <Waveform audioSrc={feedProps.voiceUrl} />
 
-        {isMotherTongue.current ? (
-          <Bookmark
-            fill={isChecked ? 'green' : 'none'}
-            stroke={isChecked ? 'green' : 'black'}
-            onClick={() => setIsChecked(!isChecked)}
-          />
+        {isNativeLanguage.current ? (
+          <>
+            <Bookmark
+              fill={isBookmarked ? 'green' : 'none'}
+              stroke={isBookmarked ? 'green' : 'black'}
+              onClick={handleBookmark}
+            />
+            {feedProps.bookmarkCount}
+          </>
         ) : (
-          <Heart
-            fill={isChecked ? 'red' : 'none'}
-            stroke={isChecked ? 'red' : 'black'}
-            onClick={() => setIsChecked(!isChecked)}
-          />
+          <>
+            <Heart fill={isHearted ? 'red' : 'none'} stroke={isHearted ? 'red' : 'black'} onClick={handleHeart} />
+            {feedProps.heartCount}
+          </>
         )}
       </div>
     </div>

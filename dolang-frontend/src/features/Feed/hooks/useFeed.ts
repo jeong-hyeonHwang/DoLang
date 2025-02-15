@@ -6,7 +6,7 @@ import { MyFeedRequest } from '../types/MyFeedRequest.type';
 // 피드 데이터 페칭
 export const useFeeds = (lang: 'ko' | 'en') => {
   const { data, isLoading, error } = useQuery({
-    queryKey: ['feeds'],
+    queryKey: ['feeds', lang],
     queryFn: () => getFeed({ lang }),
   });
 

@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import LanguagePicker from '@/shared/components/Picker/LanguagePicker';
-import { useMyFeed } from '../../../features/Feed/hooks/useFeed';
+import { useMyFeed } from '@/features/Feed/hooks/useFeed';
 import { Bookmark, Heart } from 'lucide-react';
 import Waveform from '@/shared/components/waveform/Waveform';
 import { useRecoilState } from 'recoil';
-import { userState } from '../../../features/Auth/userState';
+import { userState } from '@/features/Auth/userState';
+import { postBookmark, postHeart } from '@/features/Feed/services/reactionService';
+import { MyFeed } from '@/features/Feed/types/MyFeedResponse.type';
+import { css } from '@emotion/react';
 
 const Container = styled.div`
   margin: 0 auto;
@@ -27,29 +30,6 @@ const Title = styled.h1`
   color: #212529;
 `;
 
-const Controls = styled.div`
-  display: flex;
-  gap: 16px;
-`;
-
-const Button = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  background-color: white;
-  border: 1px solid #ced4da;
-  border-radius: 8px;
-  font-size: 14px;
-  color: #495057;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background-color: #f8f9fa;
-  }
-`;
-
 const MyFeedList = styled.div`
   display: flex;
   flex-direction: column;
@@ -67,24 +47,6 @@ const DateLabel = styled.div`
   font-weight: bold;
   text-align: center;
   height: 1.6rem;
-`;
-
-const FeedCard = styled.div`
-  display: flex;
-  flex: 1 1;
-  min-width: 300px;
-  position: relative;
-  justify-content: space-between;
-  background-color: white;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15);
-  transition: all 0.2s ease;
-
-  &:hover {
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.25);
-    transform: translateY(-2px);
-  }
 `;
 
 const CardWrapper = styled.div`
@@ -139,28 +101,15 @@ const WaveformContainer = styled.div`
 `;
 
 export default function AudioFeed() {
-  const [likedItems, setLikedItems] = useState<Set<string>>(new Set());
   const [currentLanguage, setCurrentLanguage] = useState<string | undefined>(undefined);
   const [isNativeLanguage, setIsNativeLanguage] = useState<boolean>(false);
   const [user, setUser] = useRecoilState(userState);
 
   useEffect(() => {
-    if (user?.nativeLanguage === currentLanguage) {
-      setIsNativeLanguage(true);
-    }
+    if (user?.nativeLanguage === currentLanguage) setIsNativeLanguage(true);
   }, [user?.nativeLanguage, currentLanguage]);
 
   const { data: myFeedList, isLoading } = useMyFeed({ lang: currentLanguage as 'ko' | 'en' });
-
-  const toggleLike = (id: string) => {
-    setLikedItems((prev) => {
-      const newLiked = new Set(prev);
-      if (newLiked.has(id)) newLiked.delete(id);
-      else newLiked.add(id);
-
-      return newLiked;
-    });
-  };
 
   return (
     <Container>
@@ -180,37 +129,7 @@ export default function AudioFeed() {
               style={{ display: 'flex', flexDirection: 'row', gap: '1rem' }}
             >
               <DateLabel>{new Date(item.date).toLocaleDateString()}</DateLabel>
-
-              <FeedCard key={item.feedId}>
-                <CardWrapper>
-                  <Text>
-                    <NativeText>{item.nativeSentence}</NativeText>
-                    <TargetText>{item.targetSentence}</TargetText>
-                  </Text>
-
-                  {isNativeLanguage ? (
-                    <LikeButton
-                      isLiked={likedItems.has(item.feedId.toString())}
-                      onClick={() => toggleLike(item.feedId.toString())}
-                    >
-                      <Heart size={20} />
-                      {item.heartCount}
-                    </LikeButton>
-                  ) : (
-                    <LikeButton
-                      isLiked={likedItems.has(item.feedId.toString())}
-                      onClick={() => toggleLike(item.feedId.toString())}
-                    >
-                      <Bookmark size={20} />
-                      {item.bookmarkCount}
-                    </LikeButton>
-                  )}
-
-                  <WaveformContainer>
-                    <Waveform audioSrc={item.voiceUrl} />
-                  </WaveformContainer>
-                </CardWrapper>
-              </FeedCard>
+              <FeedCard item={item} isNativeLanguage={isNativeLanguage} />
             </div>
           ))}
         </MyFeedList>
@@ -218,3 +137,53 @@ export default function AudioFeed() {
     </Container>
   );
 }
+
+export const FeedCard = ({ item, isNativeLanguage }: { item: MyFeed; isNativeLanguage: boolean }) => {
+  const handleBookmark = (feedId: number, postId: number) => postBookmark(feedId, postId);
+  const handleHeart = (feedId: number, postId: number) => postHeart(feedId, postId);
+
+  return (
+    <div css={feedCardStyle}>
+      <CardWrapper>
+        <Text>
+          <NativeText>{item.nativeSentence}</NativeText>
+          <TargetText>{item.targetSentence}</TargetText>
+        </Text>
+
+        {isNativeLanguage ? (
+          <LikeButton isLiked={!!item.isSelfHearted} onClick={() => handleHeart(item.feedId, item.postId)}>
+            <Heart size={20} />
+            {item.heartCount}
+          </LikeButton>
+        ) : (
+          <LikeButton isLiked={!!item.isSelfBookmarked} onClick={() => handleBookmark(item.feedId, item.postId)}>
+            <Bookmark size={20} />
+            {item.bookmarkCount}
+          </LikeButton>
+        )}
+
+        <WaveformContainer>
+          <Waveform audioSrc={item.voiceUrl} />
+        </WaveformContainer>
+      </CardWrapper>
+    </div>
+  );
+};
+
+const feedCardStyle = css`
+  display: flex;
+  flex: 1 1;
+  min-width: 300px;
+  position: relative;
+  justify-content: space-between;
+  background-color: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.25);
+    transform: translateY(-2px);
+  }
+`;

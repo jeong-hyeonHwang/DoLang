@@ -18,4 +18,5 @@ export interface FeedParticipant {
   voiceUrl: string;
   voiceCreatedAt: string;
   bookmarkCount?: number;
+  heartCount?: number;
 }

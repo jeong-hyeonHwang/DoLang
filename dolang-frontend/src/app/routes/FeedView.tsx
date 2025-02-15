@@ -1,8 +1,6 @@
 import FeedList from '../../features/Feed/components/FeedList.tsx';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { css } from '@emotion/react';
-import { nativeFeedTestData, nativeFeedSentenceTestData } from '../../features/Feed/tests/feedTestData.ts';
-import { Feed, FeedSentenceResponse } from '../../features/Feed/types/FeedSentenceResponse.type.ts';
 import Recorder from '../../features/Feed/components/Recorder.tsx';
 import { useFeeds } from '../../features/Feed/hooks/useFeed.ts';
 import LanguagePicker from '@/shared/components/Picker/LanguagePicker.tsx';
@@ -32,37 +30,31 @@ const FeedView = () => {
     border-radius: 1rem;
   `;
 
-  const { data: data } = useFeeds('ko');
-  useEffect(() => {
-    if (data) {
-      console.log(data);
-      setFeedData(data.result.feed);
-    }
-  }, [data]);
+  const feedViewContainerStyle = css`
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  `;
 
-  const [feedData, setFeedData] = useState<Feed>({
-    date: '',
-    feedId: 0,
-    lang: '',
-    isNativeFeed: false,
-    sentenceInfo: { sentence: '', level: 'A1' },
-    userParticipation: {},
-  });
+  const [feedLang, setFeedLang] = useState<string>('ko');
+  const { data } = useFeeds(feedLang as 'ko' | 'en');
+  console.log(data);
+  const handleLangChange = (value: string) => setFeedLang(value);
+
   return (
-    <>
+    <div className="feed-view-container" css={feedViewContainerStyle}>
       <div className="feed-container" css={feedContainerStyle}>
         <div className="feed-header" css={feedHeaderStyle}>
           <h2>오늘의 피드</h2>
-          <LanguagePicker />
+          <LanguagePicker value={feedLang} onChange={handleLangChange} />
         </div>
         <div className="feed-sentence-section" css={feedSentenceSectionStyle}>
-          <p>{feedData.sentenceInfo.sentence}</p>
+          <p>{data?.result.feed.sentenceInfo.sentence}</p>
         </div>
         <Recorder />
-
-        <FeedList />
+        {data && <FeedList feedId={data?.result.feed.feedId} />}
       </div>
-    </>
+    </div>
   );
 };
 

@@ -4,8 +4,7 @@ import { css } from '@emotion/react';
 import { getFeedParticipation } from '../services/feedService.ts';
 import { FeedParticipant } from '../types/FeedParticipantsResponse.type.ts';
 
-
-const FeedList = () => {
+const FeedList = ({ feedId }: { feedId: number }) => {
   const feedListContainerStyle = css`
     padding: 1rem;
     display: flex;
@@ -55,7 +54,7 @@ const FeedList = () => {
   return (
     <section className="feed-list-container" css={feedListContainerStyle}>
       {feedParticipants.map((feed) => (
-        <FeedItem key={feed.postId} {...feed} />
+        <FeedItem key={feed.postId} feedId={feedId} feedProps={feed} />
       ))}
     </section>
   );

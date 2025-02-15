@@ -25,8 +25,9 @@ export interface MyFeed {
   nativeSentence: string;
   targetSentence: string;
   bookmarkCount?: number;
+  isSelfBookmarked?: boolean;
   heartCount?: number;
-  isSelfBookmarked: boolean;
+  isSelfHearted?: boolean;
 }
 
 export interface Pageable {
