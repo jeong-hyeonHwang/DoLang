@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Table(name = "user_sentence_likes", indexes = {
         @Index(name = "idx_users_user_id", columnList = "user_id"),
+        @Index(name = "idx_users_user_date_sentence_id", columnList = "user_date_sentence_id")
 }, schema = "dolang")
 public class UserSentenceLike {
     @Id
@@ -29,7 +30,4 @@ public class UserSentenceLike {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_date_sentence_id", nullable = false)
     private UserDateSentence userDateSentence;
-
-    @Column(name = "like_yn", columnDefinition = "TINYINT(1)", nullable = false)
-    private Boolean likeYn;
 }

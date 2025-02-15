@@ -168,9 +168,8 @@ public class BatchHeartConfig {
     @Bean
     public ItemWriter<HeartLogWrapper> redisHeartItemWriter() {
         return wrappers -> {
-
             List<? extends HeartLogWrapper> wrappersItems = wrappers.getItems();
-
+            // TODO: UserSentenceLike에 UPSERT구문 추가
             // DB 저장
             userSentenceLikeLogRepository.saveAll(
                     wrappersItems.stream().map(HeartLogWrapper::getLog).toList()

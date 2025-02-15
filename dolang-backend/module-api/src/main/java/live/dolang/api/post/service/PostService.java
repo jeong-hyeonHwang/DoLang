@@ -157,7 +157,13 @@ public class PostService {
     }
 
     public Page<ResponseLikedFeedDto> getMyLikedFeedList(int userId, String language, Pageable pageable) {
-        return customPostRepository.getMyLikedFeedList(userId, language, pageable);
+
+        boolean isNativeLanguageSelected = customUserProfileServiceImpl.isUserNativeLanguage(userId, language);
+        if (isNativeLanguageSelected) { // 모국어 피드 - 하트
+            return customPostRepository.getMyHeartedFeedList(userId, language, pageable);
+        } else { // 외국어 피드 - 북마크
+            return customPostRepository.getMyBookmarkedFeedList(userId, language, pageable);
+        }
     }
 }
 

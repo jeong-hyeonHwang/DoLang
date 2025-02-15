@@ -73,8 +73,7 @@ public class MyFeedController {
             @RequestParam(value = "length", defaultValue = "5") Integer length,
             @RequestParam(value = "nextCursor", required = false) String nextCursor) {
         Integer userId = jwt == null ? null : Integer.parseInt(jwt.getId());
-
-        // TODO: Mocking 데이터 백엔드 로직 수정하기
+        
         LikedFeedParticipantsResponseDto list = feedService.getMyLikedParticipantsList(userId, feedId, length, nextCursor);
 
         return BaseResponse.ok(list);
