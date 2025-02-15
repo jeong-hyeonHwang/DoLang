@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { FeedParticipantsRequest, FeedParticipantsResponse, FeedSentenceRequest, FeedSentenceResponse } from '../types';
-import Cookies from 'js-cookie';
-const base = import.meta.env.VITE_API_FEED_URL;
+const base = import.meta.env.VITE_API_BASE_URL;
 const instance = axios.create({
   baseURL: base,
   headers: {
@@ -13,7 +12,7 @@ const instance = axios.create({
 // 오늘의 피드 요청
 export const getFeed = async (params: FeedSentenceRequest): Promise<FeedSentenceResponse> => {
   try {
-    const response = await instance.get('/today', { params });
+    const response = await instance.get('api/feed/today', { params });
     console.log(response.data);
     return response.data;
   } catch (error) {
@@ -25,7 +24,7 @@ export const getFeed = async (params: FeedSentenceRequest): Promise<FeedSentence
 // 피드 참여 데이터 요청
 export const getFeedParticipation = async (params: FeedParticipantsRequest): Promise<FeedParticipantsResponse> => {
   try {
-    const response = await instance.get('/today/participants', { params });
+    const response = await instance.get('api/feed/today/participants', { params });
     console.log(response.data);
     return response.data.result;
   } catch (error) {
@@ -33,6 +32,7 @@ export const getFeedParticipation = async (params: FeedParticipantsRequest): Pro
     throw error;
   }
 };
+
 
 // 피드 참여 요청
 // export const postFeedParticipation = async (params: FeedParticipantsRequest) => {

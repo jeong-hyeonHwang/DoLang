@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-
 import { getFeed, getFeedParticipation } from '../services/feedService';
+import { getMyFeed } from '../services/myFeedService';
+import { MyFeedRequest } from '../types/MyFeedRequest.type';
 
 // 피드 데이터 페칭
 export const useFeeds = (lang: 'ko' | 'en') => {
@@ -17,6 +18,16 @@ export const useFeedParticipation = () => {
   const { data, isLoading, error } = useQuery({
     queryKey: ['feedParticipation'],
     queryFn: () => getFeedParticipation({ length: 10 }),
+  });
+
+  return { data, isLoading, error };
+};
+
+// 내 피드 페칭
+export const useMyFeed = (params: Partial<MyFeedRequest>) => {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['myFeed', params],
+    queryFn: () => getMyFeed(params),
   });
 
   return { data, isLoading, error };
