@@ -23,13 +23,13 @@ const feedContentStyle = css`
   gap: 1rem;
 `;
 
-const Feed = (feedProps: FeedParticipant) => {
+export const FeedItem = (feedProps: FeedParticipant) => {
   // 모국어 여부 확인
   const isMotherTongue = useRef(false);
   const [isChecked, setIsChecked] = useState(false);
   return (
     <div css={feedStyle}>
-      <NameCard userCountry={feedProps.country.toLowerCase()} userNickname={'null'} style="compact" userImage={''} />
+      <NameCard userCountry={feedProps.country} style="compact" userImage={feedProps.profileImageUrl} />
       <div className="feed-content" css={feedContentStyle}>
         <Volume1 />
         <Waveform audioSrc={feedProps.voiceUrl} />
@@ -51,5 +51,3 @@ const Feed = (feedProps: FeedParticipant) => {
     </div>
   );
 };
-
-export default Feed;

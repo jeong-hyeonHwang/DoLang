@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import Feed from './Feed.tsx';
+import { FeedItem } from './FeedItem.tsx';
 import { css } from '@emotion/react';
 import { getFeedParticipation } from '../services/feedService.ts';
 import { FeedParticipant } from '../types/FeedParticipantsResponse.type.ts';
@@ -61,7 +61,7 @@ const FeedList = () => {
   return (
     <section className="feed-list-section" css={feedListLayoutStyle}>
       {feedParticipants.map((feed) => (
-        <Feed key={feed.postId} {...feed} />
+        <FeedItem key={feed.postId} {...feed} />
       ))}
     </section>
   );
