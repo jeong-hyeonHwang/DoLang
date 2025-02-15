@@ -24,7 +24,7 @@ public class UserBookmarkService {
     private String bookmarkPostfix;
 
     private final RedisTemplate<String, Object> redisTemplate;
-    private final HashOperations<String, String, BookmarkDataDto> bookmarkHashOperations;
+    private final HashOperations<String, Integer, BookmarkDataDto> bookmarkHashOperations;
     private final CustomUserSentenceBookmarkLogRepository customUserSentenceBookmarkLogRepository;
 
     /**
@@ -38,14 +38,13 @@ public class UserBookmarkService {
     public boolean setUserBookmark(Integer userId, Integer feedId, Integer postId) {
         // 사용자와 피드 ID를 함께 사용하여 데이터 key와 필드 구성
         String dataKey = getDataKey(userId, feedId);
-        String field = postId.toString();
         // dirty 플래그용 key 구성 (예: "user:123:feed:456:bookmark:dirty")
         String dirtySetKey = getDirtySetKey(userId, feedId);
 
         long timestamp = Instant.now().getEpochSecond();
 
         // Redis에서 기존 데이터 조회
-        BookmarkDataDto currentData = bookmarkHashOperations.get(dataKey, field);
+        BookmarkDataDto currentData = bookmarkHashOperations.get(dataKey, postId);
         boolean currentBookmarkStatus;
 
         // Redis에 값이 없으면 DB에서 조회
@@ -60,9 +59,9 @@ public class UserBookmarkService {
         BookmarkDataDto newData = new BookmarkDataDto(newBookmarkStatus, timestamp);
 
         // 메인 해시 업데이트
-        bookmarkHashOperations.put(dataKey, field, newData);
+        bookmarkHashOperations.put(dataKey, feedId, newData);
         // 변경된 항목을 dirty 세트에 추가하여 변경됨을 표시
-        redisTemplate.opsForSet().add(dirtySetKey, field);
+        redisTemplate.opsForSet().add(dirtySetKey, feedId);
 
         // 만료 시간 설정 (예: 1일)
         redisTemplate.expire(dataKey, Duration.ofDays(1));

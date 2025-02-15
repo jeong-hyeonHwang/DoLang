@@ -55,7 +55,7 @@ public class PostService {
     private final RedisTemplate<String, Object> redisTemplate;
     private ZSetOperations<String, Object> zSetOperations;
     private HashOperations<String, Object, Object> hashOperations;
-    private final HashOperations<String, String, BookmarkDataDto> bookmarkHashOperations;
+    private final HashOperations<String, Integer, BookmarkDataDto> bookmarkHashOperations;
 
 
     @PostConstruct
@@ -65,7 +65,7 @@ public class PostService {
     }
 
     @Transactional
-    public Boolean createUserDateSentence(Integer userId, Integer dateSentenceId, String userDateSentencesUrl) {
+    public void createUserDateSentence(Integer userId, Integer dateSentenceId, String userDateSentencesUrl) {
         // 사용자 조회
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 ID의 사용자가 없습니다: " + userId));
@@ -84,22 +84,21 @@ public class PostService {
         userDateSentence = userDateSentenceRepository.save(userDateSentence);
 
         // Redis에 정보 저장
-        return saveToRedis(user.getId(), dateSentence.getId(), userDateSentence.getId());
+        saveToRedis(user.getId(), dateSentence.getId(), userDateSentence.getId());
     }
 
     /**
      * Redis에 피드 정보 저장
      */
 
-    private boolean saveToRedis(Integer userId, Integer feedId, Integer postId) {
+    private void saveToRedis(Integer userId, Integer feedId, Integer postId) {
         String hashKey = getFeedBookmarkKey(feedId);
-        hashOperations.put(hashKey, postId.toString(),  0L);
+        hashOperations.put(hashKey, postId,  0L);
         // Sorted Set에도 추가
         String sortedKey = getFeedBookmarkSortedKey(feedId);
-        zSetOperations.add(sortedKey, postId.toString(), 0);
+        zSetOperations.add(sortedKey, postId, 0);
 
         String dataKey = getDataKey(userId, feedId);
-        String field = postId.toString();
         String dirtySetKey = getDirtySetKey(userId, feedId);
 
         long timestamp = Instant.now().getEpochSecond();
@@ -108,15 +107,13 @@ public class PostService {
         BookmarkDataDto newData = new BookmarkDataDto(false, timestamp);
 
         // 메인 해시 업데이트
-        bookmarkHashOperations.put(dataKey, field, newData);
+        bookmarkHashOperations.put(dataKey, postId, newData);
         // 변경된 항목을 dirty 세트에 추가하여 변경됨을 표시
-        redisTemplate.opsForSet().add(dirtySetKey, field);
+        redisTemplate.opsForSet().add(dirtySetKey, postId);
 
         // 만료 시간 설정 (예: 1일)
         redisTemplate.expire(dataKey, Duration.ofDays(1));
         redisTemplate.expire(dirtySetKey, Duration.ofDays(1));
-
-        return true;
     }
 
     private String getFeedBookmarkKey(Integer feedId) {

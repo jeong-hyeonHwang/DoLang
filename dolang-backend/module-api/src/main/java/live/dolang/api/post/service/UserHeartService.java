@@ -23,8 +23,8 @@ public class UserHeartService {
     @Value("${spring.data.redis.heart.postfix}")
     private String heartPostfix;
 
-    private final RedisTemplate<String, Object> redisTemplate;
-    private final HashOperations<String, String, HeartDataDto> heartHashOperations;
+    private final RedisTemplate<String, Integer> redisTemplate;
+    private final HashOperations<String, Integer, HeartDataDto> heartHashOperations;
     private final CustomUserSentenceHeartLogRepository customUserSentenceHeartLogRepository;
 
     /**
@@ -38,14 +38,13 @@ public class UserHeartService {
     public boolean setUserHeart(Integer userId, Integer feedId, Integer postId) {
         // 사용자와 피드 ID를 함께 사용하여 데이터 key와 필드 구성
         String dataKey = getDataKey(userId, feedId);
-        String field = postId.toString();
         // dirty 플래그용 key 구성 (예: "user:123:feed:456:heart:dirty")
         String dirtySetKey = getDirtySetKey(userId, feedId);
 
         long timestamp = Instant.now().getEpochSecond();
 
         // Redis에서 기존 데이터 조회
-        HeartDataDto currentData = heartHashOperations.get(dataKey, field);
+        HeartDataDto currentData = heartHashOperations.get(dataKey, postId);
         boolean currentHeartStatus;
 
         // Redis에 값이 없으면 DB에서 조회
@@ -60,9 +59,9 @@ public class UserHeartService {
         HeartDataDto newData = new HeartDataDto(newHeartStatus, timestamp);
 
         // 메인 해시 업데이트
-        heartHashOperations.put(dataKey, field, newData);
+        heartHashOperations.put(dataKey, postId, newData);
         // 변경된 항목을 dirty 세트에 추가하여 변경됨을 표시
-        redisTemplate.opsForSet().add(dirtySetKey, field);
+        redisTemplate.opsForSet().add(dirtySetKey, postId);
 
         // 만료 시간 설정 (예: 1일)
         redisTemplate.expire(dataKey, Duration.ofDays(1));

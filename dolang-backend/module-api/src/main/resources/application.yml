@@ -17,8 +17,10 @@ spring:
   data:
     elasticsearch:
       repositories:
-        enabled: true
+        enabled: false
     redis:
+      repositories:
+        enabled: false
       host: localhost
       port: 6379
       feed:
