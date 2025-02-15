@@ -29,7 +29,6 @@ const Waveform = ({ audioSrc }: { audioSrc: string }) => {
         cursorColor: '#ffffff0',
       });
     }
-
     waveRef.current?.load(audioSrc);
   }, [audioSrc]);
 
@@ -39,6 +38,8 @@ const Waveform = ({ audioSrc }: { audioSrc: string }) => {
     flex-grow: 1;
     gap: 1rem;
   `;
+
+  if (!waveRef.current) return null;
 
   return (
     <div css={waveIndicatorStyle}>
