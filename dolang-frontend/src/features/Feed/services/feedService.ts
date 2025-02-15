@@ -6,6 +6,7 @@ const instance = axios.create({
   baseURL: base,
   headers: {
     'Content-Type': 'application/json',
+    Accept: '*/*',
   },
 });
 
@@ -14,7 +15,7 @@ export const getFeed = async (params: FeedSentenceRequest): Promise<FeedSentence
   try {
     const response = await instance.get('/today', { params });
     console.log(response.data);
-    return response.data.result;
+    return response.data;
   } catch (error) {
     console.error(error);
     throw error;

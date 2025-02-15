@@ -3,10 +3,10 @@ import { useQuery } from '@tanstack/react-query';
 import { getFeed, getFeedParticipation } from '../services/feedService';
 
 // 피드 데이터 페칭
-export const useFeeds = () => {
+export const useFeeds = (lang: 'ko' | 'en') => {
   const { data, isLoading, error } = useQuery({
     queryKey: ['feeds'],
-    queryFn: () => getFeed({ lang: 'ko' }),
+    queryFn: () => getFeed({ lang }),
   });
 
   return { data, isLoading, error };
