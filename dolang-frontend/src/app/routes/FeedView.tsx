@@ -38,7 +38,6 @@ const FeedView = () => {
 
   const [feedLang, setFeedLang] = useState<string>('ko');
   const { data } = useFeeds(feedLang as 'ko' | 'en');
-  console.log(data);
   const handleLangChange = (value: string) => setFeedLang(value);
 
   return (
@@ -49,10 +48,10 @@ const FeedView = () => {
           <LanguagePicker value={feedLang} onChange={handleLangChange} />
         </div>
         <div className="feed-sentence-section" css={feedSentenceSectionStyle}>
-          <p>{data?.result.feed.sentenceInfo.sentence}</p>
+          {data ? <p>{data.result?.feed.sentenceInfo.sentence}</p> : <p>로딩중...</p>}
         </div>
         <Recorder />
-        {data && <FeedList feedId={data?.result.feed.feedId} />}
+        {data ? <FeedList feedId={data.result?.feed.feedId} /> : <div>로딩중...</div>}
       </div>
     </div>
   );
