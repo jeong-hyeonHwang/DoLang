@@ -3,7 +3,7 @@ import { css } from '@emotion/react';
 import { Heart, Bookmark, Volume1 } from 'lucide-react';
 import { NameCard } from '../../../shared/components/nameCard/NameCard.tsx';
 import { useRef, useState } from 'react';
-import { FeedParticipation } from '../types/feedParticipation.type.ts';
+import { FeedParticipant } from '../types/FeedParticipantsResponse.type.ts';
 
 const feedStyle = css`
   display: flex;
@@ -23,13 +23,13 @@ const feedContentStyle = css`
   gap: 1rem;
 `;
 
-const Feed = (feedProps: FeedParticipation) => {
+export const FeedItem = (feedProps: FeedParticipant) => {
   // 모국어 여부 확인
   const isMotherTongue = useRef(false);
   const [isChecked, setIsChecked] = useState(false);
   return (
     <div css={feedStyle}>
-      <NameCard userCountry={feedProps.country} userNickname={'null'} style="compact" userImage={''} />
+      <NameCard userCountry={feedProps.country} style="compact" userImage={feedProps.profileImageUrl} />
       <div className="feed-content" css={feedContentStyle}>
         <Volume1 />
         <Waveform audioSrc={feedProps.voiceUrl} />
@@ -51,5 +51,3 @@ const Feed = (feedProps: FeedParticipation) => {
     </div>
   );
 };
-
-export default Feed;

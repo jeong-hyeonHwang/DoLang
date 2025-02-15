@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { css } from '@emotion/react';
 import 'flag-icons/css/flag-icons.min.css';
+import defaultUser from '../../../assets/default-user.png';
 import { NameCardProps } from '../../types/NameCardProps.interface.ts';
 export const NameCard = ({ ...props }: NameCardProps) => {
   const nameCardStyle = css`
@@ -30,12 +31,12 @@ export const NameCard = ({ ...props }: NameCardProps) => {
 
   return (
     <div className="name-card" css={nameCardStyle}>
-      {props.userNickname && (
+      {props && (
         <div className="user-info" css={userInfoStyle}>
           <UserImageWrapper
             profileImageUrl={props.userImage}
-            userNickname={props.userNickname}
-            userCountry={props.userCountry}
+            userNickname={props.userNickname || ''}
+            userCountry={props.userCountry.toLowerCase()}
           />
 
           <div css={nameStyle}>
@@ -77,33 +78,22 @@ export const UserImageWrapper = ({
   const userImageStyle = css`
     width: 100%;
     height: 100%;
+    object-fit: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     border-radius: 50%;
+    overflow: hidden;
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
   `;
 
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    e.currentTarget.src = defaultUser;
+  };
+
   return (
     <div className="user-image-wrapper" css={userImageWrapperStyle}>
-      {profileImageUrl ? (
-        <img src={profileImageUrl} alt="User profile" css={userImageStyle} />
-      ) : (
-        <div
-          css={css`
-            width: 100%;
-            height: 100%;
-            background-color: #a133ff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-radius: 50%;
-            color: white;
-            font-weight: bold;
-            font-size: 1.2rem;
-            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
-          `}
-        >
-          {userNickname?.charAt(0).toUpperCase()}
-        </div>
-      )}
+      <img src={profileImageUrl} alt="User profile" css={userImageStyle} onError={handleImageError} />
       {userCountry && <span className={`fi fi-${userCountry}`} css={flagStyle} />}
     </div>
   );
