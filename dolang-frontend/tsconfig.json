@@ -26,12 +26,12 @@
 
     /* Modules */
     "module": "ESNext" /* Specify what module code is generated. */,
-    "rootDir": "./" /* Specify the root folder within your source files. */,
+    // "rootDir": "./" /* Specify the root folder within your source files. */,
     "moduleResolution": "bundler" /* Specify how TypeScript looks up a file from a given module specifier. */,
-    "baseUrl": "./src"
+    "baseUrl": "./"
     /* Specify the base directory to resolve non-relative module names. */,
     "paths": {
-      "@/*": ["*"]
+      "@/*": ["src/*"]
     } /* Specify a set of entries that re-map imports to additional lookup locations. */,
     // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
     "typeRoots": [
@@ -115,11 +115,12 @@
     "skipLibCheck": true /* Skip type checking all .d.ts files. (라이브러리 파일의 타입 검사를 생략합니다. 프로젝트 안정화 이후 점진적으로 비활성화합니다.)  */
   },
   "include": [
-    "src",
+    "./src",
   ],
   "exclude": [
     "node_modules",
     "dist",
-    "../dolang-backend"
+    "../dolang-backend",
+    "../dolang-backend/**/*"
   ]
 }
