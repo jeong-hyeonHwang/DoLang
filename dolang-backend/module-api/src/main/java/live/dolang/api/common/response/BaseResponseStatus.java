@@ -53,7 +53,13 @@ public enum BaseResponseStatus {
     /**
      * ChatGPT API 에러
      */
-    CHATGPT_RESPONSE_ERROR(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "ChatGPT의 응답이 잘못되었습니다.")
+    CHATGPT_RESPONSE_ERROR(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "ChatGPT의 응답이 잘못되었습니다."),
+
+    /**
+     * AWS S3 에러
+     */
+    AWS_S3_UPLOAD_FAIL(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "AWS S3에 업로드에 실패했습니다."),
+
     ;
 
     private final boolean isSuccess;

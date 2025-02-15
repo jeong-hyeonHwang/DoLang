@@ -22,32 +22,15 @@ public class RequestRegisterUserProfileDto {
     private List<Integer> interests;
 
     public UserProfile toUserProfileEntity(int userid) {
+        String defaultImageUrl = "https://dolang.s3.ap-northeast-2.amazonaws.com/profile-image/20a46a33-5788-4862-9821-6856d4b8da6e_default_image.png";
         return UserProfile.builder()
                 .user(User.builder().id(userid).build())
                 .userId(userid)
+                .profileImageUrl(defaultImageUrl) //기본 이미지URL
                 .nickname(this.nickname)
                 .countryId(this.nationality)
                 .nativeLanguageId(this.nativeLanguage)
                 .interestLanguageId(this.targetLanguage)
                 .build();
     }
-    public List<UserLanguageLevel> toUserLanguageLevelEntity(int userId) {
-        //유저 모국어 언어 수준 등록(모국어는 언어 레벨 최고등급으로 등록)
-        List<UserLanguageLevel> languageLevelList = new ArrayList<>();
-        languageLevelList.add(UserLanguageLevel.builder()
-                .languageId(this.nativeLanguage)
-                .languageLevelId("SS")
-                .user(User.builder().id(userId).build())
-                .build()
-        );
-        //유저 관심 언어 수준 등록
-        languageLevelList.add(UserLanguageLevel.builder()
-                .languageId(this.targetLanguage)
-                .languageLevelId(this.proficiencyLevel)
-                .user(User.builder().id(userId).build())
-                .build()
-        );
-        return languageLevelList;
-    }
-
 }

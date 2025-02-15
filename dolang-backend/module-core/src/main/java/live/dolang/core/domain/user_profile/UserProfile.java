@@ -54,7 +54,7 @@ public class UserProfile {
         M, F
     }
     public void updateUserProfile(UserProfile newProfile) {
-        this.profileImageUrl = newProfile.getProfileImageUrl();
+        this.updateProfileImageUrl(newProfile.getProfileImageUrl());
         this.nickname = newProfile.getNickname();
         this.countryId = newProfile.getCountryId();
         this.interestLanguageId = newProfile.getInterestLanguageId();
@@ -63,5 +63,8 @@ public class UserProfile {
     public void deleteUser() {
         this.nickname = "탈퇴한 사용자";
         this.profileImageUrl = "";
+    }
+    public void updateProfileImageUrl(String imageUrl) {
+        this.profileImageUrl = imageUrl;
     }
 }
