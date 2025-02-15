@@ -193,7 +193,7 @@ public class BatchBookmarkConfig {
             List<BookmarkLogWrapper> bookmarked = partitioned.get(true);
             List<BookmarkLogWrapper> notBookmarked = partitioned.get(false);
 
-            // 좋아요 했으나, DB에 저장된 좋아요가 없는 경우 이를 Insert한다.
+            // 북마크 했으나, DB에 저장된 북마크가 없는 경우 이를 Insert한다.
             for (BookmarkLogWrapper wrapper : bookmarked) {
                 Integer userId = wrapper.getLog().getUser().getId();
                 Integer userDateSentenceId = wrapper.getLog().getUserDateSentence().getId();
@@ -209,7 +209,8 @@ public class BatchBookmarkConfig {
                 }
             }
 
-            // 좋아요 취소를 했으나, DB에 좋아요가 저장된 경우 이를 지운다.
+
+            // 북마크 취소를 했으나, DB에 북마크가 저장된 경우 이를 지운다.
             for (BookmarkLogWrapper wrapper : notBookmarked) {
                 Integer userId = wrapper.getLog().getUser().getId();
                 Integer userDateSentenceId = wrapper.getLog().getUserDateSentence().getId();

@@ -4,6 +4,8 @@ import live.dolang.api.post.dto.HeartDataDto;
 import live.dolang.core.domain.date_sentence.DateSentence;
 import live.dolang.core.domain.user.User;
 import live.dolang.core.domain.user_date_sentence.UserDateSentence;
+import live.dolang.core.domain.user_sentence_like.UserSentenceLike;
+import live.dolang.core.domain.user_sentence_like.repository.UserSentenceLikeRepository;
 import live.dolang.core.domain.user_sentence_like_log.UserSentenceLikeLog;
 import live.dolang.core.domain.user_sentence_like_log.repository.UserSentenceLikeLogRepository;
 import lombok.Builder;
@@ -30,8 +32,8 @@ import org.springframework.data.redis.core.*;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Configuration
@@ -49,6 +51,7 @@ public class BatchHeartConfig {
     private final PlatformTransactionManager transactionManager;
     private final RedisTemplate<String, Integer> redisTemplate;
     private final UserSentenceLikeLogRepository userSentenceLikeLogRepository;
+    private final UserSentenceLikeRepository userSentenceLikeRepository;
 
     /**
      * Redis 에 저장된 dirty 플래그가 있는 북마크 데이터를 DB에 반영하는 Job
@@ -168,8 +171,51 @@ public class BatchHeartConfig {
     @Bean
     public ItemWriter<HeartLogWrapper> redisHeartItemWriter() {
         return wrappers -> {
+            // 사용자의 좋아요 여부에 따라서 partition 처리
             List<? extends HeartLogWrapper> wrappersItems = wrappers.getItems();
-            // TODO: UserSentenceLike에 UPSERT구문 추가
+            Map<Boolean, List<HeartLogWrapper>> partitioned = wrappersItems.stream()
+                    .collect(Collectors.groupingBy(
+                            w -> new AbstractMap.SimpleEntry<>(
+                                    w.getLog().getUser(),
+                                    w.getLog().getUserDateSentence()
+                            ),
+                            Collectors.maxBy(Comparator.comparing(
+                                    w -> w.getLog().getCreatedAt()
+                            ))
+                    ))
+                    .values().stream()
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .collect(Collectors.partitioningBy(w -> w.getLog().isLikeYn()));
+
+            List<HeartLogWrapper> hearted = partitioned.get(true);
+            List<HeartLogWrapper> notHearted = partitioned.get(false);
+
+            // 좋아요 했으나, DB에 저장된 좋아요가 없는 경우 이를 Insert한다.
+            for (HeartLogWrapper wrapper : hearted) {
+                Integer userId = wrapper.getLog().getUser().getId();
+                Integer userDateSentenceId = wrapper.getLog().getUserDateSentence().getId();
+
+                Optional<UserSentenceLike> existing =
+                        userSentenceLikeRepository.findByUserIdAndUserDateSentenceId(userId, userDateSentenceId);
+                if (existing.isEmpty()) {
+                    UserSentenceLike newHeart = UserSentenceLike.builder()
+                            .user(User.builder().id(userId).build())
+                            .userDateSentence(UserDateSentence.builder().id(userDateSentenceId).build())
+                            .build();
+                    userSentenceLikeRepository.save(newHeart);
+                }
+            }
+
+            // 좋아요 취소를 했으나, DB에 좋아요가 저장된 경우 이를 지운다.
+            for (HeartLogWrapper wrapper : notHearted) {
+                Integer userId = wrapper.getLog().getUser().getId();
+                Integer userDateSentenceId = wrapper.getLog().getUserDateSentence().getId();
+
+                userSentenceLikeRepository.findByUserIdAndUserDateSentenceId(userId, userDateSentenceId)
+                        .ifPresent(userSentenceLikeRepository::delete);
+            }
+
             // DB 저장
             userSentenceLikeLogRepository.saveAll(
                     wrappersItems.stream().map(HeartLogWrapper::getLog).toList()
