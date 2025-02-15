@@ -1,9 +1,10 @@
 import Waveform from '../../../shared/components/waveform/Waveform.tsx';
 import { css } from '@emotion/react';
-import { Heart, Bookmark, Volume1 } from 'lucide-react';
+import { Heart, Bookmark } from 'lucide-react';
 import { NameCard } from '../../../shared/components/nameCard/NameCard.tsx';
 import { useRef, useState } from 'react';
 import { FeedParticipant } from '../types/FeedParticipantsResponse.type.ts';
+import kahn4 from '../../../assets/test-audios/556012__timkahn__we-regret-to-inform-you 1.m4a';
 
 const feedStyle = css`
   display: flex;
@@ -31,7 +32,6 @@ export const FeedItem = (feedProps: FeedParticipant) => {
     <div css={feedStyle}>
       <NameCard userCountry={feedProps.country} style="compact" userImage={feedProps.profileImageUrl} />
       <div className="feed-content" css={feedContentStyle}>
-        <Volume1 />
         <Waveform audioSrc={feedProps.voiceUrl} />
 
         {isMotherTongue.current ? (
