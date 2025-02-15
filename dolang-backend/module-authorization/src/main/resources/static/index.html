@@ -112,8 +112,7 @@
 
         <div class="form-group">
             <label for="redirect_uri">Redirect URI:</label>
-            <input type="url" id="redirect_uri" name="redirect_uri"
-                   value="http://localhost:5173/oauth2/code" required>
+            <input type="url" id="redirect_uri" name="redirect_uri" required>
         </div>
 
         <div class="form-group">
@@ -140,13 +139,25 @@
         </div>
 
         <button type="submit" class="auth-button">1. Authorize with OAuth2</button>
-        <button type="button" class="auth-button token-button" onclick="window.location.href = '/token'">2. Get Token</button>
+        <button type="button" class="auth-button token-button" onclick="window.location.href = '/token'">2. Get Token
+        </button>
         <button type="button" class="auth-button reset-button" onclick="resetDefaults()">Reset to Defaults</button>
     </form>
 </div>
 
 <script>
-    document.getElementById('oauthForm').addEventListener('submit', function(e) {
+    const url = new URL(window.location.origin);
+    url.port = "5173";
+    const front = `${url.origin}/oauth2/code`;
+
+    window.onload = function () {
+        const redirectUriInput = document.getElementById('redirect_uri');
+        if (redirectUriInput) {
+            redirectUriInput.value = front;
+        }
+    };
+
+    document.getElementById('oauthForm').addEventListener('submit', function (e) {
         e.preventDefault();
 
         const params = {
@@ -157,14 +168,14 @@
                 .map(el => encodeURIComponent(el.value)).join('+')
         };
 
-        window.location.href = `http://localhost:8200/oauth2/authorize?response_type=${params.response_type}` +
+        window.location.href = `/oauth2/authorize?response_type=${params.response_type}` +
             `&client_id=${params.client_id}&redirect_uri=${params.redirect_uri}` +
             `&scope=${params.scope}`;
     });
 
     function resetDefaults() {
         document.getElementById('client_id').value = 'oidc-client';
-        document.getElementById('redirect_uri').value = 'http://localhost:5173/oauth2/code';
+        document.getElementById('redirect_uri').value = front;
         document.getElementById('response_type').value = 'code';
 
         document.querySelectorAll('input[name="scope"]').forEach(checkbox => {
