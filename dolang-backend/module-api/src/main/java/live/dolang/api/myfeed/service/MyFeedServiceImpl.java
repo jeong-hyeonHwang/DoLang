@@ -20,8 +20,7 @@ public class MyFeedServiceImpl implements MyFeedService {
     private final PostHeartService postHeartService;
 
     private final FeedRepository feedRepository;
-
-    // TODO: Mocking 데이터 백엔드 로직 수정하기
+    
     @Override
     public LikedFeedParticipantsResponseDto getMyLikedParticipantsList(Integer userId, Integer feedId, Integer length, String nextCursor) {
         if (userId == null || !userService.isUserExists(userId)) {

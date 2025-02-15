@@ -23,7 +23,7 @@ public class SchedulerConfig {
     private final Job redisHeartToDatabaseJob;
     private final Job updateDateSentence;
 
-    @Scheduled(cron = "0 */1 * * * ?") // 5분마다 실행
+    @Scheduled(cron = "0 */1 * * * ?") // 1분마다 실행
     public void runBatchJob() {
         try {
             // Bookmark 배치 작업 실행

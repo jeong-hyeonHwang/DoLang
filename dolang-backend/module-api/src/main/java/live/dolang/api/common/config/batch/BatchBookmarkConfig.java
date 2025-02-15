@@ -4,6 +4,8 @@ import live.dolang.api.post.dto.BookmarkDataDto;
 import live.dolang.core.domain.date_sentence.DateSentence;
 import live.dolang.core.domain.user.User;
 import live.dolang.core.domain.user_date_sentence.UserDateSentence;
+import live.dolang.core.domain.user_sentence_bookmark.UserSentenceBookmark;
+import live.dolang.core.domain.user_sentence_bookmark.repository.UserSentenceBookmarkRepository;
 import live.dolang.core.domain.user_sentence_bookmark_log.UserSentenceBookmarkLog;
 import live.dolang.core.domain.user_sentence_bookmark_log.repository.UserSentenceBookmarkLogRepository;
 import lombok.Builder;
@@ -31,8 +33,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Configuration
@@ -50,6 +52,7 @@ public class BatchBookmarkConfig {
     private final PlatformTransactionManager transactionManager;
     private final RedisTemplate<String, Integer> redisTemplate;
     private final UserSentenceBookmarkLogRepository userSentenceBookmarkLogRepository;
+    private final UserSentenceBookmarkRepository userSentenceBookmarkRepository;
 
     /**
      * Redis 에 저장된 dirty 플래그가 있는 북마크 데이터를 DB에 반영하는 Job
@@ -170,9 +173,53 @@ public class BatchBookmarkConfig {
     public ItemWriter<BookmarkLogWrapper> redisItemWriter() {
         return wrappers -> {
 
+            // 사용자의 북마크 여부에 따라서 partition 처리
             List<? extends BookmarkLogWrapper> wrappersItems = wrappers.getItems();
+            Map<Boolean, List<BookmarkLogWrapper>> partitioned = wrappersItems.stream()
+                    .collect(Collectors.groupingBy(
+                            w -> new AbstractMap.SimpleEntry<>(
+                                    w.getLog().getUser(),
+                                    w.getLog().getUserDateSentence()
+                            ),
+                            Collectors.maxBy(Comparator.comparing(
+                                    w -> w.getLog().getCreatedAt()
+                            ))
+                    ))
+                    .values().stream()
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .collect(Collectors.partitioningBy(w -> w.getLog().isBookmarkYn()));
 
-            // DB 저장
+            List<BookmarkLogWrapper> bookmarked = partitioned.get(true);
+            List<BookmarkLogWrapper> notBookmarked = partitioned.get(false);
+
+            // 북마크 했으나, DB에 저장된 북마크가 없는 경우 이를 Insert한다.
+            for (BookmarkLogWrapper wrapper : bookmarked) {
+                Integer userId = wrapper.getLog().getUser().getId();
+                Integer userDateSentenceId = wrapper.getLog().getUserDateSentence().getId();
+
+                Optional<UserSentenceBookmark> existing =
+                        userSentenceBookmarkRepository.findByUserIdAndUserDateSentenceId(userId, userDateSentenceId);
+                if (existing.isEmpty()) {
+                    UserSentenceBookmark newBookmark = UserSentenceBookmark.builder()
+                            .user(User.builder().id(userId).build())
+                            .userDateSentence(UserDateSentence.builder().id(userDateSentenceId).build())
+                            .build();
+                    userSentenceBookmarkRepository.save(newBookmark);
+                }
+            }
+
+
+            // 북마크 취소를 했으나, DB에 북마크가 저장된 경우 이를 지운다.
+            for (BookmarkLogWrapper wrapper : notBookmarked) {
+                Integer userId = wrapper.getLog().getUser().getId();
+                Integer userDateSentenceId = wrapper.getLog().getUserDateSentence().getId();
+
+                userSentenceBookmarkRepository.findByUserIdAndUserDateSentenceId(userId, userDateSentenceId)
+                        .ifPresent(userSentenceBookmarkRepository::delete);
+            }
+
+            // UserSentenceBookmarkLog 테이블 DB 저장
             userSentenceBookmarkLogRepository.saveAll(
                     wrappersItems.stream().map(BookmarkLogWrapper::getLog).toList()
             );

@@ -61,7 +61,7 @@ public class UserBookmarkService {
         // 메인 해시 업데이트
         bookmarkHashOperations.put(dataKey, postId, newData);
         // 변경된 항목을 dirty 세트에 추가하여 변경됨을 표시
-        redisTemplate.opsForSet().add(dirtySetKey, feedId);
+        redisTemplate.opsForSet().add(dirtySetKey, postId);
 
         // 만료 시간 설정 (예: 1일)
         redisTemplate.expire(dataKey, Duration.ofDays(1));
