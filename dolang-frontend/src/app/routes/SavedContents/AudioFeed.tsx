@@ -9,16 +9,17 @@ import { userState } from '@/features/Auth/userState';
 import { postBookmark, postHeart } from '@/features/Feed/services/reactionService';
 import { MyFeed } from '@/features/Feed/types/MyFeedResponse.type';
 import { css } from '@emotion/react';
-
+import { ClipLoader } from 'react-spinners';
 const Container = styled.div`
   margin: 0 auto;
   padding: 32px;
-  width: 42rem;
+  width: 70%;
+  min-width: 30rem
 `;
 
 const Header = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   gap: 1rem;
   margin-bottom: 32px;
@@ -109,18 +110,25 @@ export default function AudioFeed() {
     if (user?.nativeLanguage === currentLanguage) setIsNativeLanguage(true);
   }, [user?.nativeLanguage, currentLanguage]);
 
-  const { data: myFeedList, isLoading } = useMyFeed({ lang: currentLanguage as 'ko' | 'en' });
+  const { data: myFeedList, isLoading, error } = useMyFeed({ lang: currentLanguage as 'ko' | 'en' });
+
+  if (isLoading)
+    return (
+      <div>
+        <ClipLoader color="#000" size={40} />
+        <p>피드를 불러오는 중입니다...</p>
+      </div>
+    );
+  if (error) return <div>데이터를 불러오는 중 오류가 발생했습니다.</div>;
+  if (myFeedList?.result.content.length === 0) return <div>등록된 피드가 없습니다.</div>;
 
   return (
     <Container>
-      <Header>
+      <Header >
         <Title>내 피드</Title>
         <LanguagePicker value={currentLanguage} onChange={setCurrentLanguage} />
       </Header>
 
-      {isLoading ? (
-        <div>피드를 불러오는 중입니다...</div>
-      ) : (
         <MyFeedList>
           {myFeedList?.result.content.map((item) => (
             <div
@@ -133,7 +141,6 @@ export default function AudioFeed() {
             </div>
           ))}
         </MyFeedList>
-      )}
     </Container>
   );
 }
