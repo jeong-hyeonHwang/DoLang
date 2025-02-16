@@ -63,7 +63,7 @@ public class FeedServiceImpl implements FeedService{
         }
 
         boolean isNativeFeed = userId != null && feedRepository.isNativeFeed(userId, feedId);
-        TodayFeedParticipantsResponseDto dto = feedRepository.selectFeedParticipantsByLatest(feedId, length, nextCursor);
+        TodayFeedParticipantsResponseDto dto = feedRepository.selectFeedParticipantsByLatest(userId, feedId, length, nextCursor);
 
         if (isNativeFeed) { // 모국어 피드 - 하트
             for(TodayFeedParticipantsResponseDto.FeedParticipant p : dto.getParticipants()) {

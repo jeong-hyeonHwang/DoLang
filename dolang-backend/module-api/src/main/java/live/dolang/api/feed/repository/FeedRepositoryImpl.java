@@ -124,6 +124,7 @@ public class FeedRepositoryImpl implements FeedRepository {
 
     @Override
     public TodayFeedParticipantsResponseDto selectFeedParticipantsByLatest(
+            Integer userId,
             Integer feedId,
             Integer length,
             String nextCursor)
@@ -150,6 +151,10 @@ public class FeedRepositoryImpl implements FeedRepository {
         // WHERE 조건: date_sentence.id가 feedId와 일치하는 것만
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(uds.dateSentence.id.eq(feedId));
+
+        if (userId != null) {
+            builder.and(uds.user.id.ne(userId));
+        }
 
         // 커서 기반 페이징 조건:
         // - createdAt이 lastCreatedAt보다 이전이거나

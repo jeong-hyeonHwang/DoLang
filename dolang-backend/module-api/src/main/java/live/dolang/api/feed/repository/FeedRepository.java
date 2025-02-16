@@ -11,7 +11,7 @@ public interface FeedRepository {
 
     TodayFeedProjection selectTodayFeed(Integer userId, String lang, String langLevel, Instant todayUTCInstant);
 
-    TodayFeedParticipantsResponseDto selectFeedParticipantsByLatest(Integer feedId, Integer length, String nextCursor);
+    TodayFeedParticipantsResponseDto selectFeedParticipantsByLatest(Integer userId, Integer feedId, Integer length, String nextCursor);
 
     LikedFeedParticipantsResponseDto selectMyBookmarkedParticipantsList(Integer userId, Integer feedId, Integer length, String nextCursor);
 
