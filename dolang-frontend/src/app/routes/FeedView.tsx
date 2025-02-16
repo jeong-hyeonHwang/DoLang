@@ -1,16 +1,9 @@
 import FeedList from '../../features/Feed/components/FeedList.tsx';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { css } from '@emotion/react';
-import { Mic } from 'lucide-react';
-import {
-  nativeFeedTestData,
-  learningLanguageFeedTestData,
-  nativeFeedSentenceTestData,
-} from '../../features/Feed/tests/feedTestData.ts';
-import { FeedParticipation } from '../../features/Feed/types/feedParticipation.type.ts';
-import Waveform from '@/shared/components/waveform/Waveform.tsx';
 import Recorder from '../../features/Feed/components/Recorder.tsx';
-
+import { useFeeds } from '../../features/Feed/hooks/useFeed.ts';
+import LanguagePicker from '@/shared/components/Picker/LanguagePicker.tsx';
 const FeedView = () => {
   const feedContainerStyle = css`
     min-width: 30rem;
@@ -22,50 +15,45 @@ const FeedView = () => {
   const feedHeaderStyle = css`
     display: flex;
     align-items: center;
+    gap: 1rem;
   `;
 
   const feedSentenceSectionStyle = css`
-    display: flex;
     background-color: #d1d1d1;
+    height: 3rem;
     padding: 1rem;
-    border-radius: 1rem;
-    height: 100%;
-    max-height: 3rem;
+    display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
+    border-radius: 1rem;
   `;
 
-  const feedRecordButtonStyle = css`
-    background-color: #a11800;
-    border-radius: 50%;
-    cursor: pointer;
-    padding: 0.5rem;
+  const feedViewContainerStyle = css`
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column;
+    gap: 1rem;
   `;
-  const [feedListData, setFeedListData] = useState<FeedParticipation[]>([]);
 
-  useEffect(() => {
-    setFeedListData(nativeFeedTestData);
-  }, []);
+  const [feedLang, setFeedLang] = useState<string>('ko');
+  const { data } = useFeeds(feedLang as 'ko' | 'en');
+  const handleLangChange = (value: string) => setFeedLang(value);
 
   return (
-    <>
+    <div className="feed-view-container" css={feedViewContainerStyle}>
       <div className="feed-container" css={feedContainerStyle}>
         <div className="feed-header" css={feedHeaderStyle}>
           <h2>오늘의 피드</h2>
-          <span>Language Picker</span>
+          <LanguagePicker value={feedLang} onChange={handleLangChange} />
         </div>
         <div className="feed-sentence-section" css={feedSentenceSectionStyle}>
-          <p>{nativeFeedSentenceTestData.sentenceInfo.sentence}</p>
+          {data ? <p>{data.result?.feed.sentenceInfo.sentence}</p> : <p>로딩중...</p>}
         </div>
         <Recorder />
-        <FeedList feeds={feedListData} />
+        {data ? <FeedList feedId={data.result?.feed.feedId} /> : <div>로딩중...</div>}
       </div>
-    </>
+    </div>
   );
 };
 

@@ -1,62 +1,41 @@
 import axios from 'axios';
-import { base, endpoints } from './api';
-
-/* 
-테스트를 위해 native, learningLanguage 요청과 엔드포인트가 분리되었습니다.
-진행 상황에 맞춰, 또는 프로덕션 환경에서는 하나의 요청으로 통합될 예정입니다.
-*/
-
-export interface SentenceParams {
-  lang: string;
-}
-
-export interface ParticipationParams {
-  feedId: string;
-  sort: string;
-  length: number;
-  nextCursor?: string;
-}
-
+import { FeedParticipantsRequest, FeedParticipantsResponse, FeedSentenceRequest, FeedSentenceResponse } from '../types';
+const base = import.meta.env.VITE_API_BASE_URL;
 const instance = axios.create({
   baseURL: base,
   headers: {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`
+    Accept: '*/*',
   },
 });
 
-// 모국어 피드 문장 요청
-export const getNativeFeedSentence = async (params: SentenceParams) => {
-  const response = await instance.get(endpoints.NATIVE_SENTENCE, { params });
-  return response.data;
+// 오늘의 피드 요청
+export const getFeed = async (params: FeedSentenceRequest): Promise<FeedSentenceResponse> => {
+  try {
+    const response = await instance.get('api/feed/today', { params });
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
 };
 
-// 학습 언어 피드 문장 요청
-export const getLearningLanguageFeedSentence = async (params: SentenceParams) => {
-  const response = await instance.get(endpoints.LEARNING_LANGUAGE_SENTENCE, { params });
-  return response.data;
+// 피드 참여 데이터 요청
+export const getFeedParticipation = async (params: FeedParticipantsRequest): Promise<FeedParticipantsResponse> => {
+  try {
+    const response = await instance.get('api/feed/today/participants', { params });
+    console.log(response.data);
+    return response.data.result;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
 };
 
-// 모국어 피드 참여 데이터 요청
-export const getNativeFeedParticipation = async (params: ParticipationParams) => {
-  const response = await instance.get(endpoints.NATIVE_PARTICIPATION, { params });
-  return response.data;
-};
 
-// 학습 언어 피드 참여 데이터 요청
-export const getLearningLanguageFeedParticipation = async (params: ParticipationParams) => {
-  const response = await instance.get(endpoints.LEARNING_LANGUAGE_PARTICIPATION, {params});
-  return response.data;
-};
-
-// 모국어 피드 참여 요청
-export const postNativeFeedParticipation = async (params: ParticipationParams) => {
-  const response = await instance.post(endpoints.NATIVE_PARTICIPATION, {params});
-  return response.data;
-};
-
-// 학습 언어 피드 참여 요청
-export const postLearningLanguageFeedParticipation = async (params: ParticipationParams) => {
-  const response = await instance.post(endpoints.LEARNING_LANGUAGE_PARTICIPATION, {params});
-  return response.data;
-};
+// 피드 참여 요청
+// export const postFeedParticipation = async (params: FeedParticipantsRequest) => {
+//   const response = await instance.post('/today/participants', { params });
+//   return response.data;
+// };

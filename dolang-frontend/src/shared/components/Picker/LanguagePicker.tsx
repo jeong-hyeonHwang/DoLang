@@ -9,20 +9,6 @@ interface LanguagePickerProps {
 }
 
 const LanguagePicker = React.forwardRef<HTMLDivElement, LanguagePickerProps>(({ value, onChange }, ref) => {
-  const [selectedLanguage, setSelectedLanguage] = useState<string | null>(value || null);
-
-  const handleChange = (value: string) => {
-    const selected = languages.find((lang) => lang.value === value);
-    console.log(selected);
-
-    if (selected) {
-      setSelectedLanguage(selected.value);
-      if (onChange) {
-        onChange(value);
-      }
-    }
-  };
-
   return (
     <Select
       ref={ref} // ref 전달
@@ -41,8 +27,8 @@ const LanguagePicker = React.forwardRef<HTMLDivElement, LanguagePickerProps>(({ 
         ),
         title: label,
       }))}
-      value={selectedLanguage}
-      onChange={handleChange}
+      value={value}
+      onChange={onChange}
       dropdownRender={(menu) => (
         <div>
           {menu}

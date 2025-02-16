@@ -1,15 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { css } from '@emotion/react';
-import { useRecoilState, useRecoilValue } from 'recoil';
+import { useRecoilState } from 'recoil';
 import { authState } from '../../../features/Auth/authState.ts';
 import { Link, useLocation } from 'react-router-dom';
-import NameCard from '../nameCard/NameCard.tsx';
+import { NameCard } from '../nameCard/NameCard.tsx';
 import { useUserQuery } from '../../hooks/useUserQuery.ts';
-import { useAuth } from '../../hooks/useAuth.ts';
 import Logo from '../Logo/Logo.tsx';
 import { Home, Radio, FileText, User, Settings, Check, ChevronUp, ChevronDown } from 'lucide-react';
-import LogInModal from '../../../features/Auth/LoginModal.tsx';
-import SignUpModal from '../../../features/Auth/SignupModal.tsx';
 import GoogleLogout from '../../../features/Auth/GoogleLogout.tsx';
 
 const sidebarStyle = css`
@@ -143,6 +140,8 @@ const activeLinkStyle = css`
 const nameCardContainerStyle = css`
   margin-top: 30px;
   display: flex;
+  align-self: start;
+  padding: 0 1rem;
   justify-content: center;
 `;
 
@@ -272,6 +271,7 @@ export const NavBarContainer = () => {
   const user = JSON.parse(sessionStorage.getItem('user') || 'false');
   console.log('login: ', auth);
   const { data: userInfo, isLoading } = useUserQuery();
+  console.log(user);
 
   return (
     <div css={sidebarStyle}>
@@ -282,15 +282,18 @@ export const NavBarContainer = () => {
 
         {isLoggedIn && user ? (
           <div css={nameCardContainerStyle}>
-            <NameCard style={{ border: 'none', backgroundColor: 'transparent' }} />
+            <NameCard
+              userNickname={user.nickname}
+              userImage={user.profileImageUrl || ''}
+              userCountry={user.nationality || ''}
+              userNativeLanguage={user.nativeLanguageId}
+            />
           </div>
         ) : (
           <div
             css={nameCardContainerStyle}
             style={{ display: 'flex', justifyContent: 'space-evenly', marginTop: '2.2rem', marginBottom: '1rem' }}
           >
-            {/* <SignUpModal /> */}
-            {/* <LogInModal /> */}
             <Link to="oauth2/code">
               <button
                 style={{

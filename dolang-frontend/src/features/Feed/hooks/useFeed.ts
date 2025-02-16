@@ -1,46 +1,42 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
+import { getFeed, getFeedParticipation } from '../services/feedService';
+import { getMyFeed } from '../services/myFeedService';
+import { MyFeedRequest } from '../types/MyFeedRequest.type';
 
-import {
-  getNativeFeedSentence,
-  getLearningLanguageFeedSentence,
-  getNativeFeedParticipation,
-  postLearningLanguageFeedParticipation,
-} from '../services/feedService';
-
-// 모국어 피드 데이터 페칭
-export const useNativeFeeds = () => {
+// 피드 데이터 페칭
+export const useFeeds = (lang: 'ko' | 'en') => {
   const { data, isLoading, error } = useQuery({
-    queryKey: ['feeds'],
-    queryFn: getNativeFeedSentence,
+    queryKey: ['feeds', lang],
+    queryFn: () => getFeed({ lang }),
   });
 
   return { data, isLoading, error };
 };
 
-// 학습 언어 피드 데이터 페칭
-export const useLearningLanguageFeeds = () => {
+// 피드 참여 데이터 페칭
+export const useFeedParticipation = () => {
   const { data, isLoading, error } = useQuery({
-    queryKey: ['feeds'],
-    queryFn: getLearningLanguageFeedSentence,
+    queryKey: ['feedParticipation'],
+    queryFn: () => getFeedParticipation({ length: 10 }),
+  });
+
+  return { data, isLoading, error };
+};
+
+// 내 피드 페칭
+export const useMyFeed = (params: Partial<MyFeedRequest>) => {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['myFeed', params],
+    queryFn: () => getMyFeed(params),
   });
 
   return { data, isLoading, error };
 };
 
 // 유저 피드 참여
-export const useNativeFeedParticipation = () => {
-  const { mutate, isPending, error } = useMutation({
-    mutationFn: getNativeFeedParticipation,
-  });
-
-  return { mutate, isPending, error };
-};
-
-// 학습 언어 피드 참여
-export const useLearningLanguageFeedParticipation = () => {
-  const { mutate, isPending, error } = useMutation({
-    mutationFn: postLearningLanguageFeedParticipation,
-  });
-
-  return { mutate, isPending, error };
-};
+// export const useUserFeedParticipation = () => {
+//   const { mutate, isPending, error } = useMutation({
+//     mutationFn: postFeedParticipation,
+//   });
+//   return { mutate, isPending, error };
+// };
