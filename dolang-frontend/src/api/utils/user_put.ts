@@ -45,9 +45,9 @@ export const userPut = async (data: PutData, access_token?: string) => {
 
     if (response.status === 401) {
       alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
-      Cookies.remove('access_token'); // 토큰 삭제
-      sessionStorage.removeItem('user'); // 세션 데이터 삭제
-      window.location.href = '/login'; // 로그인 페이지로 이동
+      Cookies.remove('access_token');
+      sessionStorage.removeItem('user');
+      window.location.href = '/oauth2/code';
       return null;
     }
 

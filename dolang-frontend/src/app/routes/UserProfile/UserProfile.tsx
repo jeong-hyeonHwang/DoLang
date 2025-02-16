@@ -52,7 +52,7 @@ const PageContainer = styled.div`
   margin: 2rem auto;
   padding: 2rem;
   border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
 `;
 
 const Title = styled.h2`
@@ -67,6 +67,7 @@ const Form = styled.form`
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  padding: 20px;
 `;
 
 const FormGroup = styled.div`
@@ -79,13 +80,15 @@ const FormItem = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  /* align-items: center; */
 `;
 
 const RowContainer = styled.div`
   display: flex;
   gap: 1rem;
   width: 100%;
+  justify-content: space-between;
+  padding: 10px;
 `;
 
 const Label = styled.label`
@@ -170,7 +173,7 @@ const ImageUploadButton = styled.label`
 function UserProfile() {
   const [user, setUser] = useRecoilState(userState);
   const [loading, setLoading] = useState(true);
-  const [profileImageUrl, setProfileImageUrl] = useState<string>('/placeholder.svg');
+  const [profileImageUrl, setProfileImageUrl] = useState<string>('default-user.png');
 
   useEffect(() => {
     const storedUser = sessionStorage.getItem('user');
@@ -197,7 +200,7 @@ function UserProfile() {
       targetLanguage: '',
       proficiencyLevel: '',
       interests: [],
-      profileImageUrl: '/placeholder.svg',
+      profileImageUrl: 'default-user.png',
     },
   });
 
@@ -210,9 +213,9 @@ function UserProfile() {
         targetLanguage: user.targetLanguage ?? '',
         proficiencyLevel: user.proficiencyLevel ?? '',
         interests: user.interests ?? [],
-        profileImageUrl: user.profileImageUrl ?? '',
+        profileImageUrl: user.profileImageUrl ?? 'default-user.png',
       });
-      setProfileImageUrl(user.profileImageUrl ?? '');
+      setProfileImageUrl(user.profileImageUrl ?? 'default-user.png');
     }
   }, [user, reset]);
 
@@ -222,8 +225,13 @@ function UserProfile() {
       const reader = new FileReader();
       reader.onloadend = () => {
         setProfileImageUrl(reader.result as string);
+        // const base64String = reader.result as string;
+        // setProfileImageUrl(base64String);
+        // setValue('profileImageUrl', base64String);
       };
       reader.readAsDataURL(file);
+
+      // setValue('profileImageUrl', file);
     }
   };
 
@@ -247,9 +255,34 @@ function UserProfile() {
         return;
       }
 
-      console.log(formattedInterest);
+      // const formData = new FormData();
+      // formData.append('nickname', data.nickname);
+      // formData.append('nationality', data.nationality);
+      // formData.append('nativeLanguage', data.nativeLanguage);
+      // formData.append('targetLanguage', data.targetLanguage);
+      // formData.append('proficiencyLevel', data.proficiencyLevel);
+      // formData.append('nationality', data.nationality);
+      // formData.append('interests', JSON.stringify(formattedInterest.interests));
+
+      // if (profileImageUrl !== 'default-user.png') {
+      //   formData.append('profileImageUrl', profileImageUrl);
+      // }
+
+      // const userData: UserProfileData = {
+      //   nickname: data.nickname,
+      //   nationality: data.nationality,
+      //   nativeLanguage: data.nativeLanguage,
+      //   targetLanguage: data.targetLanguage,
+      //   proficiencyLevel: data.proficiencyLevel,
+      //   interests: formattedInterest.interests,
+      //   profileImageUrl: profileImageUrl !== 'default-user.png' ? profileImageUrl : '',
+      // };
+
+      console.log('formatttt', formattedInterest);
+      // console.log('formmm', userData);
 
       const res = await userPut(formattedInterest, accessToken);
+      // const res = await userPut(userData, accessToken);
       if (res.code === 200) {
         alert('프로필이 성공적으로 업데이트되었습니다.');
         setUser(data);

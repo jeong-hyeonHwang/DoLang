@@ -188,7 +188,7 @@ function SignupForm() {
       proficiencyLevel: '',
       interests: [],
       agreement: false,
-      profileImageUrl: '',
+      profileImageUrl: 'default-user.png',
     },
   });
 

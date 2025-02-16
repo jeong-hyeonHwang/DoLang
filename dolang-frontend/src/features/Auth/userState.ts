@@ -14,6 +14,6 @@ export const userState = atom<User | null>({
       { id: 2, nativeLanguageId: 'en', name: 'Gaming' },
       { id: 3, nativeLanguageId: 'en', name: 'Music' },
     ],
-    profileImageUrl: '/placeholder.svg',
+    profileImageUrl: 'default-user.png',
   },
 });

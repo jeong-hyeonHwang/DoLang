@@ -18,11 +18,13 @@ import { CallContextProvider } from './features/VoiceCall/hooks/useCallContext.t
 import { PeerContextProvider } from './features/VoiceCall/hooks/usePeerContext.tsx';
 
 import MyFeedView from './app/routes/SavedContents/MyFeed/MyFeedView.tsx';
-import MyAudioFeed from './app/routes/SavedContents/MyFeed/MyAudioFeed.tsx';
 import BookmarkView from './app/routes/SavedContents/Bookmark/BookmarkView.tsx';
-import Bookmarks from './app/routes/SavedContents/Bookmark/Bookmark.tsx';
+import BookMarkDetailView from './app/routes/SavedContents/Bookmark/BookmarkDetailView.tsx';
 
 import ServiceGuideView from './app/routes/ServiceGuideView.tsx';
+
+import ProtectedRoute from './app/ProtectedRoute.tsx';
+import VoiceRecordView from './app/routes/SavedContents/VoiceRecord/VoiceRecordView.tsx';
 
 function App() {
   return (
@@ -44,7 +46,14 @@ function App() {
         <Route element={<Layout />}>
           <Route path="feed" element={<FeedView />} />
           <Route path="savedContents" element={<SavedContentsView />} />
-          <Route path="profile" element={<UserProfileView />} />
+          <Route
+            path="profile"
+            element={
+              <ProtectedRoute>
+                <UserProfileView />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/call"
             element={
@@ -64,13 +73,38 @@ function App() {
           <Route path="/signup" element={<GoogleSignupView />} />
 
           {/* savedContetns */}
-          <Route path="savedContents/bookmark" element={<BookmarkView />} />
-          <Route path="savedContents/calls" element={<> 음성기록 </>} />
-          <Route path="savedContents/feed" element={<MyFeedView />} />
-
-          {/* ui-test (삭제 예정) */}
-          <Route path="savedContents/bookmark/test" element={<Bookmarks />} />
-          <Route path="savedContents/feed/test" element={<MyAudioFeed />} />
+          <Route
+            path="savedContents/bookmark"
+            element={
+              <ProtectedRoute>
+                <BookmarkView />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="savedContents/bookmark/detail/:date"
+            element={
+              <ProtectedRoute>
+                <BookMarkDetailView />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="savedContents/calls"
+            element={
+              <ProtectedRoute>
+                <VoiceRecordView />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="savedContents/feed"
+            element={
+              <ProtectedRoute>
+                <MyFeedView />
+              </ProtectedRoute>
+            }
+          />
 
           <Route path="guide" element={<ServiceGuideView />} />
           {/* User */}

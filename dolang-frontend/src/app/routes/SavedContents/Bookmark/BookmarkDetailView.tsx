@@ -3,7 +3,7 @@ import { css } from '@emotion/react';
 import styled from '@emotion/styled';
 
 import MyAudioPlayer from './MyAudioPlayer';
-import MyBookmark from './MyBookmark';
+import BookmarkDetail from './BookmarkDetail';
 import { Flex } from 'antd';
 
 const PageContainer = styled.div`
@@ -75,18 +75,18 @@ const Title = styled.h1`
   color: #212529;
 `;
 
-function BookMarkView() {
+function BookMarkDetail() {
   return (
     <>
       <div css={{ display: 'flex', justifyContent: 'center', alignContent: 'center' }}>
         <PageContainer>
           <Header>
-            <Title>북마크</Title>
+            <Title>북마크 디테일</Title>
           </Header>
 
           <ContentOutline>
             <ContentContainer>
-              <MyBookmark />
+              <BookmarkDetail />
             </ContentContainer>
           </ContentOutline>
         </PageContainer>
@@ -95,4 +95,4 @@ function BookMarkView() {
   );
 }
 
-export default BookMarkView;
+export default BookMarkDetail;
