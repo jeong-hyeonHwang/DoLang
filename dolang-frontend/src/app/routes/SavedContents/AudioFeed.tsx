@@ -13,12 +13,13 @@ import { ClipLoader } from 'react-spinners';
 const Container = styled.div`
   margin: 0 auto;
   padding: 32px;
-  width: 42rem;
+  width: 70%;
+  min-width: 30rem
 `;
 
 const Header = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   gap: 1rem;
   margin-bottom: 32px;
@@ -123,7 +124,7 @@ export default function AudioFeed() {
 
   return (
     <Container>
-      <Header>
+      <Header >
         <Title>내 피드</Title>
         <LanguagePicker value={currentLanguage} onChange={setCurrentLanguage} />
       </Header>
