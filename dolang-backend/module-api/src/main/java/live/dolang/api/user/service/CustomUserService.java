@@ -111,10 +111,12 @@ public class CustomUserService {
         UserProfile newProfile = requestUpdateUserInfoDto.toUserProfileEntity(userId);
 
         //사용자 이미지 추가
-        if(image.isEmpty()==false) { //사용자가 이미지를 추가했다면
+        if(image != null) { //사용자가 이미지를 추가했다면
             // TODO:기존이미지가 있고, 수정되었다면, 기존이미지 S3에서 삭제해야함
+            if (!image.isEmpty()) {
             String imageUrl = uploadImageToS3(image);
             newProfile.updateProfileImageUrl(imageUrl);
+            }
         }
         else { //사용자가 이미지를 추가하지 않았다면 기존 프로파일 주소를 사용
             newProfile.updateProfileImageUrl(originProfile.getProfileImageUrl());
