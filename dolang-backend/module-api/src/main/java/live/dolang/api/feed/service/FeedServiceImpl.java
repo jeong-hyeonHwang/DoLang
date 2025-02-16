@@ -24,7 +24,6 @@ import java.time.Instant;
 public class FeedServiceImpl implements FeedService{
 
     private final UserService userService;
-    private final CustomUserProfileService customUserProfileService;
     private final CustomUserDateSentenceService customUserDateSentenceService;
     private final CustomDateSentenceService customDateSentenceService;
     private final UserBookmarkService userBookmarkService;
@@ -63,7 +62,7 @@ public class FeedServiceImpl implements FeedService{
             throw new NotFoundException(BaseResponseStatus.NOT_EXIST_FEED);
         }
 
-        boolean isNativeFeed = userId != null && customUserProfileService.isNativeFeed(userId, feedId);
+        boolean isNativeFeed = userId != null && feedRepository.isNativeFeed(userId, feedId);
         TodayFeedParticipantsResponseDto dto = feedRepository.selectFeedParticipantsByLatest(feedId, length, nextCursor);
 
         if (isNativeFeed) { // 모국어 피드 - 하트
