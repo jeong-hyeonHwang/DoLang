@@ -2,9 +2,11 @@ import FeedList from '../../features/Feed/components/FeedList.tsx';
 import { useState } from 'react';
 import { css } from '@emotion/react';
 import Recorder from '../../features/Feed/components/Recorder.tsx';
-import { useFeeds } from '../../features/Feed/hooks/useFeed.ts';
+import { useFeeds, useFeedParticipation } from '../../features/Feed/hooks/useFeed.ts';
+import { useMyFeed } from '../../features/Feed/hooks/useFeed.ts';
 import LanguagePicker from '@/shared/components/Picker/LanguagePicker.tsx';
 import { ClipLoader } from 'react-spinners';
+import { FeedCard } from './SavedContents/AudioFeed.tsx';
 
 const FeedView = () => {
   const feedContainerStyle = css`
@@ -40,11 +42,12 @@ const FeedView = () => {
   `;
 
   const [feedLang, setFeedLang] = useState<string>('ko');
-  const { data, error } = useFeeds(feedLang as 'ko' | 'en');
+  const { data: feedData, error: feedError } = useFeeds(feedLang as 'ko' | 'en');
+  const { data: myFeedData, error: myFeedError } = useMyFeed({ lang: feedLang as 'ko' | 'en' });
   const handleLangChange = (value: string) => setFeedLang(value);
 
   // 에러가 있을 경우 에러 메시지만 렌더링
-  if (error) {
+  if (feedError || myFeedError) {
     return (
       <div className="feed-view-container" css={feedViewContainerStyle}>
         <p>피드 데이터를 불러오는 중 오류가 발생했습니다.</p>
@@ -53,7 +56,7 @@ const FeedView = () => {
   }
 
   // data가 아직 없을 경우 로딩중 메시지만 렌더링
-  if (!data) {
+  if (!feedData || !myFeedData) {
     return (
       <div className="feed-view-container" css={feedViewContainerStyle}>
         <ClipLoader color="#000" size={40} />
@@ -70,10 +73,17 @@ const FeedView = () => {
           <LanguagePicker value={feedLang} onChange={handleLangChange} />
         </div>
         <div className="feed-sentence-section" css={feedSentenceSectionStyle}>
-          <p>{data.result?.feed.sentenceInfo.sentence}</p>
+          <p>{feedData.result?.feed.sentenceInfo.sentence}</p>
         </div>
-        <Recorder />
-        <FeedList feedId={data.result?.feed.feedId} />
+
+        {myFeedData?.result?.content.length > 0 ? (
+          <div>
+            <FeedCard item={myFeedData.result?.content[0]} isNativeLanguage={feedData.result?.feed.isNativeFeed} />
+          </div>
+        ) : (
+          <Recorder />
+        )}
+        <FeedList feedId={feedData.result?.feed.feedId} />
       </div>
     </div>
   );

@@ -120,7 +120,7 @@ export default function AudioFeed() {
       </div>
     );
   if (error) return <div>데이터를 불러오는 중 오류가 발생했습니다.</div>;
-  if (myFeedList?.result.content.length === 0) return <div>등록된 피드가 없습니다.</div>;
+  if (myFeedList?.result.content.length === 0) return <div>참여한 피드가 없습니다. 피드에 참여해보세요!</div>;
 
   return (
     <Container>
