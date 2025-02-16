@@ -1,24 +1,10 @@
-import { createContext, useContext, useRef, useState, useCallback, useEffect } from 'react';
-import React from 'react';
+import { createContext, useContext, useRef, useState, useCallback, useEffect, ReactNode } from 'react';
 import { Client } from '@stomp/stompjs';
-import { UserInfo } from '../../../shared/types/UserInfo.type';
 import { usePeerContext } from '../../VoiceCall/hooks/usePeerContext';
+import { MatchedUser, MatchingResult, Tag } from '../types/Matching.type';
 
 interface StompClientProviderProps {
-  children: React.ReactNode;
-}
-
-interface MatchedUser extends UserInfo {
-  nativeLanguageId: string;
-  peerId: string;
-  userId: string;
-  username: string;
-}
-
-interface MatchingResult {
-  me: MatchedUser;
-  matchedUser: MatchedUser;
-  ownerYN: boolean;
+  children: ReactNode;
 }
 
 export interface StompContextValue {
@@ -30,6 +16,7 @@ export interface StompContextValue {
   matchedUser: MatchedUser | null;
   matchingResult: MatchingResult | null;
   connectionError: string;
+  tags: Tag[];
 
   connect: (token: string) => void;
   disconnect: () => void;
@@ -57,6 +44,7 @@ export const StompClientProvider = ({ children }: StompClientProviderProps) => {
   const [isMatching, setIsMatching] = useState(false);
   const [matchedUser, setMatchedUser] = useState<MatchedUser | null>(null);
   const [connectionError, setConnectionError] = useState<string>('');
+  const [tags, setTags] = useState<Tag[]>([]);
   const { peerId, setRemotePeer, peering } = usePeerContext();
 
   const sendMessage = useCallback(
@@ -86,7 +74,7 @@ export const StompClientProvider = ({ children }: StompClientProviderProps) => {
 
       // 새 stompClient 인스턴스 생성
       const stompClient = new Client({
-        brokerURL: `wss://${MATCHING_SERVER_URL}/ws`,
+        brokerURL: `${MATCHING_SERVER_URL}`,
         connectHeaders: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -160,6 +148,10 @@ export const StompClientProvider = ({ children }: StompClientProviderProps) => {
   }, [isMatching, sendMessage]);
 
   useEffect(() => {
+    if (matchingResult) setTags([...matchingResult.matchedUser.userTagList, ...matchingResult.me.userTagList]);
+  }, [matchingResult]);
+
+  useEffect(() => {
     return () => {
       console.log('unmount');
       if (stompClientRef.current) {
@@ -175,6 +167,7 @@ export const StompClientProvider = ({ children }: StompClientProviderProps) => {
     isMatching,
     matchingResult,
     matchedUser,
+    tags,
     connectionError,
     connect,
     disconnect,

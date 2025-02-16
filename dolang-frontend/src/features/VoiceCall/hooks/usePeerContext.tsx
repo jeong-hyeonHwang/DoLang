@@ -1,15 +1,18 @@
 import React, { useRef, useState, createContext, useContext } from 'react';
-import Peer, { MediaConnection } from 'peerjs';
+import Peer, { MediaConnection, DataConnection } from 'peerjs';
 
 interface PeerContextValue {
   peerId: string;
   remotePeerId: string;
   callStatus: string;
+  messages: string[];
   audioRef: React.RefObject<HTMLAudioElement>;
   mediaConnectionRef: React.RefObject<MediaConnection | null>;
+  dataConnectionRef: React.RefObject<MediaConnection | null>;
   mediaStreamRef: React.RefObject<MediaStream>;
   peering: () => void;
   initiateCall: (peerIdToCall: string) => void;
+  sendMessage: (message: string) => void;
   closeCall: () => void;
   setPeer: (peerId: string) => void;
   setRemotePeer: (peerId: string) => void;
@@ -29,14 +32,16 @@ export const PeerContextProvider = ({ children }: { children: React.ReactNode })
   const [peerId, setPeerId] = useState<string>('');
   const [remotePeerId, setRemotePeerId] = useState('');
   const [callStatus, setCallStatus] = useState('');
+  const [messages, setMessages] = useState<string[]>([]);
 
   const peer = useRef<Peer | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const mediaConnectionRef = useRef<MediaConnection | null>(null);
+  const dataConnectionRef = useRef<DataConnection | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
 
   const peering = () => {
-       peer.current = new Peer();
+    peer.current = new Peer();
 
     // Emitted when a connection to the PeerServer is established.
     peer.current.on('open', (id) => {
@@ -44,6 +49,12 @@ export const PeerContextProvider = ({ children }: { children: React.ReactNode })
       setPeerId(id);
       console.log('Peer ID:', id);
       setCallStatus('피어링 성공');
+    });
+
+    peer.current.on('connection', (conn) => {
+      console.log('데이터 연결 수립');
+      dataConnectionRef.current = conn;
+      setEventsOnDataConnection(conn);
     });
 
     // Emitted when the peer is destroyed and can no longer accept or create any new connections
@@ -90,6 +101,10 @@ export const PeerContextProvider = ({ children }: { children: React.ReactNode })
           console.error('Call fails', err);
           setCallStatus(err.toString());
         });
+
+      const dataConnection = peer.current.connect(peerIdToCall);
+      dataConnectionRef.current = dataConnection;
+      setEventsOnDataConnection(dataConnection);
     }
   };
 
@@ -110,34 +125,55 @@ export const PeerContextProvider = ({ children }: { children: React.ReactNode })
     });
   };
 
-  const closeCall = () => {
-    if (mediaConnectionRef.current) {
-      mediaConnectionRef.current.close();
+  const setEventsOnDataConnection = (dataConnection: DataConnection) => {
+    dataConnection.on('data', (message: string) => {
+      console.log('메시지 수신:', message);
+      setMessages((prev) => [...prev, `상대방: ${message}`]);
+    });
+
+    dataConnection.on('close', () => {
+      console.log('DataConnection closed');
+      dataConnectionRef.current = null;
+    });
+
+    dataConnection.on('error', (err) => {
+      console.error('DataConnection error', err);
+    });
+  };
+
+  const sendMessage = (message: string) => {
+    if (dataConnectionRef.current && dataConnectionRef.current.open) {
+      dataConnectionRef.current.send(message);
+      setMessages((prev) => [...prev, `나: ${message}`]);
+    } else {
+      console.warn('데이터 연결이 없습니다.');
     }
+  };
+
+  const closeCall = () => {
+    if (mediaConnectionRef.current) mediaConnectionRef.current.close();
+    if (dataConnectionRef.current) dataConnectionRef.current.close();
+    if (mediaStreamRef.current) mediaStreamRef.current.getTracks().forEach((track) => track.stop());
     setCallStatus('');
     setRemotePeerId('');
-    if (mediaStreamRef.current) {
-      mediaStreamRef.current.getTracks().forEach((track) => track.stop());
-    }
+    setMessages([]);
   };
 
-  const setPeer = (peerId) => {
-    setPeerId(peerId);
-  };
-
-  const setRemotePeer = (peerId) => {
-    setRemotePeerId(peerId);
-  };
+  const setPeer = (peerId) => setPeerId(peerId);
+  const setRemotePeer = (peerId) => setRemotePeerId(peerId);
 
   const value = {
     peerId,
     remotePeerId,
     callStatus,
+    messages,
     audioRef,
     mediaConnectionRef,
+    dataConnectionRef,
     mediaStreamRef,
     peering,
     initiateCall,
+    sendMessage,
     closeCall,
     setPeer,
     setRemotePeer,

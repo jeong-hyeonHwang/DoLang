@@ -7,5 +7,6 @@ export default [
     route('savedContents', 'routes/SavedContentsView.tsx'),
     route('profile', 'routes/UserProfileView.tsx'),
     route('voiceCall', 'routes/VoiceCallView.tsx'),
+    route('endCall', 'routes/EndCallView.tsx'),
   ]),
 ];
