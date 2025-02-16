@@ -334,7 +334,7 @@ export const NavBarContainer = () => {
       </div>
 
       <div css={bottomSectionStyle}>
-        {isLoading ? <div>Loading...</div> : isLoggedIn && user ? <GoogleLogout /> : null}
+        {isLoggedIn && user ? <GoogleLogout /> : null}
       </div>
     </div>
   );
