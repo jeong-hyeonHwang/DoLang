@@ -1,6 +1,8 @@
 package live.dolang.api.post.service;
 
 import jakarta.annotation.PostConstruct;
+import live.dolang.api.common.exception.NotFoundException;
+import live.dolang.api.common.response.BaseResponseStatus;
 import live.dolang.api.feed.service.CustomUserProfileServiceImpl;
 import live.dolang.api.myfeed.dto.ResponseLikedFeedDto;
 import live.dolang.api.post.dto.BookmarkDataDto;
@@ -12,6 +14,7 @@ import live.dolang.core.domain.user.User;
 import live.dolang.core.domain.user.repository.UserRepository;
 import live.dolang.core.domain.user_date_sentence.UserDateSentence;
 import live.dolang.core.domain.user_date_sentence.repository.UserDateSentenceRepository;
+import live.dolang.core.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -42,6 +45,7 @@ public class PostService {
     @Value("${spring.data.redis.bookmark.postfix}")
     private String bookmarkPostfix;
 
+    private final UserService userService;
     private final PostBookmarkService postBookmarkService;
     private final UserBookmarkService userBookmarkService;
     private final PostHeartService postHeartService;
@@ -156,7 +160,10 @@ public class PostService {
         return list;
     }
 
-    public Page<ResponseLikedFeedDto> getMyLikedFeedList(int userId, String language, Pageable pageable) {
+    public Page<ResponseLikedFeedDto> getMyLikedFeedList(Integer userId, String language, Pageable pageable) {
+        if (userId == null || !userService.isUserExists(userId)) {
+            throw new NotFoundException(BaseResponseStatus.NOT_EXIST_USER);
+        }
 
         boolean isNativeLanguageSelected = customUserProfileServiceImpl.isUserNativeLanguage(userId, language);
         if (isNativeLanguageSelected) { // 모국어 피드 - 하트

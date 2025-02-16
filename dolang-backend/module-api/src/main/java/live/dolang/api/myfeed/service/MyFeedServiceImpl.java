@@ -3,7 +3,6 @@ package live.dolang.api.myfeed.service;
 import live.dolang.api.common.exception.NotFoundException;
 import live.dolang.api.common.response.BaseResponseStatus;
 import live.dolang.api.feed.repository.FeedRepository;
-import live.dolang.api.feed.service.CustomUserProfileService;
 import live.dolang.api.myfeed.dto.LikedFeedParticipantsResponseDto;
 import live.dolang.api.post.service.*;
 import live.dolang.core.service.UserService;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class MyFeedServiceImpl implements MyFeedService {
     private final UserService userService;
-    private final CustomUserProfileService customUserProfileService;
     private final CustomDateSentenceService customDateSentenceService;
     private final PostBookmarkService postBookmarkService;
     private final PostHeartService postHeartService;
@@ -31,9 +29,14 @@ public class MyFeedServiceImpl implements MyFeedService {
             throw new NotFoundException(BaseResponseStatus.NOT_EXIST_FEED);
         }
 
-        boolean isNativeFeed = customUserProfileService.isNativeFeed(userId, feedId);
-        LikedFeedParticipantsResponseDto list = feedRepository.selectMyLikedParticipantsList(feedId, length, nextCursor);
+        boolean isNativeFeed = feedRepository.isNativeFeed(userId, feedId);
+        LikedFeedParticipantsResponseDto list;
+        if (isNativeFeed) {
+            list = feedRepository.selectMyHeartedParticipantsList(userId, feedId, length, nextCursor);
+        } else {
+            list = feedRepository.selectMyBookmarkedParticipantsList(userId, feedId, length, nextCursor);
 
+        }
         if (isNativeFeed) { // 모국어 피드 - 하트
             for(LikedFeedParticipantsResponseDto.FeedParticipant p : list.getParticipants()) {
                 p.setHeartCount(postHeartService.getPostHeartCount(feedId, p.getPostId()));
