@@ -105,13 +105,12 @@ public class CustomUserService {
     public void updateUserInfo(int userId, RequestUpdateUserInfoDto requestUpdateUserInfoDto) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(BaseResponseStatus.NOT_EXIST_USER));
-        MultipartFile image = requestUpdateUserInfoDto.getProfileImageUrl();
+        MultipartFile image = requestUpdateUserInfoDto.getProfileImage();
         UserProfile originProfile = user.getUserProfile();
 
         UserProfile newProfile = requestUpdateUserInfoDto.toUserProfileEntity(userId);
-
         //사용자 이미지 추가
-        if(image.isEmpty()==false) { //사용자가 이미지를 추가했다면
+        if(!image.isEmpty()) { //사용자가 이미지를 추가했다면
             // TODO:기존이미지가 있고, 수정되었다면, 기존이미지 S3에서 삭제해야함
             String imageUrl = uploadImageToS3(image);
             newProfile.updateProfileImageUrl(imageUrl);
