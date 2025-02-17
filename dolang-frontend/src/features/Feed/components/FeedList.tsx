@@ -20,7 +20,7 @@ const FeedList = ({ feedId }: { feedId: number }) => {
   if (feedId === undefined) {
     return (
       <section className="feed-list-container" css={feedListContainerStyle}>
-        <p>피드 ID가 제공되지 않았습니다.</p>
+        <p>피드 정보가 없습니다.</p>
       </section>
     );
   }
@@ -54,26 +54,24 @@ const FeedList = ({ feedId }: { feedId: number }) => {
     );
   }
 
-  if (isLoading || feedParticipationData?.participants.length === 0) {
-    return (
-      <section className="feed-list-container" css={feedListContainerStyle}>
-        {isLoading ? <p>피드를 불러오는 중입니다...</p> : <p>참여자가 없습니다. 오늘의 첫 참여자가 되어 보세요!</p>}
-      </section>
-    );
-  }
-
   return (
     <section className="feed-list-container" css={feedListContainerStyle}>
-      {feedParticipationData?.participants.map((feed) => (
+      {isLoading || feedParticipationData?.participants.length === 0 ? (
         <>
-          <FeedItem key={feed.postId} feedId={feed.postId} feedProps={feed} />
-          <div
-            onClick={() => {
-              console.log(feed);
-            }}
-          ></div>
+          {isLoading ? <p>피드를 불러오는 중입니다...</p> : <p>참여자가 없습니다. 오늘의 첫 참여자가 되어 보세요!</p>}
         </>
-      ))}
+      ) : (
+        feedParticipationData?.participants.map((feed) => (
+          <>
+            <FeedItem key={feed.postId} feedId={feed.postId} feedProps={feed} />
+            <div
+              onClick={() => {
+                console.log(feed);
+              }}
+            ></div>
+          </>
+        ))
+      )}
     </section>
   );
 };
