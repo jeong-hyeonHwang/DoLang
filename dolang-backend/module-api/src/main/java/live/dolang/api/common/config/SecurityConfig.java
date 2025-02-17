@@ -1,5 +1,9 @@
 package live.dolang.api.common.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletResponse;
+import live.dolang.api.common.response.BaseResponse;
+import live.dolang.api.common.response.BaseResponseStatus;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -15,7 +19,7 @@ import java.util.List;
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, ObjectMapper objectMapper) throws Exception {
         http
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(request ->
@@ -25,7 +29,16 @@ public class SecurityConfig {
                                 .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2ResourceServer ->
-                        oauth2ResourceServer.jwt(Customizer.withDefaults())
+                        oauth2ResourceServer
+                                .jwt(Customizer.withDefaults())
+                                .authenticationEntryPoint((request, response, authException) -> {
+                                            BaseResponse<?> errorResponse = BaseResponse.status(BaseResponseStatus.INVALID_JWT);
+                                            response.setContentType("application/json");
+                                            response.setCharacterEncoding("UTF-8");
+                                            response.setStatus(HttpServletResponse.SC_OK);
+                                            response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
+                                        }
+                                )
                 );
         return http.build();
     }
