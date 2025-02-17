@@ -8,6 +8,7 @@ import CountryPicker from '../../../shared/components/Picker/CountryPicker';
 import LanguagePicker from '../../../shared/components/Picker/LanguagePicker';
 import ProficiencyLevelPicker from '../../../shared/components/Picker/ProficiencyLevelPicker';
 import TagInput from '../../../shared/components/Tag/TagInput';
+import { userGet } from '@/api/utils/useUser';
 import { userPut } from '../../../api/utils/user_put';
 import languages from '../../../shared/components/Picker/languages.json';
 import countries from '../../../shared/components/Picker/countries.json';
@@ -27,7 +28,7 @@ export interface UserProfileData {
   proficiencyLevel: string;
   interests: Interest[];
   profileImageUrl?: string;
-  profileImage?: File | null;
+  profileImage?: File | string;
 }
 
 // const getLanguageLabel = (code: string) => {
@@ -176,7 +177,7 @@ function UserProfile() {
   const [user, setUser] = useRecoilState(userState);
   const [loading, setLoading] = useState(true);
   const [profileImageUrl, setProfileImageUrl] = useState<string>('default-user.png');
-  const [profileImage, setProfileImage] = useState<File | null>(null);
+  const [profileImage, setProfileImage] = useState<File | string>();
 
   useEffect(() => {
     const storedUser = sessionStorage.getItem('user');
@@ -218,7 +219,7 @@ function UserProfile() {
         proficiencyLevel: user.proficiencyLevel ?? '',
         interests: user.interests ?? [],
         profileImageUrl: user.profileImageUrl ?? 'default-user.png',
-        profileImage: user.profileImage || null,
+        profileImage: user.profileImageUrl || '',
       });
       setProfileImageUrl(user.profileImageUrl ?? 'default-user.png');
     }
@@ -259,11 +260,17 @@ function UserProfile() {
       formData.append('targetLanguage', data.targetLanguage);
       formData.append('proficiencyLevel', data.proficiencyLevel);
       formData.append('profileImageUrl', 'default-user.png');
-      formData.append('interests', JSON.stringify(formattedInterest.interests));
+      // formData.append('interests', JSON.stringify(formattedInterest.interests)); // 문자열로 바꾸기
+      formData.append('interests', formattedInterest.interests.join(', ')); // 문자열로 바꾸기
 
       if (profileImage) {
         formData.append('profileImage', profileImage);
       }
+      // else if (data.profileImage) {
+      //   formData.append('profileImage', data.profileImage);
+      // } else {
+      //   formData.append('profileImage', 'default-user.png');
+      // }
 
       for (let [key, value] of formData.entries()) {
         console.log(key, value);
@@ -278,18 +285,21 @@ function UserProfile() {
         interests: formattedInterest.interests,
         // interests: data.interests,
         profileImageUrl: 'default-user.png',
-        profileImage: profileImage || null,
+        profileImage: profileImage,
       };
 
       // console.log('formatttt', formattedInterest);
-      console.log('formmm', userPutData);
+      // console.log('formmm', userPutData);
 
       // const res = await userPut(formattedInterest, accessToken);
       const res = await userPut(formData, accessToken);
       if (res.code === 200) {
         alert('프로필이 성공적으로 업데이트되었습니다.');
-        setUser(data);
-        sessionStorage.setItem('user', JSON.stringify(data));
+        const res = await userGet(accessToken);
+        setUser(res.result);
+        sessionStorage.setItem('user', JSON.stringify(res.result));
+        // setUser(data);
+        // sessionStorage.setItem('user', JSON.stringify(data));
       } else {
         throw new Error('업데이트에 실패했습니다.');
       }
@@ -306,7 +316,12 @@ function UserProfile() {
       <Title>사용자 프로필</Title>
       <Form>
         <ProfileImageContainer>
-          <ProfileImage src={profileImage ? URL.createObjectURL(profileImage) : 'default-user.png'} alt="Profile" />
+          <ProfileImage
+            src={
+              profileImage instanceof File ? URL.createObjectURL(profileImage) : profileImageUrl || 'default-user.png'
+            }
+            alt="Profile"
+          />
           <ImageUploadButton>
             프로필 사진 변경
             <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImageUpload} />

@@ -29,7 +29,7 @@ interface ImportMeta {
 const SERVER_URL = import.meta.env.VITE_USER_SERVER_URL;
 const accessToken = Cookies.get('access_token');
 
-export const userPut = async (data: PutData, access_token?: string) => {
+export const userPut = async (data: FormData, access_token?: string) => {
   const token = access_token || accessToken;
   try {
     const response = await fetch(`${SERVER_URL}/api/user`, {
@@ -37,7 +37,7 @@ export const userPut = async (data: PutData, access_token?: string) => {
       headers: {
         accept: '*/*',
         // 'Content-Type': 'application/json',
-        'Content-Type': 'multipart/form-data',
+        // 'Content-Type': 'multipart/form-data',
         Authorization: `Bearer ${token}`,
       },
       // body: JSON.stringify(data),
