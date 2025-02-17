@@ -18,7 +18,7 @@ type Interest = {
   name?: string;
 };
 
-interface UserProfileData {
+export interface UserProfileData {
   nickname: string;
   nationality: string;
   nativeLanguage: string;

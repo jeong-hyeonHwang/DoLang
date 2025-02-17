@@ -15,21 +15,34 @@ import live.dolang.core.domain.user_profile.repository.UserProfileRepository;
 import live.dolang.core.domain.user_tag.UserTag;
 import live.dolang.core.domain.user_tag.repository.UserTagRepository;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
+@Slf4j
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class CustomUserService {
     private final CustomUserRepository customUserRepository;
     private final UserRepository userRepository;
     private final UserProfileRepository userProfileRepository;
     private final UserTagRepository userTagRepository;
     private final UserLanguageLevelRepository userLanguageLevelRepository;
+    private final S3Client s3Client;
+    @Value("${aws.s3.bucket}")
+    private String bucket;
 
     /**
      * 유저 정보 조회
@@ -92,14 +105,50 @@ public class CustomUserService {
     public void updateUserInfo(int userId, RequestUpdateUserInfoDto requestUpdateUserInfoDto) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(BaseResponseStatus.NOT_EXIST_USER));
+        MultipartFile image = requestUpdateUserInfoDto.getProfileImageUrl();
+        UserProfile originProfile = user.getUserProfile();
+
         UserProfile newProfile = requestUpdateUserInfoDto.toUserProfileEntity(userId);
+
+        //사용자 이미지 추가
+        if(image.isEmpty()==false) { //사용자가 이미지를 추가했다면
+            // TODO:기존이미지가 있고, 수정되었다면, 기존이미지 S3에서 삭제해야함
+            String imageUrl = uploadImageToS3(image);
+            newProfile.updateProfileImageUrl(imageUrl);
+        }
+        else { //사용자가 이미지를 추가하지 않았다면 기존 프로파일 주소를 사용
+            newProfile.updateProfileImageUrl(originProfile.getProfileImageUrl());
+        }
         user.updateProfile(newProfile);
 
         //언어수준 수정
+        updateUserLanguageLevel(requestUpdateUserInfoDto, user);
+
+        //사용자 관심사 태그 수정(기존 태그삭제 후 새로운 태그 저장)
+        updateUserTags(requestUpdateUserInfoDto, user);
+    }
+
+
+    private String uploadImageToS3(MultipartFile image) {
+        String fileName = "profile-image/"+ UUID.randomUUID()+"_"+image.getOriginalFilename();
+        PutObjectRequest request = PutObjectRequest.builder()
+                .bucket(bucket)
+                .key(fileName)
+                .contentType(image.getContentType())
+                .build();
+        try {
+            s3Client.putObject(request, RequestBody.fromInputStream(image.getInputStream(),image.getSize()));
+        } catch (IOException e) {
+            log.error("AWS S3 업로드에 실패했습니다.");
+            e.printStackTrace();
+        }
+        return s3Client.utilities().getUrl(builder -> builder.bucket(bucket).key(fileName)).toString();
+    }
+    private void updateUserLanguageLevel(RequestUpdateUserInfoDto requestUpdateUserInfoDto, User user) {
         String newInterestLanguageId = requestUpdateUserInfoDto.getTargetLanguage();
         String newInterestLanguageLevelId = requestUpdateUserInfoDto.getProficiencyLevel();
         //사용자의 언어수준들을 조회
-        Set<UserLanguageLevel> originLanguageLevelSet = userLanguageLevelRepository.findByUserId(userId);
+        Set<UserLanguageLevel> originLanguageLevelSet = userLanguageLevelRepository.findByUserId(user.getId());
         //수정하려는 관심언어의 수준이 기존에 저장되어 있던 언어인지 확인
         UserLanguageLevel existingUserLanguageLevel = isExistUserLanguageLevel(originLanguageLevelSet, newInterestLanguageId);
         //수정된 관심언어가 언어수준 테이블에 저장이 안되어있다면 새롭게 저장
@@ -115,24 +164,24 @@ public class CustomUserService {
         else {
             existingUserLanguageLevel.updateLanguageLevelId(newInterestLanguageLevelId);
         }
-
-        //사용자 관심사 태그 수정(기존 태그삭제 후 새로운 태그 저장)
-        userTagRepository.deleteAllByUserId(userId);
-        userTagRepository.flush();
-        List<Integer> tags = requestUpdateUserInfoDto.getInterests();
-        List<UserTag> userTags = tags.stream()
-                .map(tagId -> new UserTag(null, user, new Tag(tagId, null)))
-                .toList();
-        userTagRepository.saveAll(userTags);
-
     }
-
     private UserLanguageLevel isExistUserLanguageLevel(Set<UserLanguageLevel> originUserLanguageLevelSet, String languageId) {
         return originUserLanguageLevelSet.stream()
                 .filter(userLanguageLevel -> userLanguageLevel.getLanguageId().equals(languageId))
                 .findFirst()
                 .orElse(null);
     }
+
+    private void updateUserTags(RequestUpdateUserInfoDto requestUpdateUserInfoDto, User user) {
+        userTagRepository.deleteAllByUserId(user.getId());
+        userTagRepository.flush();
+        List<Integer> tags = requestUpdateUserInfoDto.getInterests();
+        List<UserTag> userTags = tags.stream()
+                .map(tagId -> new UserTag(null, user, new Tag(tagId, null)))
+                .toList();
+        userTagRepository.saveAll(userTags);
+    }
+
 
     /**
      * 유저 관심사ID 리스트 조회

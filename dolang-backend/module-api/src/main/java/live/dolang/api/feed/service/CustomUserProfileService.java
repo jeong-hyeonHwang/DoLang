@@ -1,5 +1,5 @@
 package live.dolang.api.feed.service;
 
 public interface CustomUserProfileService {
-    boolean isNativeFeed(Integer userId, Integer feedId);
+    boolean isUserNativeLanguage(Integer userId, String languageId);
 }

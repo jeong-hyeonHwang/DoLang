@@ -6,6 +6,8 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -21,7 +23,7 @@ public class SchedulerConfig {
     private final Job redisHeartToDatabaseJob;
     private final Job updateDateSentence;
 
-    @Scheduled(cron = "0 */5 * * * ?") // 5분마다 실행
+    @Scheduled(cron = "0 */1 * * * ?") // 1분마다 실행
     public void runBatchJob() {
         try {
             // Bookmark 배치 작업 실행
@@ -48,4 +50,10 @@ public class SchedulerConfig {
             log.error(e.getMessage());
         }
     }
+
+    @Bean
+    public static BeanDefinitionRegistryPostProcessor jobRegistryBeanPostProcessorRemover() {
+        return registry -> registry.removeBeanDefinition("jobRegistryBeanPostProcessor");
+    }
+
 }

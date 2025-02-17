@@ -52,8 +52,8 @@ const LanguagePicker = React.forwardRef<HTMLDivElement, LanguagePickerProps>(({ 
         ),
         title: label,
       }))}
-      value={selectedLanguage}
-      onChange={handleChange}
+      value={value}
+      onChange={onChange}
       dropdownRender={(menu) => (
         <div>
           {menu}

@@ -9,6 +9,7 @@ public enum BaseResponseStatus {
     INTERNAL_SERVER_ERROR(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "서버 에러"),
     NOT_FOUND(false, HttpStatus.NOT_FOUND.value(), "존재하지 않는 페이지입니다."),
     BODY_PARSE_ERROR(false, HttpStatus.BAD_REQUEST.value(), "본문 데이터를 읽는데 실패하였습니다. 본문을 올바르게 작성했는지 확인해주세요."),
+    INVALID_REQUEST(false, HttpStatus.BAD_REQUEST.value(), "잘못된 요청입니다."),
     INVALID_PARAMETER(false, HttpStatus.BAD_REQUEST.value(), "잘못된 파라미터가 전달되었습니다."),
     INPUT_PARSE_ERROR(false, HttpStatus.BAD_REQUEST.value(), "입력된 데이터가 잘못되었습니다. 입력값을 확인해주세요."),
     RESPONSE_ERROR(false, HttpStatus.NOT_FOUND.value(), "값을 불러오는데 실패하였습니다."),
@@ -52,7 +53,13 @@ public enum BaseResponseStatus {
     /**
      * ChatGPT API 에러
      */
-    CHATGPT_RESPONSE_ERROR(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "ChatGPT의 응답이 잘못되었습니다.")
+    CHATGPT_RESPONSE_ERROR(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "ChatGPT의 응답이 잘못되었습니다."),
+
+    /**
+     * AWS S3 에러
+     */
+    AWS_S3_UPLOAD_FAIL(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "AWS S3에 업로드에 실패했습니다."),
+
     ;
 
     private final boolean isSuccess;

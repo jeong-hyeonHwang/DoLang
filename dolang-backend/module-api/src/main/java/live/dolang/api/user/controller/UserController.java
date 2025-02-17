@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -64,7 +65,7 @@ public class UserController {
     )
     @PutMapping()
     public BaseResponse<BaseResponseStatus> updateUserInfo(@AuthenticationPrincipal Jwt jwt,
-                                                           @RequestBody RequestUpdateUserInfoDto requestUpdateUserInfoDto) {
+                                                           @ModelAttribute RequestUpdateUserInfoDto requestUpdateUserInfoDto) {
         int userId = Integer.parseInt(jwt.getId());
         userService.updateUserInfo(userId, requestUpdateUserInfoDto);
         return BaseResponse.ok(BaseResponseStatus.SUCCESS);
