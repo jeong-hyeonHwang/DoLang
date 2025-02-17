@@ -1,0 +1,176 @@
+import { useState, useEffect } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { useRecoilState } from 'recoil';
+import { userState } from '../../../features/Auth/userState';
+import styled from '@emotion/styled';
+import CountryPicker from '../../../shared/components/Picker/CountryPicker';
+import LanguagePicker from '../../../shared/components/Picker/LanguagePicker';
+import ProficiencyLevelPicker from '../../../shared/components/Picker/ProficiencyLevelPicker';
+import TagInput from '../../../shared/components/Tag/TagInput';
+import { userPut } from '../../../api/utils/user_put';
+import languages from '../../../shared/components/Picker/languages.json';
+import countries from '../../../shared/components/Picker/countries.json';
+import proficiencyLevel from '../../../shared/components/Picker/proficiencyLevel.json';
+import Cookies from 'js-cookie';
+
+type Interest = {
+  tagId?: number;
+  name?: string;
+};
+
+export interface UserProfileData {
+  nickname: string;
+  nationality: string;
+  nativeLanguage: string;
+  targetLanguage: string;
+  proficiencyLevel: string;
+  interests: Interest[];
+  profileImageUrl?: string;
+  profileImage?: File | undefined;
+}
+
+const PageContainer = styled.div`
+  background-color: #ffffff;
+  max-width: 800px;
+  min-width: 700px;
+  margin: 2rem auto;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+`;
+
+// 기타 스타일 설정 코드들 생략
+
+function UserProfile() {
+  const [user, setUser] = useRecoilState(userState);
+  const [loading, setLoading] = useState(true);
+  const [profileImageUrl, setProfileImageUrl] = useState<string>('default-user.png');
+  const [profileImage, setProfileImage] = useState<File | undefined>();
+
+  useEffect(() => {
+    const storedUser = sessionStorage.getItem('user');
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      setUser(parsedUser);
+    }
+    setLoading(false);
+  }, [setUser]);
+
+  const {
+    register,
+    handleSubmit,
+    control,
+    setValue,
+    watch,
+    formState: { errors },
+    reset,
+  } = useForm<UserProfileData>({
+    defaultValues: user || {
+      nickname: '',
+      nationality: '',
+      nativeLanguage: '',
+      targetLanguage: '',
+      proficiencyLevel: '',
+      interests: [],
+      profileImageUrl: 'default-user.png',
+      profileImage: '',
+    },
+  });
+
+  useEffect(() => {
+    if (user) {
+      reset({
+        nickname: user.nickname ?? '',
+        nationality: user.nationality ?? '',
+        nativeLanguage: user.nativeLanguage ?? '',
+        targetLanguage: user.targetLanguage ?? '',
+        proficiencyLevel: user.proficiencyLevel ?? '',
+        interests: user.interests ?? [],
+        profileImageUrl: user.profileImageUrl ?? 'default-user.png',
+        profileImage: user.profileImage || '',
+      });
+      setProfileImageUrl(user.profileImageUrl ?? 'default-user.png');
+    }
+  }, [user, reset]);
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setProfileImage(file); // 프로필 이미지 파일을 업데이트합니다.
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileImageUrl(reader.result as string); // 파일을 미리 보여주기 위한 URL로 설정
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const onSubmit = async (data: UserProfileData) => {
+    setLoading(true);
+    try {
+      const formattedInterest = {
+        ...data,
+        interests: data.interests.map((value) => value.tagId),
+      };
+
+      if ((data.nativeLanguage ?? user?.nativeLanguage) === (data.targetLanguage ?? user?.targetLanguage)) {
+        alert('모국어와 관심언어 설정을 다르게 해주세요.');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('nickname', data.nickname);
+      formData.append('nationality', data.nationality);
+      formData.append('nativeLanguage', data.nativeLanguage);
+      formData.append('targetLanguage', data.targetLanguage);
+      formData.append('proficiencyLevel', data.proficiencyLevel);
+      formData.append('interests', JSON.stringify(formattedInterest.interests));
+
+      // profileImage가 있을 경우, 해당 파일을 formData에 추가합니다.
+      if (profileImage) {
+        formData.append('profileImage', profileImage);
+      } else {
+        formData.append('profileImageUrl', profileImageUrl); // 파일이 없다면 기존 URL을 사용
+      }
+
+      const accessToken = Cookies.get('access_token');
+      const res = await userPut(formattedInterest, accessToken);
+
+      if (res.code === 200) {
+        alert('프로필이 성공적으로 업데이트되었습니다.');
+        setUser(data);
+        sessionStorage.setItem('user', JSON.stringify(data));
+      } else {
+        throw new Error('업데이트에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('프로필 업데이트 중 오류 발생: ', error);
+      alert('업데이트에 실패했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <PageContainer>
+      <Title>사용자 프로필</Title>
+      <Form>
+        <ProfileImageContainer>
+          <ProfileImage src={profileImage ? URL.createObjectURL(profileImage) : profileImageUrl} alt="Profile" />
+          <ImageUploadButton>
+            프로필 사진 변경
+            <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImageUpload} />
+          </ImageUploadButton>
+        </ProfileImageContainer>
+
+        {/* 폼 필드들 (닉네임, 국적, 언어 등) 생략 */}
+
+        <SubmitButton type="submit" disabled={watch('interests')?.length < 3} onClick={handleFormSubmit}>
+          프로필 업데이트
+        </SubmitButton>
+      </Form>
+    </PageContainer>
+  );
+}
+
+export default UserProfile;

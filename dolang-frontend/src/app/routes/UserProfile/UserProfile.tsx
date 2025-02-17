@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { useRecoilState } from 'recoil';
@@ -26,24 +27,25 @@ export interface UserProfileData {
   proficiencyLevel: string;
   interests: Interest[];
   profileImageUrl?: string;
+  profileImage?: File | null;
 }
 
-const getLanguageLabel = (code: string) => {
-  const language = languages.find((lang) => lang.value === code);
-  return language ? language.label : '알 수 없음';
-};
-const getFlagEmoji = (code: string) => {
-  const language = languages.find((lang) => lang.value === code);
-  return language ? `🇨🇭` : '';
-};
-const getProficiencyLabel = (code: string) => {
-  const proficiency = proficiencyLevel.find((level) => level.value === code);
-  return proficiency ? proficiency.label : '알 수 없음';
-};
-const getCountryLabel = (code: string) => {
-  const country = countries.find((coun) => coun.value === code);
-  return country ? country.label : '알 수 없음';
-};
+// const getLanguageLabel = (code: string) => {
+//   const language = languages.find((lang) => lang.value === code);
+//   return language ? language.label : '알 수 없음';
+// };
+// const getFlagEmoji = (code: string) => {
+//   const language = languages.find((lang) => lang.value === code);
+//   return language ? `🇨🇭` : '';
+// };
+// const getProficiencyLabel = (code: string) => {
+//   const proficiency = proficiencyLevel.find((level) => level.value === code);
+//   return proficiency ? proficiency.label : '알 수 없음';
+// };
+// const getCountryLabel = (code: string) => {
+//   const country = countries.find((coun) => coun.value === code);
+//   return country ? country.label : '알 수 없음';
+// };
 
 const PageContainer = styled.div`
   background-color: #ffffff;
@@ -174,6 +176,7 @@ function UserProfile() {
   const [user, setUser] = useRecoilState(userState);
   const [loading, setLoading] = useState(true);
   const [profileImageUrl, setProfileImageUrl] = useState<string>('default-user.png');
+  const [profileImage, setProfileImage] = useState<File | null>(null);
 
   useEffect(() => {
     const storedUser = sessionStorage.getItem('user');
@@ -201,6 +204,7 @@ function UserProfile() {
       proficiencyLevel: '',
       interests: [],
       profileImageUrl: 'default-user.png',
+      profileImage: '',
     },
   });
 
@@ -214,6 +218,7 @@ function UserProfile() {
         proficiencyLevel: user.proficiencyLevel ?? '',
         interests: user.interests ?? [],
         profileImageUrl: user.profileImageUrl ?? 'default-user.png',
+        profileImage: user.profileImage || null,
       });
       setProfileImageUrl(user.profileImageUrl ?? 'default-user.png');
     }
@@ -221,17 +226,9 @@ function UserProfile() {
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfileImageUrl(reader.result as string);
-        // const base64String = reader.result as string;
-        // setProfileImageUrl(base64String);
-        // setValue('profileImageUrl', base64String);
-      };
-      reader.readAsDataURL(file);
 
-      // setValue('profileImageUrl', file);
+    if (file) {
+      setProfileImage(file);
     }
   };
 
@@ -255,34 +252,40 @@ function UserProfile() {
         return;
       }
 
-      // const formData = new FormData();
-      // formData.append('nickname', data.nickname);
-      // formData.append('nationality', data.nationality);
-      // formData.append('nativeLanguage', data.nativeLanguage);
-      // formData.append('targetLanguage', data.targetLanguage);
-      // formData.append('proficiencyLevel', data.proficiencyLevel);
-      // formData.append('nationality', data.nationality);
-      // formData.append('interests', JSON.stringify(formattedInterest.interests));
+      const formData = new FormData();
+      formData.append('nickname', data.nickname);
+      formData.append('nationality', data.nationality);
+      formData.append('nativeLanguage', data.nativeLanguage);
+      formData.append('targetLanguage', data.targetLanguage);
+      formData.append('proficiencyLevel', data.proficiencyLevel);
+      formData.append('profileImageUrl', 'default-user.png');
+      formData.append('interests', JSON.stringify(formattedInterest.interests));
 
-      // if (profileImageUrl !== 'default-user.png') {
-      //   formData.append('profileImageUrl', profileImageUrl);
-      // }
+      if (profileImage) {
+        formData.append('profileImage', profileImage);
+      }
 
-      // const userData: UserProfileData = {
-      //   nickname: data.nickname,
-      //   nationality: data.nationality,
-      //   nativeLanguage: data.nativeLanguage,
-      //   targetLanguage: data.targetLanguage,
-      //   proficiencyLevel: data.proficiencyLevel,
-      //   interests: formattedInterest.interests,
-      //   profileImageUrl: profileImageUrl !== 'default-user.png' ? profileImageUrl : '',
-      // };
+      for (let [key, value] of formData.entries()) {
+        console.log(key, value);
+      }
 
-      console.log('formatttt', formattedInterest);
-      // console.log('formmm', userData);
+      const userPutData: UserProfileData = {
+        nickname: data.nickname,
+        nationality: data.nationality,
+        nativeLanguage: data.nativeLanguage,
+        targetLanguage: data.targetLanguage,
+        proficiencyLevel: data.proficiencyLevel,
+        interests: formattedInterest.interests,
+        // interests: data.interests,
+        profileImageUrl: 'default-user.png',
+        profileImage: profileImage || null,
+      };
 
-      const res = await userPut(formattedInterest, accessToken);
-      // const res = await userPut(userData, accessToken);
+      // console.log('formatttt', formattedInterest);
+      console.log('formmm', userPutData);
+
+      // const res = await userPut(formattedInterest, accessToken);
+      const res = await userPut(formData, accessToken);
       if (res.code === 200) {
         alert('프로필이 성공적으로 업데이트되었습니다.');
         setUser(data);
@@ -303,7 +306,7 @@ function UserProfile() {
       <Title>사용자 프로필</Title>
       <Form>
         <ProfileImageContainer>
-          <ProfileImage src={profileImageUrl} alt="Profile" />
+          <ProfileImage src={profileImage ? URL.createObjectURL(profileImage) : 'default-user.png'} alt="Profile" />
           <ImageUploadButton>
             프로필 사진 변경
             <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImageUpload} />

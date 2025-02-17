@@ -292,7 +292,13 @@ export const NavBarContainer = () => {
         ) : (
           <div
             css={nameCardContainerStyle}
-            style={{ display: 'flex', justifyContent: 'space-evenly', marginTop: '2.2rem', marginBottom: '1rem' }}
+            style={{
+              display: 'flex',
+              justifyContent: 'space-evenly',
+              gap: '15px',
+              marginTop: '2.2rem',
+              marginBottom: '1rem',
+            }}
           >
             <Link to="oauth2/code">
               <button
@@ -333,9 +339,7 @@ export const NavBarContainer = () => {
         <NavLinks linkItems={BottomLinkItems} customLinkStyle={bottomLinkStyle} />
       </div>
 
-      <div css={bottomSectionStyle}>
-        {isLoggedIn && user ? <GoogleLogout /> : null}
-      </div>
+      <div css={bottomSectionStyle}>{isLoggedIn && user ? <GoogleLogout /> : null}</div>
     </div>
   );
 };
