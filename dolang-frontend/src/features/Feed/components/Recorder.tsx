@@ -3,13 +3,14 @@ import { Mic, StopCircle, Upload, Volume1 } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import WaveSurfer from 'wavesurfer.js';
 import RecordPlugin from 'wavesurfer.js/dist/plugins/record.esm.js';
+import { postFeedVoiceUpload } from '../services/feedService';
 
 interface RecorderProps {
   maxDuration?: number; // 최대 녹음 시간 (초)
   onRecordingComplete?: (blob: Blob) => void;
   onRecordingStart?: () => void;
   onRecordingStop?: () => void;
-  onSubmit?: (blob: Blob) => void;
+  feedId: number;
 }
 
 const Recorder: React.FC<RecorderProps> = ({
@@ -17,7 +18,7 @@ const Recorder: React.FC<RecorderProps> = ({
   onRecordingComplete,
   onRecordingStart,
   onRecordingStop,
-  onSubmit,
+  feedId,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const recordingsRef = useRef<HTMLDivElement>(null);
@@ -184,8 +185,12 @@ const Recorder: React.FC<RecorderProps> = ({
   };
 
   const handleSubmit = () => {
-    if (recordedBlob && onSubmit) {
-      onSubmit(recordedBlob);
+    if (recordedBlob) {
+      console.log('recordedBlob', recordedBlob);
+      postFeedVoiceUpload({
+        feedId: feedId,
+        file: recordedBlob,
+      });
     }
   };
 

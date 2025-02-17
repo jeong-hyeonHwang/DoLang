@@ -113,7 +113,7 @@ const FeedView = () => {
           <p>{feedData.result?.feed.sentenceInfo.sentence}</p>
         </div>
 
-        <Recorder />
+        <Recorder feedId={feedData.result?.feed.feedId} />
         <FeedList feedId={feedData.result?.feed.feedId} />
       </div>
     </div>

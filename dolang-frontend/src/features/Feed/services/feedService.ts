@@ -1,6 +1,6 @@
 import { FeedParticipantsRequest, FeedParticipantsResponse, FeedSentenceRequest, FeedSentenceResponse } from '../types';
 import { apiInstance } from '@/api/utils/instance';
-
+import { FeedVoiceUploadRequest } from '../types/FeedVoiceUploadRequest.type';
 // 오늘의 피드 요청
 export const getFeed = async (params: FeedSentenceRequest): Promise<FeedSentenceResponse> => {
   try {
