@@ -109,6 +109,7 @@ public class CustomUserService {
         UserProfile originProfile = user.getUserProfile();
 
         UserProfile newProfile = requestUpdateUserInfoDto.toUserProfileEntity(userId);
+
         //사용자 이미지 추가
         if(!image.isEmpty()) { //사용자가 이미지를 추가했다면
             // TODO:기존이미지가 있고, 수정되었다면, 기존이미지 S3에서 삭제해야함
