@@ -2,9 +2,7 @@ package live.dolang.api.common.config;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.JobParametersBuilder;
+import org.springframework.batch.core.*;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.context.annotation.Bean;
@@ -22,6 +20,7 @@ public class SchedulerConfig {
     private final Job redisBookmarkToDatabaseJob;
     private final Job redisHeartToDatabaseJob;
     private final Job updateDateSentence;
+    private final Job updateDate;
 
     @Scheduled(cron = "0 */1 * * * ?") // 1분마다 실행
     public void runBatchJob() {
@@ -43,11 +42,21 @@ public class SchedulerConfig {
     @Scheduled(cron = "0 0 0 * * ?") // 매일 00:00에 실행
     public void runUpdateDateSentence() {
         try {
-            log.info("스케줄러 실행==============");
-            jobLauncher.run(updateDateSentence, new JobParameters());
-        }
-        catch (Exception e) {
-            log.error(e.getMessage());
+            log.info("스케줄러 실행 시작==============");
+            // 첫 번째 Job 실행
+            JobExecution updateDateExecution = jobLauncher.run(updateDate, new JobParameters());
+            if (updateDateExecution.getStatus() == BatchStatus.COMPLETED) {
+                // 두 번째 Job 실행
+                JobExecution updateDateSentenceExecution = jobLauncher.run(updateDateSentence, new JobParameters());
+                if (updateDateSentenceExecution.getStatus() != BatchStatus.COMPLETED) {
+                    log.error("updateDateSentence 실패");
+                }
+            } else {
+                log.error("updateDate 실패 -> updateDateSentence 실행 불가");
+            }
+
+        } catch (Exception e) {
+            log.error("Batch 실행 중 예외 발생: {}", e.getMessage(), e);
         }
     }
 
