@@ -23,8 +23,8 @@ const PlayButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   transition: all 0.2s ease;
 
@@ -57,7 +57,7 @@ const ProgressBar = styled.div<{ progress: number }>`
   pointer-events: none;
 `;
 
-export default function AudioPlayer({ url, onPlay, onPause, playing }: AudioPlayerProps) {
+export default function MyAudioPlayer({ url, onPlay, onPause, playing }: AudioPlayerProps) {
   const [progress, setProgress] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -106,7 +106,7 @@ export default function AudioPlayer({ url, onPlay, onPause, playing }: AudioPlay
 
   return (
     <PlayerContainer>
-      <PlayButton onClick={togglePlay}>{playing ? <Pause size={24} /> : <Play size={24} />}</PlayButton>
+      <PlayButton onClick={togglePlay}>{playing ? <Pause size={30} /> : <Play size={30} />}</PlayButton>
       <WaveformContainer>
         <WaveformCanvas ref={canvasRef} />
         <ProgressBar progress={progress} />

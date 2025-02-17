@@ -52,7 +52,7 @@ const PageContainer = styled.div`
   margin: 2rem auto;
   padding: 2rem;
   border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
 `;
 
 const Title = styled.h2`
@@ -67,6 +67,7 @@ const Form = styled.form`
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  padding: 20px;
 `;
 
 const FormGroup = styled.div`
@@ -79,13 +80,15 @@ const FormItem = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  /* align-items: center; */
 `;
 
 const RowContainer = styled.div`
   display: flex;
   gap: 1rem;
   width: 100%;
+  justify-content: space-between;
+  padding: 10px;
 `;
 
 const Label = styled.label`
@@ -93,6 +96,7 @@ const Label = styled.label`
   font-size: 16px;
   color: #495057;
   text-align: left;
+  margin-bottom: 10px;
 `;
 
 const Input = styled.input`
@@ -128,6 +132,13 @@ const SubmitButton = styled.button`
   &:hover {
     background-color: #43a047;
   }
+  &:disabled {
+    background-color: #5f5f5f;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+  }
 `;
 
 const ProfileImageContainer = styled.div`
@@ -162,7 +173,7 @@ const ImageUploadButton = styled.label`
 function UserProfile() {
   const [user, setUser] = useRecoilState(userState);
   const [loading, setLoading] = useState(true);
-  const [profileImageUrl, setProfileImageUrl] = useState<string>('/placeholder.svg');
+  const [profileImageUrl, setProfileImageUrl] = useState<string>('default-user.png');
 
   useEffect(() => {
     const storedUser = sessionStorage.getItem('user');
@@ -178,6 +189,7 @@ function UserProfile() {
     handleSubmit,
     control,
     setValue,
+    watch,
     formState: { errors },
     reset,
   } = useForm<UserProfileData>({
@@ -188,7 +200,7 @@ function UserProfile() {
       targetLanguage: '',
       proficiencyLevel: '',
       interests: [],
-      profileImageUrl: '/placeholder.svg',
+      profileImageUrl: 'default-user.png',
     },
   });
 
@@ -201,9 +213,9 @@ function UserProfile() {
         targetLanguage: user.targetLanguage ?? '',
         proficiencyLevel: user.proficiencyLevel ?? '',
         interests: user.interests ?? [],
-        profileImageUrl: user.profileImageUrl ?? '',
+        profileImageUrl: user.profileImageUrl ?? 'default-user.png',
       });
-      setProfileImageUrl(user.profileImageUrl ?? '');
+      setProfileImageUrl(user.profileImageUrl ?? 'default-user.png');
     }
   }, [user, reset]);
 
@@ -213,8 +225,13 @@ function UserProfile() {
       const reader = new FileReader();
       reader.onloadend = () => {
         setProfileImageUrl(reader.result as string);
+        // const base64String = reader.result as string;
+        // setProfileImageUrl(base64String);
+        // setValue('profileImageUrl', base64String);
       };
       reader.readAsDataURL(file);
+
+      // setValue('profileImageUrl', file);
     }
   };
 
@@ -228,19 +245,44 @@ function UserProfile() {
   const onSubmit = async (data: UserProfileData) => {
     setLoading(true);
     try {
-      const formattedData = {
-        ...data,
-        interests: data.interests.map((item) => ({
-          tagId: item.tagId,
-          name: typeof item.name === 'string' ? item.name : item.name?.name || '',
-        })),
-      };
-      const formattedInter = {
+      const formattedInterest = {
         ...data,
         interests: data.interests.map((value) => value.tagId),
       };
 
-      const res = await userPut(formattedInter, accessToken);
+      if ((data.nativeLanguage ?? user?.nativeLanguage) === (data.targetLanguage ?? user?.targetLanguage)) {
+        alert('모국어와 관심언어 설정을 다르게 해주세요.');
+        return;
+      }
+
+      // const formData = new FormData();
+      // formData.append('nickname', data.nickname);
+      // formData.append('nationality', data.nationality);
+      // formData.append('nativeLanguage', data.nativeLanguage);
+      // formData.append('targetLanguage', data.targetLanguage);
+      // formData.append('proficiencyLevel', data.proficiencyLevel);
+      // formData.append('nationality', data.nationality);
+      // formData.append('interests', JSON.stringify(formattedInterest.interests));
+
+      // if (profileImageUrl !== 'default-user.png') {
+      //   formData.append('profileImageUrl', profileImageUrl);
+      // }
+
+      // const userData: UserProfileData = {
+      //   nickname: data.nickname,
+      //   nationality: data.nationality,
+      //   nativeLanguage: data.nativeLanguage,
+      //   targetLanguage: data.targetLanguage,
+      //   proficiencyLevel: data.proficiencyLevel,
+      //   interests: formattedInterest.interests,
+      //   profileImageUrl: profileImageUrl !== 'default-user.png' ? profileImageUrl : '',
+      // };
+
+      console.log('formatttt', formattedInterest);
+      // console.log('formmm', userData);
+
+      const res = await userPut(formattedInterest, accessToken);
+      // const res = await userPut(userData, accessToken);
       if (res.code === 200) {
         alert('프로필이 성공적으로 업데이트되었습니다.');
         setUser(data);
@@ -282,7 +324,11 @@ function UserProfile() {
                 name="nationality"
                 control={control}
                 rules={{ required: '국적을 선택해주세요.' }}
-                render={({ field }) => <CountryPicker {...field} />}
+                render={({ field }) => {
+                  console.log('fieldValue', field.value);
+                  return <CountryPicker {...field} disabled={true} />;
+                }}
+                // render={({ field }) => <CountryPicker {...field} disabled={true} />}
               />
               {errors.nationality && <ErrorMessage>{errors.nationality.message}</ErrorMessage>}
             </FormItem>
@@ -292,7 +338,7 @@ function UserProfile() {
                 name="nativeLanguage"
                 control={control}
                 rules={{ required: '모국어를 선택해주세요.' }}
-                render={({ field }) => <LanguagePicker {...field} />}
+                render={({ field }) => <LanguagePicker {...field} disabled={true} />}
               />
               {errors.nativeLanguage && <ErrorMessage>{errors.nativeLanguage.message}</ErrorMessage>}
             </FormItem>
@@ -367,7 +413,7 @@ function UserProfile() {
           />
         </FormGroup>
 
-        <SubmitButton type="submit" onClick={handleFormSubmit}>
+        <SubmitButton type="submit" disabled={watch('interests')?.length < 3} onClick={handleFormSubmit}>
           프로필 업데이트
         </SubmitButton>
       </Form>

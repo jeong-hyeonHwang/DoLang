@@ -14,7 +14,6 @@ interface ImportMeta {
 const SERVER_URL = import.meta.env.VITE_USER_SERVER_URL;
 const accessToken = Cookies.get('access_token');
 
-// 유저 데이터를 가져오는 함수
 export const userGet = async (access_token?: string) => {
   const token = access_token || accessToken;
 
@@ -40,9 +39,8 @@ export const userGet = async (access_token?: string) => {
   }
 };
 
-// 유저 데이터를 업데이트하는 함수
 const updateUser = async (data: string, access_token?: string) => {
-  const token = access_token || accessToken; // token을 전달받거나, 쿠키에서 가져옵니다.
+  const token = access_token || accessToken;
 
   try {
     const response = await fetch(`${SERVER_URL}/api/user`, {
@@ -55,7 +53,7 @@ const updateUser = async (data: string, access_token?: string) => {
       body: JSON.stringify(data),
     });
 
-    const responseData = await response.json(); // 응답 데이터를 json 형태로 받습니다.
+    const responseData = await response.json();
 
     if (response.status === 200) {
       return responseData;
@@ -68,14 +66,12 @@ const updateUser = async (data: string, access_token?: string) => {
   }
 };
 
-// `useQuery` 훅을 사용해 유저 정보를 가져오는 함수
 export const useUser = () => {
   return useQuery('user', () => userGet(), {
-    enabled: !!accessToken, // access_token이 있는 경우에만 활성화
+    enabled: !!accessToken,
   });
 };
 
-// `useMutation` 훅을 사용해 유저 정보를 업데이트하는 함수
 export const useUpdateUser = () => {
   return useMutation(updateUser);
 };

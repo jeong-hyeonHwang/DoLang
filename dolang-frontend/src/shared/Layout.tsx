@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { css } from '@emotion/react';
+import styled from '@emotion/styled';
 import { Layout } from 'antd';
 const { Header, Content, Footer } = Layout;
 
@@ -10,14 +12,28 @@ const contentStyle: React.CSSProperties = {
   // marginLeft: '15rem',
   minHeight: '100vh',
   padding: '24px 16px 24px',
-  overflow: 'auto',
   backgroundColor: '#ffffff',
   display: 'flex',
   flexGrow: 1,
   width: '100%',
   flexDirection: 'column',
+  overflow: 'auto',
 };
 
+const scrollStyle = css`
+  ::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    display: none;
+  }
+
+  ::-webkit-scrollbar-track {
+    display: none;
+  }
+`;
 const LayoutDesign: React.FC = () => {
   return (
     <Layout>
@@ -25,13 +41,13 @@ const LayoutDesign: React.FC = () => {
 
       <Layout style={{ marginLeft: '15rem' }}>
         <Header style={{ height: '40px', padding: 0, background: '#f5f5f5' }} />
-        <Content style={contentStyle}>
+        <Content style={contentStyle} css={scrollStyle}>
           <div
             // Content 내부, div 내용물에 대한 style
             style={{
               padding: 10,
               textAlign: 'center',
-              border: '2px solid #f5f5f5', // 내부 content test용
+              // border: '2px solid #f5f5f5', // 내부 content test용
               background: '#ffffff',
               borderRadius: '8px',
               display: 'flex',
