@@ -1,4 +1,4 @@
-import React, { useState, forwardRef } from 'react';
+import React, { useState, forwardRef, useEffect } from 'react';
 import { Select } from 'antd';
 import 'flag-icons/css/flag-icons.min.css';
 import countries from '../Picker/countries.json';
@@ -13,7 +13,20 @@ const CountryPicker: React.FC<CountryPickerProps> = forwardRef(
   ({ value, onChange, disabled }: CountryPickerProps, ref) => {
     const [selectedCountry, setSelectedCountry] = useState<string | null>(value || null);
 
+    const user = sessionStorage.getItem('user');
+    const userNationality = user ? JSON.parse(user).nationality : null;
+
+    useEffect(() => {
+      if (disabled && userNationality) {
+        setSelectedCountry(userNationality);
+      } else {
+        setSelectedCountry(value || null);
+      }
+    }, [value, disabled, userNationality]);
+
     const handleChange = (value: string) => {
+      if (disabled) contry = userNationality;
+
       const selected = countries.find((country) => country.value === value);
       if (selected) {
         setSelectedCountry(selected.value);

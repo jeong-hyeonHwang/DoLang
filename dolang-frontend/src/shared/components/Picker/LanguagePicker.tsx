@@ -12,6 +12,15 @@ interface LanguagePickerProps {
 const LanguagePicker = React.forwardRef<HTMLDivElement, LanguagePickerProps>(({ value, onChange, disabled }, ref) => {
   const [selectedLanguage, setSelectedLanguage] = useState<string | null>(value || null);
 
+  // const user = sessionStorage.getItem('user');
+  // const userProficiencyLevel = user ? JSON.parse(user).proficiencyLevel : null;
+
+  // useEffect(() => {
+  //   if (userProficiencyLevel) {
+  //     setSelectedProficiencyLevel(userProficiencyLevel);
+  //   }
+  // }, [value, userProficiencyLevel]);
+
   const handleChange = (value: string) => {
     const selected = languages.find((lang) => lang.value === value);
     console.log(selected);

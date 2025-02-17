@@ -324,7 +324,10 @@ function UserProfile() {
                 name="nationality"
                 control={control}
                 rules={{ required: '국적을 선택해주세요.' }}
-                render={({ field }) => <CountryPicker {...field} disabled={true} />}
+                render={({ field }) => {
+                  console.log('fieldValue', field.value);
+                  return <CountryPicker {...field} disabled={true} />;
+                }}
                 // render={({ field }) => <CountryPicker {...field} disabled={true} />}
               />
               {errors.nationality && <ErrorMessage>{errors.nationality.message}</ErrorMessage>}

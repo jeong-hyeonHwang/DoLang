@@ -130,48 +130,7 @@ export default function BookmarkDetail() {
         <LanguagePicker />
       </Control>
 
-      <Bookmark>
-        Selected Date: {date}
-        {sampleBookmarkItems.map((item) => (
-          <BookmarkContent key={item.id}>
-            <DateBubble>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="120"
-                height="60"
-                viewBox="0 0 200 100"
-                style={{ filter: 'drop-shadow(3px 3px 5px rgba(0, 0, 0, 0.3))' }}
-              >
-                <path
-                  d="M20 10 H180 A10 10 0 0 1 190 20 V70 A10 10 0 0 1 180 80 H20 A10 10 0 0 1 10 70 V20 A10 10 0 0 1 20 10 Z"
-                  fill="#757575"
-                />
-                <polygon points="170,80 180,50 200,80" fill="#757575" />
-                <DateText x="100" y="53">
-                  {new Date(item.date)
-                    .toLocaleDateString('ko-KR', {
-                      year: 'numeric',
-                      month: '2-digit',
-                      day: '2-digit',
-                    })
-                    .replace(/\./g, '')
-                    .split(' ')
-                    .join('.')}
-                </DateText>
-              </svg>
-            </DateBubble>
-
-            <CardContainer>
-              <CardContent>
-                <TextContent>
-                  <KoreanText>{item.koreanText}</KoreanText>
-                  <EnglishText>{item.englishText}</EnglishText>
-                </TextContent>
-              </CardContent>
-            </CardContainer>
-          </BookmarkContent>
-        ))}
-      </Bookmark>
+      <Bookmark>Selected Date: {date}</Bookmark>
     </Container>
   );
 }
