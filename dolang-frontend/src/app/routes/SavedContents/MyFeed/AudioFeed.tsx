@@ -6,7 +6,6 @@ import { Bookmark, Heart } from 'lucide-react';
 import Waveform from '@/shared/components/waveform/Waveform';
 import { useRecoilState } from 'recoil';
 import { userState } from '@/features/Auth/userState';
-import { postBookmark, postHeart } from '@/features/Feed/services/reactionService';
 import { MyFeed } from '@/features/Feed/types/MyFeedResponse.type';
 import { css } from '@emotion/react';
 import { ClipLoader } from 'react-spinners';
@@ -24,12 +23,6 @@ const Header = styled.div`
   align-items: center;
   gap: 1rem;
   margin-bottom: 32px;
-`;
-
-const Title = styled.h1`
-  font-size: 28px;
-  font-weight: bold;
-  color: #212529;
 `;
 
 const MyFeedList = styled.div`

@@ -20,7 +20,6 @@ import EndCallView from './app/routes/EndCallView.tsx';
 
 import MyFeedView from './app/routes/SavedContents/MyFeed/MyFeedView.tsx';
 import BookmarkView from './app/routes/SavedContents/Bookmark/BookmarkView.tsx';
-import BookMarkDetailView from './app/routes/SavedContents/Bookmark/BookmarkDetailView.tsx';
 import ServiceGuideView from './app/routes/ServiceGuideView.tsx';
 import ProtectedRoute from './app/ProtectedRoute.tsx';
 import VoiceRecordView from './app/routes/SavedContents/VoiceRecord/VoiceRecordView.tsx';
@@ -59,14 +58,6 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <BookmarkView />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="savedContents/bookmark/detail/:date"
-                  element={
-                    <ProtectedRoute>
-                      <BookMarkDetailView />
                     </ProtectedRoute>
                   }
                 />
