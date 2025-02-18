@@ -25,6 +25,7 @@ import ServiceGuideView from './app/routes/ServiceGuideView.tsx';
 import ProtectedRoute from './app/ProtectedRoute.tsx';
 import VoiceRecordView from './app/routes/SavedContents/VoiceRecord/VoiceRecordView.tsx';
 
+import CallLogView from './app/routes/SavedContents/VoiceRecord/CallLogView.tsx';
 import AudioFeed from './app/routes/SavedContents/AudioFeed.tsx';
 
 function App() {
@@ -76,6 +77,14 @@ function App() {
                   path="savedContents/calls"
                   element={
                     <ProtectedRoute>
+                      <CallLogView />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="savedContents/calls/detail"
+                  element={
+                    <ProtectedRoute>
                       <VoiceRecordView />
                     </ProtectedRoute>
                   }
@@ -103,8 +112,6 @@ function App() {
 
               <Route path="/call" element={<VoiceCallView />} />
               <Route path="endCall" element={<EndCallView />} />
-
-              <Route path="/A" element={<AudioFeed />}></Route>
             </Routes>
           </CallContextProvider>
         </StompClientProvider>

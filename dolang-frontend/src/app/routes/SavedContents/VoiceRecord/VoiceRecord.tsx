@@ -1,58 +1,73 @@
 import { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router';
 import styled from '@emotion/styled';
 import { Plus, Edit, MessageSquare, ChevronLeft, ChevronRight } from 'lucide-react';
+
+const UserContent = styled.div`
+  flex: 1;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+`;
+
+const ProfileImage = styled.img`
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #e9ecef;
+`;
+
+const DateContent = styled.div`
+  background-color: #75757545;
+  border-radius: 30px;
+  width: 360px;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  margin-top: -10px;
+  margin-bottom: 30px;
+  padding: 5px;
+`;
+const DateText = styled.text`
+  font-size: 11px;
+`;
+
+const ContentContainer = styled.div`
+  flex: 1;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`;
+
+const UserTextArea = styled.div`
+  flex: 1;
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
+  overflow-y: auto;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  min-width: 530px;
+  min-height: 100px;
+`;
+
+const UserText = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+`;
+
+// ==============================
 
 const Container = styled.div`
   display: flex;
   height: calc(100vh - 60px);
   background-color: #f8f9fa;
-`;
-
-const Sidebar = styled.div`
-  width: 280px;
-  background: white;
-  border-right: 1px solid #e9ecef;
-  padding: 24px;
-  overflow-y: auto;
-`;
-
-const UserList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-`;
-
-const UserItem = styled.div<{ isActive?: boolean }>`
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px;
-  border-radius: 8px;
-  background-color: ${(props) => (props.isActive ? '#e8f5e9' : 'transparent')};
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background-color: ${(props) => (props.isActive ? '#e8f5e9' : '#f1f3f5')};
-  }
-`;
-
-const Avatar = styled.div<{ bgColor?: string }>`
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: ${(props) => props.bgColor || '#e9ecef'};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: bold;
-  font-size: 16px;
-`;
-
-const UserName = styled.span`
-  font-size: 16px;
-  color: #495057;
+  border-radius: 30px;
 `;
 
 const MainContent = styled.div`
@@ -92,14 +107,6 @@ const Button = styled.button`
   }
 `;
 
-const Counter = styled.div`
-  font-size: 16px;
-  color: #868e96;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
 const TextArea = styled.div`
   flex: 1;
   background: white;
@@ -109,6 +116,7 @@ const TextArea = styled.div`
   margin-bottom: 24px;
   overflow-y: auto;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  min-height: 520px;
 `;
 
 const Text = styled.div`
@@ -127,73 +135,129 @@ const TextContent = styled.div`
   line-height: 1.6;
 `;
 
-interface User {
-  id: string;
-  name: string;
-  color: string;
-}
-
-const sampleUsers: User[] = [
-  { id: '1', name: 'Ellen', color: '#4caf50' },
-  { id: '2', name: 'John', color: '#2196f3' },
-  { id: '3', name: 'Sarah', color: '#ff9800' },
-];
-
 export default function VoiceRecorder() {
-  const [activeUser, setActiveUser] = useState<string>('1');
+  const navigate = useNavigate();
+  const handleBack = () => {
+    navigate(`/savedContents/calls`);
+  };
+
+  const location = useLocation();
+  const callInfo = location.state?.callInfo;
+  console.log('log', callInfo);
 
   return (
-    <Container>
-      <Sidebar>
-        <UserList>
-          {sampleUsers.map((user) => (
-            <UserItem key={user.id} isActive={user.id === activeUser} onClick={() => setActiveUser(user.id)}>
-              <Avatar bgColor={user.color}>{user.name[0]}</Avatar>
-              <UserName>{user.name}</UserName>
-            </UserItem>
-          ))}
-          <UserItem>
-            <Avatar>
-              <Plus size={20} />
-            </Avatar>
-            <UserName>Add User</UserName>
-          </UserItem>
-        </UserList>
-      </Sidebar>
+    <>
+      <button
+        onClick={handleBack}
+        style={{
+          width: '150px',
+          backgroundColor: '#ffffff',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '5px',
+          cursor: 'pointer',
+        }}
+      >
+        <ChevronLeft />
+        <span>뒤로가기</span>
+      </button>
+      <UserContent>
+        {
+          <UserTextArea>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+              }}
+            >
+              <DateContent>
+                <span style={{ fontSize: '13px', fontWeight: 'bold' }}>통화시간</span>
+                <span>
+                  <DateText>{callInfo.formattedTime.startedAt}</DateText>
+                  <DateText> ~ </DateText>
+                  <DateText>{callInfo.formattedTime.endedAt}</DateText>
+                  <DateText> | </DateText>
+                  <DateText style={{ fontWeight: 'bold' }}>{callInfo.formattedTime.label} </DateText>
+                </span>
+              </DateContent>
+            </div>
 
-      <MainContent>
-        <Header>
-          <Controls>
-            <Button>
-              <Edit size={16} />
-              수정
-            </Button>
-            <Button>
-              <MessageSquare size={16} />
-              주석
-            </Button>
-          </Controls>
-          <Counter>
-            <ChevronLeft size={20} />
-            <span>10/24</span>
-            <ChevronRight size={20} />
-          </Counter>
-        </Header>
+            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-evenly' }}>
+              <ContentContainer style={{ display: 'flex', justifyContent: 'center', flex: '0.7' }}>
+                <ProfileImage
+                  src={
+                    callInfo.matchedUser.profileImageUrl instanceof File
+                      ? URL.createObjectURL(callInfo.matchedUser.profileImageUrl)
+                      : callInfo.matchedUser.profileImageUrl || 'default-user.png'
+                  }
+                  alt="Profile"
+                />
+              </ContentContainer>
+              <ContentContainer>
+                <UserText style={{ textAlign: 'right', fontWeight: 'bold', flex: '1.3', paddingRight: '10px' }}>
+                  <span>Nickname |</span>
+                  <span>Nationality |</span>
+                  <span>NativeLanguage |</span>
+                  <span>InterestLanguage |</span>
+                </UserText>
+                <UserText style={{ textAlign: 'left' }}>
+                  <span>{callInfo.matchedUser.nickname || 'Unknown'}</span>
+                  <span>
+                    <span
+                      className={`fi fi-${callInfo.formattedMatchedUserInfo.nationality_flag}`}
+                      style={{
+                        border: '0.1px solid #75757560',
+                        boxShadow: '1px 1px 2px rgba(0, 0, 0, 0.5)',
+                        marginRight: '8px',
+                      }}
+                    />
+                    {callInfo.formattedMatchedUserInfo.nationality || 'Unknown'}
+                  </span>
+                  <span>{callInfo.formattedMatchedUserInfo.nativeLanguage || 'Unknown'}</span>
+                  <span>{callInfo.formattedMatchedUserInfo.interestLanguage || 'Unknown'}</span>
+                </UserText>
+              </ContentContainer>
+            </div>
+          </UserTextArea>
+        }
+      </UserContent>
 
-        <TextArea>
-          <Text>
-            <TextLabel>English</TextLabel>
-            <TextContent>
-              The quick brown fox jumps over the lazy dog. This pangram contains every letter of the English alphabet at
-              least once.
-            </TextContent>
-          </Text>
-          <Text>
-            <TextLabel>한국어</TextLabel>
-            <TextContent>다람쥐 헌 쳇바퀴에 타고파. 이 문장은 한글 자음과 모음을 모두 포함하고 있습니다.</TextContent>
-          </Text>
-        </TextArea>
-      </MainContent>
-    </Container>
+      <Container>
+        <MainContent>
+          <Header>
+            <Controls>
+              <Button>
+                <Edit size={16} />
+                수정
+              </Button>
+              <Button>
+                <MessageSquare size={16} />
+                주석
+              </Button>
+            </Controls>
+          </Header>
+
+          <div style={{ display: 'flex', justifyContent: 'space-evenly', gap: '20px' }}>
+            <TextArea>
+              <Text>
+                <TextLabel>English</TextLabel>
+                <TextContent>
+                  The quick brown fox jumps over the lazy dog. This pangram contains every letter of the English
+                  alphabet at least once.
+                </TextContent>
+              </Text>
+            </TextArea>
+            <TextArea>
+              <Text>
+                <TextLabel>한국어</TextLabel>
+                <TextContent>
+                  다람쥐 헌 쳇바퀴에 타고파. 이 문장은 한글 자음과 모음을 모두 포함하고 있습니다.
+                </TextContent>
+              </Text>
+            </TextArea>
+          </div>
+        </MainContent>
+      </Container>
+    </>
   );
 }

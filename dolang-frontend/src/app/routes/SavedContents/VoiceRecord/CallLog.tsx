@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router';
 import styled from '@emotion/styled';
 import { callLogGet } from '@/api/utils/callLog';
 import Cookies from 'js-cookie';
@@ -68,6 +69,10 @@ const TextArea = styled.div`
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   min-width: 530px;
   min-height: 100px;
+
+  &:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
+  }
 `;
 
 const Text = styled.div`
@@ -109,6 +114,14 @@ export default function CallLog() {
   const [totalPages, setTotalPages] = useState<number>(1);
 
   const accessToken = Cookies.get('access_token');
+
+  const navigate = useNavigate();
+
+  const handleNavigate = (callInfo: any) => {
+    navigate(`/savedContents/calls/detail?matchedUser=${callInfo.matchedUser.userId}&callTime=${callInfo.startedAt}`, {
+      state: { callInfo },
+    });
+  };
 
   useEffect(() => {
     const fetchCallLogs = async () => {
@@ -166,7 +179,7 @@ export default function CallLog() {
         {(() => {
           if (callLogs && callLogs.length > 0) {
             return callLogs.map((log, index) => (
-              <TextArea key={index}>
+              <TextArea key={index} onClick={() => handleNavigate(log)} style={{ cursor: 'pointer' }}>
                 <div
                   style={{
                     display: 'flex',

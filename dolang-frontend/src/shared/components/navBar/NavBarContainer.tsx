@@ -249,7 +249,7 @@ const linkItems: LinkItem[] = [
       {
         key: '3-2',
         href: '/savedContents/calls',
-        title: '음성기록',
+        title: '통화 기록',
         icon: <Check style={{ width: '0.9rem', height: '0.9rem' }} />,
       },
       {
