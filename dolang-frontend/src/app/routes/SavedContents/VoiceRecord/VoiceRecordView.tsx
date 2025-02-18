@@ -1,5 +1,17 @@
 import styled from '@emotion/styled';
 import VoiceRecorder from './VoiceRecord';
+import CallLog from './CallLog';
+
+const PageContainer = styled.div`
+  background-color: #fff;
+  max-width: 840px;
+  margin: 0 4rem;
+  display: flex;
+  flex-direction: column;
+  width: 80%;
+  /* min-width: 300px; */
+  /* padding: 0 2rem; */
+`;
 
 const Header = styled.div`
   display: flex;
@@ -19,11 +31,17 @@ const Title = styled.h1`
 function VoiceRecordView() {
   return (
     <>
-      {/* <div>VoiceRecordView</div> */}
-      <Header>
+      <PageContainer>
+        {/* <div>VoiceRecordView</div> */}
+        {/* <Header>
         <Title>음성기록</Title>
       </Header>
-      <VoiceRecorder />
+      <VoiceRecorder /> */}
+        <Header>
+          <Title>통화 기록</Title>
+        </Header>
+        <CallLog />
+      </PageContainer>
     </>
   );
 }

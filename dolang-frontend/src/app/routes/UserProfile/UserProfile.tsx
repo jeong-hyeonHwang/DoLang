@@ -10,9 +10,7 @@ import ProficiencyLevelPicker from '../../../shared/components/Picker/Proficienc
 import TagInput from '../../../shared/components/Tag/TagInput';
 import { userGet } from '@/api/utils/useUser';
 import { userPut } from '../../../api/utils/user_put';
-import languages from '../../../shared/components/Picker/languages.json';
-import countries from '../../../shared/components/Picker/countries.json';
-import proficiencyLevel from '../../../shared/components/Picker/proficiencyLevel.json';
+
 import Cookies from 'js-cookie';
 
 type Interest = {
