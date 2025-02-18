@@ -242,7 +242,7 @@ const Recorder: React.FC<RecorderProps> = ({
 
   return (
     <>
-      {user?.nickname && (
+      {userInfo?.nickname && (
         <div css={recorderContainerStyle}>
           <NameCard
             userImage={userInfo?.profileImageUrl}

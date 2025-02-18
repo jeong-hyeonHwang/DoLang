@@ -357,7 +357,7 @@ function SignupForm() {
             <Controller
               name="interests"
               control={control}
-              rules={{ required: '최소 3개의 관심사를 입력해주세요.' }}
+              // rules={{ required: '최소 3개의 관심사를 입력해주세요.' }}
               render={({ field }) => {
                 // const tagNames = field.value.map((interest: Interest) => interest.name);
                 const names = Array.isArray(field.value)
@@ -369,7 +369,7 @@ function SignupForm() {
                     {...field}
                     value={names}
                     maxTags={10}
-                    minTags={3}
+                    // minTags={3}
                     error={errors.interests?.message}
                     nativeLanguageId={watch('nativeLanguage')}
                     onChange={(tags) => {
@@ -406,15 +406,15 @@ function SignupForm() {
 
           <SubmitButton
             type="submit"
-            disabled={
-              !isValid ||
-              !isNicknameChecked ||
-              !watch('nationality') ||
-              !watch('nativeLanguage') ||
-              !watch('targetLanguage') ||
-              !watch('proficiencyLevel') ||
-              watch('interests')?.length < 3
-            }
+            // disabled={
+            //   !isValid ||
+            //   !isNicknameChecked ||
+            //   !watch('nationality') ||
+            //   !watch('nativeLanguage') ||
+            //   !watch('targetLanguage') ||
+            //   !watch('proficiencyLevel') ||
+            //   watch('interests')?.length < 3
+            // }
           >
             회원가입
           </SubmitButton>
