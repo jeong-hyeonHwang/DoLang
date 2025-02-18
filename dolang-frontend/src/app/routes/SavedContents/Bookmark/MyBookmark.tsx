@@ -1,180 +1,168 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { ClipLoader } from 'react-spinners';
 import styled from '@emotion/styled';
-import { Heart } from 'lucide-react';
-import AudioPlayer from './MyAudioPlayer';
 import LanguagePicker from '@/shared/components/Picker/LanguagePicker';
-import { useNavigate } from 'react-router';
-
-interface BookmarkItem {
-  id: string;
-  date: string;
-  koreanText: string;
-  englishText: string;
-  audioUrl: string;
-  likes: number;
-}
+import { useFeedWithMyReaction } from '@/features/Feed/hooks/useFeed';
+import { MyFeed } from '@/features/Feed/types/MyFeedResponse.type';
+import { css } from '@emotion/react';
 
 const Container = styled.div`
-  max-width: 800px;
   margin: 0 auto;
   padding: 32px;
+  width: 100%;
+  min-width: 30rem;
 `;
 
-const Control = styled.div`
+const Header = styled.div`
   display: flex;
-  justify-content: flex-end;
-  margin-bottom: 40px;
-  margin-top: -10px;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 32px;
 `;
 
-const Bookmark = styled.div`
+const MyFeedList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 24px;
 `;
 
-const BookmarkContent = styled.div`
-  display: flex;
-  gap: 35px;
-  align-items: flex-start;
-`;
-
-const DateBubble = styled.div`
-  position: relative;
-  min-width: 120px;
-`;
-
-const DateText = styled.text`
-  font-family: "'Noto Sans KR', sans-serif";
-  font-size: 26px;
+const DateLabel = styled.div`
+  width: 100%;
+  max-width: 8rem;
+  line-height: 1.6rem;
+  background-color: #757575;
+  color: #fff;
+  border-radius: 2rem 2rem 0 2rem;
+  font-size: 0.8rem;
   font-weight: bold;
-  fill: white;
-  text-anchor: middle;
+  text-align: center;
+  height: 1.6rem;
 `;
 
-const CardContainer = styled.div`
-  background-color: #757575a4;
-  padding: 20px;
-  border-radius: 15px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  &:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
-  }
+const CardWrapper = styled.div`
+  width: 100%;
+  display: flex;
+  flex: 1 1;
+  padding: 1rem;
+  gap: 1rem;
 `;
 
-const CardContent = styled.div`
-  flex: 1;
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 5px 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-`;
-
-const TextContent = styled.div`
+const Text = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  margin: 8px;
+  justify-content: flex-start;
 `;
 
-const KoreanText = styled.p`
-  font-size: 14px;
+const NativeText = styled.p`
+  font-size: 0.8rem;
+  min-height: 0.8rem;
   color: #495057;
-  margin-bottom: 5px;
-  text-align: left;
+  margin-bottom: 8px;
 `;
 
-const EnglishText = styled.p`
-  font-size: 16px;
+const TargetText = styled.b`
+  font-size: 1rem;
+  min-height: 1rem;
   color: #212529;
-  font-weight: 500;
-  text-align: left;
 `;
 
-const sampleBookmarkItems: BookmarkItem[] = [
-  {
-    id: '1',
-    date: '2024-01-16',
-    koreanText: '늘 행복하고 지혜로운 사람이 되려면 자주 변해야 한다.',
-    englishText: 'They must often change who would be constant in happiness or wisdom.',
-    audioUrl: '/audio1.mp3',
-    likes: 23,
-  },
-  {
-    id: '2',
-    date: '2024-01-15',
-    koreanText: '인생에서 가장 큰 영광은 넘어지지 않는 것이 아니라 매번 일어서는 것이다.',
-    englishText: 'The greatest glory in living lies not in never falling, but in rising every time we fall.',
-    audioUrl: '/audio2.mp3',
-    likes: 18,
-  },
-  {
-    id: '3',
-    date: '2024-01-14',
-    koreanText: '인생에서 가장 큰 영광은 넘어지지 않는 것이 아니라 매번 일어서는 것이다.',
-    englishText: 'The greatest glory in living lies not in never falling, but in rising every time we fall.',
-    audioUrl: '/audio2.mp3',
-    likes: 18,
-  },
-];
+const LikeButton = styled.div<{ isLiked: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: absolute;
+  right: 0;
+  top: 0;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 20px;
+  transition: all 0.2s ease;
+  svg {
+    fill: ${(props) => (props.isLiked ? '#e03131' : 'none')};
+  }
+`;
+
+const BookmarkButton = styled.div<{ isBookmarked: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: absolute;
+  right: 0;
+  top: 0;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 20px;
+  transition: all 0.2s ease;
+  svg {
+    fill: ${(props) => (props.isBookmarked ? '#00c659' : 'none')};
+  }
+`;
+
+const WaveformContainer = styled.div`
+  align-self: flex-end;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  padding: 8px;
+`;
+
+const feedSentenceSectionStyle = css`
+  background-color: #d1d1d1;
+  padding: 1rem;
+  display: flex;
+  flex: 1 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 1rem;
+  gap: 1rem;
+`;
 
 export default function MyBookmark() {
-  const [likedItems, setLikedItems] = useState<Set<string>>(new Set());
-  const [playingId, setPlayingId] = useState<string | null>(null);
+  const [currentLanguage, setCurrentLanguage] = useState<string>('ko');
+  const [isUnfold, setIsUnfold] = useState<boolean>(false);
+  const { data: bookmarkList, isLoading, error } = useFeedWithMyReaction({ lang: currentLanguage as 'ko' | 'en' });
+  useEffect(() => {
+    console.log(bookmarkList);
+  }, [bookmarkList]);
 
-  const navigate = useNavigate();
-
-  const handleNavigate = (date: string) => {
-    navigate(`/savedContents/bookmark/detail/${date}`);
-  };
+  if (isLoading)
+    return (
+      <div>
+        <ClipLoader color="#000" size={40} />
+        <p>피드를 불러오는 중입니다...</p>
+      </div>
+    );
+  if (error) return <div>데이터를 불러오는 중 오류가 발생했습니다.</div>;
+  if (bookmarkList?.result.content.length === 0) return <div>북마크한 피드가 없습니다. 피드를 북마크해보세요!</div>;
 
   return (
     <Container>
-      <Control>
-        <LanguagePicker />
-      </Control>
+      <Header>
+        <LanguagePicker value={currentLanguage} onChange={setCurrentLanguage} />
+      </Header>
 
-      <Bookmark>
-        {sampleBookmarkItems.map((item) => (
-          <BookmarkContent key={item.id}>
-            <DateBubble>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="120"
-                height="60"
-                viewBox="0 0 200 100"
-                style={{ filter: 'drop-shadow(3px 3px 5px rgba(0, 0, 0, 0.3))' }}
-              >
-                <path
-                  d="M20 10 H180 A10 10 0 0 1 190 20 V70 A10 10 0 0 1 180 80 H20 A10 10 0 0 1 10 70 V20 A10 10 0 0 1 20 10 Z"
-                  fill="#757575"
-                />
-                <polygon points="170,80 180,50 200,80" fill="#757575" />
-                <DateText x="100" y="53">
-                  {new Date(item.date)
-                    .toLocaleDateString('ko-KR', {
-                      year: 'numeric',
-                      month: '2-digit',
-                      day: '2-digit',
-                    })
-                    .replace(/\./g, '')
-                    .split(' ')
-                    .join('.')}
-                </DateText>
-              </svg>
-            </DateBubble>
-
-            <CardContainer>
-              <CardContent onClick={() => handleNavigate(item.date)} style={{ cursor: 'pointer' }}>
-                <TextContent>
-                  <KoreanText>{item.koreanText}</KoreanText>
-                  <EnglishText>{item.englishText}</EnglishText>
-                </TextContent>
-              </CardContent>
-            </CardContainer>
-          </BookmarkContent>
+      <MyFeedList>
+        {bookmarkList?.result?.content?.map((item) => (
+          <CardWrapper key={item.feedId}>
+            <DateLabel>{new Date(item.date).toLocaleDateString()}</DateLabel>
+            <MyFeedSentence item={item} />
+          </CardWrapper>
         ))}
-      </Bookmark>
+      </MyFeedList>
     </Container>
   );
 }
+
+export const MyFeedSentence = ({ item }: { item: MyFeed }) => {
+  return (
+    <div className="feed-sentence-section" css={feedSentenceSectionStyle}>
+      <TargetText>{item.targetSentence}</TargetText>
+      <NativeText>{item.nativeSentence}</NativeText>
+    </div>
+  );
+};
