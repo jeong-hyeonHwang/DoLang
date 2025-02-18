@@ -1,6 +1,5 @@
 export interface Interest {
   tagId?: number;
-  // nativeLanguageId: string;
   name?: string;
 }
 

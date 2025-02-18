@@ -269,9 +269,7 @@ export const NavBarContainer = () => {
   const auth = useRecoilState(authState);
   const isLoggedIn = JSON.parse(sessionStorage.getItem('isLoggedIn') || 'false');
   const user = JSON.parse(sessionStorage.getItem('user') || 'false');
-  // console.log('login: ', auth);
   const { data: userInfo, isLoading } = useUserQuery();
-  console.log(user);
 
   return (
     <div css={sidebarStyle}>

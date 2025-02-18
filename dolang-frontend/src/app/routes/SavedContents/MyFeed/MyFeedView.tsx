@@ -3,7 +3,7 @@ import { css } from '@emotion/react';
 import styled from '@emotion/styled';
 
 import MyAudioPlayer from './MyAudioPlayer';
-import MyAudioFeed from './MyFeed';
+import MyAudioFeed from './MyAudioFeed';
 import { Flex } from 'antd';
 
 const PageContainer = styled.div`
