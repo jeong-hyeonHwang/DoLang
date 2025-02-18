@@ -28,6 +28,8 @@
     "antd": "^5.23.2",
     "axios": "^1.7.9",
     "cookies": "^0.9.1",
+    "date-fns": "^4.1.0",
+    "date-fns-tz": "^3.2.0",
     "flag-icons": "^7.3.2",
     "framer-motion": "^12.4.2",
     "jest-fixed-jsdom": "^0.0.9",

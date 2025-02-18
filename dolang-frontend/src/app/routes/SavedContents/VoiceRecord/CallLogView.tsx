@@ -1,5 +1,4 @@
 import styled from '@emotion/styled';
-import VoiceRecorder from './VoiceRecord';
 import CallLog from './CallLog';
 
 const PageContainer = styled.div`
@@ -28,17 +27,16 @@ const Title = styled.h1`
   color: #212529;
 `;
 
-function VoiceRecordView() {
+function CallLogView() {
   return (
     <>
       <PageContainer>
-        {/* <div>VoiceRecordView</div> */}
         <Header>
-          <Title>음성기록</Title>
+          <Title>통화 기록</Title>
         </Header>
-        <VoiceRecorder />
+        <CallLog />
       </PageContainer>
     </>
   );
 }
-export default VoiceRecordView;
+export default CallLogView;

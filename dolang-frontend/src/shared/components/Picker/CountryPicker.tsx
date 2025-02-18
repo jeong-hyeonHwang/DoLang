@@ -66,4 +66,5 @@ const CountryPicker: React.FC<CountryPickerProps> = forwardRef(
   }
 );
 
+CountryPicker.displayName = 'CountryPicker';
 export default CountryPicker;

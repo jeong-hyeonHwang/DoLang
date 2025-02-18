@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useRecoilState } from 'recoil';
 import { authState } from './authState.ts';
+import { useMutation, useQueryClient } from 'react-query';
 import { userGet } from '../../api/utils/useUser.ts';
 import GoogleAuthModal from './GoogleAuthModal.tsx';
 import Cookies from 'js-cookie';
@@ -24,13 +25,12 @@ const AUTHORIZATION = import.meta.env.VITE_GOOGLE_AUTHORIZATION;
 
 const GoogleLogin = () => {
   const navigate = useNavigate();
-  // const setAuth = useSetRecoilState(authState);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [accessToken, setAccessToken] = useState<string | undefined>(undefined);
   const [auth, setAuth] = useRecoilState(authState);
+  // const queryClient = useQueryClient();
 
   useEffect(() => {
-    console.log('auth: ', auth.user);
     sessionStorage.setItem(
       'user',
       JSON.stringify({ ...auth.user, profileImageUrl: auth.user?.profileImageUrl || '/default-user.png' })

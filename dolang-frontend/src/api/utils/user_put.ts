@@ -2,12 +2,10 @@ import axios from 'axios';
 import { useNavigate } from 'react-router';
 import Cookies from 'js-cookie';
 
-const accessToken = Cookies.get('access_token');
-
 type Interest = {
-  tagId: number;
+  tagId?: number;
   // nativeLanguageId: string;
-  name: string;
+  name?: string;
 };
 
 interface PutData {
@@ -18,6 +16,7 @@ interface PutData {
   proficiencyLevel: string;
   interests: Interest[];
   profileImageUrl?: string;
+  profileImage?: File | null;
 }
 interface ImportMetaEnv {
   readonly VITE_USER_SERVER_URL: string;
@@ -28,19 +27,21 @@ interface ImportMeta {
 }
 
 const SERVER_URL = import.meta.env.VITE_USER_SERVER_URL;
-const token = accessToken;
+const accessToken = Cookies.get('access_token');
 
-export const userPut = async (data: PutData, access_token?: string) => {
+export const userPut = async (data: FormData, access_token?: string) => {
   const token = access_token || accessToken;
   try {
     const response = await fetch(`${SERVER_URL}/api/user`, {
       method: 'PUT',
       headers: {
         accept: '*/*',
-        'Content-Type': 'application/json',
+        // 'Content-Type': 'application/json',
+        // 'Content-Type': 'multipart/form-data',
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(data),
+      // body: JSON.stringify(data),
+      body: data,
     });
 
     if (response.status === 401) {
@@ -55,7 +56,6 @@ export const userPut = async (data: PutData, access_token?: string) => {
       throw new Error(`서버 응답 오류: ${response.status}`);
     }
 
-    // console.log('puttt: ', response);
     const responseData = response.headers.get('content-type')?.includes('application/json')
       ? await response.json()
       : null;
