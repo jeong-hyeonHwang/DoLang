@@ -18,6 +18,8 @@ export const useFeedParticipaticipants = (params: Partial<FeedParticipantsReques
   const { data, isLoading, error } = useQuery({
     queryKey: ['feedParticipants', params],
     queryFn: () => getFeedParticipants({ ...params, length: params.length ?? 10 }),
+    staleTime: 0,
+    notifyOnChangeProps: 'all',
   });
 
   return { data, isLoading, error };
@@ -34,9 +36,9 @@ export const useMyFeed = (params: Partial<MyFeedRequest>) => {
 };
 
 // 내가 반응을 남긴 피드 목록 페칭
-export const useMyFeedWithReaction = (params: Partial<MyFeedRequest>) => {
+export const useFeedWithMyReaction = (params: Partial<MyFeedRequest>) => {
   const { data, isLoading, error } = useQuery({
-    queryKey: ['myFeedWithReaction', params],
+    queryKey: ['feedWithMyReaction', params],
     queryFn: () => getFeedWithMyReaction(params),
   });
 
