@@ -1,17 +1,15 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { ClipLoader } from 'react-spinners';
 import styled from '@emotion/styled';
 import LanguagePicker from '@/shared/components/Picker/LanguagePicker';
-import { useMyFeedWithReaction } from '@/features/Feed/hooks/useFeed';
-import { useRecoilState } from 'recoil';
-import { userState } from '@/features/Auth/userState';
-import { ClipLoader } from 'react-spinners';
-import { FeedSentence } from '@/app/routes/FeedView';
-import FeedList from '@/app/routes/FeedView';
+import { useFeedWithMyReaction } from '@/features/Feed/hooks/useFeed';
+import { MyFeed } from '@/features/Feed/types/MyFeedResponse.type';
+import { css } from '@emotion/react';
 
 const Container = styled.div`
   margin: 0 auto;
   padding: 32px;
-  width: 70%;
+  width: 100%;
   min-width: 30rem;
 `;
 
@@ -30,8 +28,8 @@ const MyFeedList = styled.div`
 `;
 
 const DateLabel = styled.div`
-  width: 6.5rem;
-  max-width: 6.5rem;
+  width: 100%;
+  max-width: 8rem;
   line-height: 1.6rem;
   background-color: #757575;
   color: #fff;
@@ -43,7 +41,9 @@ const DateLabel = styled.div`
 `;
 
 const CardWrapper = styled.div`
+  width: 100%;
   display: flex;
+  flex: 1 1;
   padding: 1rem;
   gap: 1rem;
 `;
@@ -56,8 +56,8 @@ const Text = styled.div`
 `;
 
 const NativeText = styled.p`
-  font-size: 0.5rem;
-  min-height: 0.5rem;
+  font-size: 0.8rem;
+  min-height: 0.8rem;
   color: #495057;
   margin-bottom: 8px;
 `;
@@ -110,12 +110,25 @@ const WaveformContainer = styled.div`
   padding: 8px;
 `;
 
+const feedSentenceSectionStyle = css`
+  background-color: #d1d1d1;
+  padding: 1rem;
+  display: flex;
+  flex: 1 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 1rem;
+  gap: 1rem;
+`;
+
 export default function MyBookmark() {
-  const [currentLanguage, setCurrentLanguage] = useState<string | undefined>(undefined);
-  const [user, setUser] = useRecoilState(userState);
+  const [currentLanguage, setCurrentLanguage] = useState<string>('ko');
   const [isUnfold, setIsUnfold] = useState<boolean>(false);
-  const [feedId, setFeedId] = useState<number | undefined>(undefined);
-  const { data: bookmarkList, isLoading, error } = useMyFeedWithReaction({ lang: currentLanguage as 'ko' | 'en' });
+  const { data: bookmarkList, isLoading, error } = useFeedWithMyReaction({ lang: currentLanguage as 'ko' | 'en' });
+  useEffect(() => {
+    console.log(bookmarkList);
+  }, [bookmarkList]);
 
   if (isLoading)
     return (
@@ -134,18 +147,22 @@ export default function MyBookmark() {
       </Header>
 
       <MyFeedList>
-        <FeedSentence item={bookmarkList?.result.content[0]} />
-        {bookmarkList?.result.content.map((item) => (
-          <div
-            className="feed-container"
-            key={item.feedId}
-            style={{ display: 'flex', flexDirection: 'row', gap: '1rem' }}
-          >
+        {bookmarkList?.result?.content?.map((item) => (
+          <CardWrapper key={item.feedId}>
             <DateLabel>{new Date(item.date).toLocaleDateString()}</DateLabel>
-            {isUnfold && <FeedList item={item} />}
-          </div>
+            <MyFeedSentence item={item} />
+          </CardWrapper>
         ))}
       </MyFeedList>
     </Container>
   );
 }
+
+export const MyFeedSentence = ({ item }: { item: MyFeed }) => {
+  return (
+    <div className="feed-sentence-section" css={feedSentenceSectionStyle}>
+      <TargetText>{item.targetSentence}</TargetText>
+      <NativeText>{item.nativeSentence}</NativeText>
+    </div>
+  );
+};

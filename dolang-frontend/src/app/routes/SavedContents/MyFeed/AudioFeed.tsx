@@ -13,7 +13,7 @@ import { usePostBookmark, usePostHeart } from '@/features/Feed/hooks/useFeedReac
 const Container = styled.div`
   margin: 0 auto;
   padding: 32px;
-  width: 70%;
+  width: 100%;
   min-width: 30rem;
 `;
 
@@ -58,8 +58,8 @@ const Text = styled.div`
 `;
 
 const NativeText = styled.p`
-  font-size: 0.5rem;
-  min-height: 0.5rem;
+  font-size: 0.7rem;
+  min-height: 0.7rem;
   color: #495057;
   margin-bottom: 8px;
 `;
@@ -156,35 +156,13 @@ export default function AudioFeed() {
 }
 
 export const FeedCard = ({ item, isNativeLanguage }: { item: MyFeed; isNativeLanguage: boolean }) => {
-  const { mutate: postBookmark } = usePostBookmark(item.feedId, item.postId);
-  const { mutate: postHeart } = usePostHeart(item.feedId, item.postId);
-
-  const [isBookmarked, setIsBookmarked] = useState(item.isSelfBookmarked);
-  const [isHearted, setIsHearted] = useState(item.isSelfHearted);
-
-  useEffect(() => {
-    setIsBookmarked(item.isSelfBookmarked);
-    setIsHearted(item.isSelfHearted);
-  }, [item.isSelfBookmarked, item.isSelfHearted]);
-
+  const { mutate: postBookmark } = usePostBookmark();
+  const { mutate: postHeart } = usePostHeart();
   const handleBookmark = async (): Promise<void> => {
-    setIsBookmarked((prev) => !prev);
-    try {
-      postBookmark();
-    } catch (err) {
-      console.error(err);
-      setIsBookmarked((prev) => !prev);
-    }
+    postBookmark({ feedId: item.feedId, postId: item.postId });
   };
-
   const handleHeart = async (): Promise<void> => {
-    setIsHearted((prev) => !prev);
-    try {
-      postHeart();
-    } catch (err) {
-      console.error(err);
-      setIsHearted((prev) => !prev);
-    }
+    postHeart({ feedId: item.feedId, postId: item.postId });
   };
 
   return (
@@ -196,12 +174,12 @@ export const FeedCard = ({ item, isNativeLanguage }: { item: MyFeed; isNativeLan
         </Text>
 
         {isNativeLanguage ? (
-          <BookmarkButton isBookmarked={isBookmarked} onClick={handleBookmark}>
+          <BookmarkButton isBookmarked={item.isSelfBookmarked ?? false} onClick={handleBookmark}>
             <Bookmark size={20} />
             {item.bookmarkCount}
           </BookmarkButton>
         ) : (
-          <LikeButton isLiked={isHearted} onClick={handleHeart}>
+          <LikeButton isLiked={item.isSelfHearted ?? false} onClick={handleHeart}>
             <Heart size={20} />
             {item.heartCount}
           </LikeButton>
