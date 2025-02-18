@@ -143,7 +143,6 @@ export default function AudioFeed() {
   return (
     <Container>
       <Header>
-        <Title>내 피드</Title>
         <LanguagePicker value={currentLanguage} onChange={setCurrentLanguage} />
       </Header>
 
