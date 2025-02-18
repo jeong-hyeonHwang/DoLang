@@ -26,7 +26,7 @@ export const userGet = async (access_token?: string) => {
     });
 
     const responseData = response.data;
-    console.log('response', response);
+    // console.log('response', response);
 
     if (response.status === 200) {
       return responseData;

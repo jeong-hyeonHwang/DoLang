@@ -64,4 +64,5 @@ const LanguagePicker = React.forwardRef<HTMLDivElement, LanguagePickerProps>(({ 
   );
 });
 
+LanguagePicker.displayName = 'LanguagePicker';
 export default LanguagePicker;

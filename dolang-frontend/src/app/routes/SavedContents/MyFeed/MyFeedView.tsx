@@ -2,8 +2,8 @@ import React from 'react';
 import { css } from '@emotion/react';
 import styled from '@emotion/styled';
 
-// import MyAudioPlayer from './MyAudioPlayer';
-import AudioFeed from './AudioFeed';
+import MyAudioPlayer from './MyAudioPlayer';
+import MyAudioFeed from './MyAudioFeed';
 import { Flex } from 'antd';
 
 const PageContainer = styled.div`

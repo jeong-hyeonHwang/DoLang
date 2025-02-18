@@ -51,6 +51,7 @@ public class UserController {
     public BaseResponse<BaseResponseStatus> registerUserInfo(@AuthenticationPrincipal Jwt jwt,
                                                              @RequestBody RequestRegisterUserProfileDto requestRegisterUserProfileDto) {
         int userId = Integer.parseInt(jwt.getId());
+        System.out.println("===========================controller");
         userService.registerUserInfo(userId, requestRegisterUserProfileDto);
         return BaseResponse.ok(BaseResponseStatus.SUCCESS);
     }

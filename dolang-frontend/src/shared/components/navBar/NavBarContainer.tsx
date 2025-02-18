@@ -249,7 +249,7 @@ const linkItems: LinkItem[] = [
       {
         key: '3-2',
         href: '/savedContents/calls',
-        title: '음성기록',
+        title: '통화 기록',
         icon: <Check style={{ width: '0.9rem', height: '0.9rem' }} />,
       },
       {
@@ -269,9 +269,7 @@ export const NavBarContainer = () => {
   const auth = useRecoilState(authState);
   const isLoggedIn = JSON.parse(sessionStorage.getItem('isLoggedIn') || 'false');
   const user = JSON.parse(sessionStorage.getItem('user') || 'false');
-  // console.log('login: ', auth);
   const { data: userInfo, isLoading } = useUserQuery();
-  console.log(user);
 
   return (
     <div css={sidebarStyle}>
@@ -292,7 +290,13 @@ export const NavBarContainer = () => {
         ) : (
           <div
             css={nameCardContainerStyle}
-            style={{ display: 'flex', justifyContent: 'space-evenly', marginTop: '2.2rem', marginBottom: '1rem' }}
+            style={{
+              display: 'flex',
+              justifyContent: 'space-evenly',
+              gap: '15px',
+              marginTop: '2.2rem',
+              marginBottom: '1rem',
+            }}
           >
             <Link to="oauth2/code">
               <button
@@ -333,9 +337,7 @@ export const NavBarContainer = () => {
         <NavLinks linkItems={BottomLinkItems} customLinkStyle={bottomLinkStyle} />
       </div>
 
-      <div css={bottomSectionStyle}>
-        {isLoggedIn && user ? <GoogleLogout /> : null}
-      </div>
+      <div css={bottomSectionStyle}>{isLoggedIn && user ? <GoogleLogout /> : null}</div>
     </div>
   );
 };

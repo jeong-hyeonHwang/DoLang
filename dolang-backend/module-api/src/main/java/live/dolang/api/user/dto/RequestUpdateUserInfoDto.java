@@ -21,7 +21,8 @@ public class RequestUpdateUserInfoDto {
     private String targetLanguage;
     private String proficiencyLevel;
     private List<Integer> interests;
-    private MultipartFile profileImageUrl;
+    private String profileImageUrl;
+    private MultipartFile profileImage;
 
     public UserProfile toUserProfileEntity(int userid) {
         return UserProfile.builder()
