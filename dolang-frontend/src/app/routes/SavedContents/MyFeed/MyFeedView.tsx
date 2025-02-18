@@ -86,7 +86,7 @@ function MyFeedView() {
 
           <ContentOutline>
             <ContentContainer>
-              <MyAudioFeed />
+              <AudioFeed />
             </ContentContainer>
           </ContentOutline>
         </PageContainer>

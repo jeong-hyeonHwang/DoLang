@@ -2,11 +2,13 @@ import FeedList from '../../features/Feed/components/FeedList.tsx';
 import { useState } from 'react';
 import { css } from '@emotion/react';
 import Recorder from '../../features/Feed/components/Recorder.tsx';
-import { useFeeds, useFeedParticipation } from '../../features/Feed/hooks/useFeed.ts';
-import { useMyFeed } from '../../features/Feed/hooks/useFeed.ts';
+import { useFeedSentence, useFeedParticipaticipants } from '../../features/Feed/hooks/useFeed.ts';
 import LanguagePicker from '@/shared/components/Picker/LanguagePicker.tsx';
 import { ClipLoader } from 'react-spinners';
-import { FeedCard } from './SavedContents/AudioFeed.tsx';
+import { FeedCard } from '@/app/routes/SavedContents/MyFeed/AudioFeed.tsx';
+import { MyFeed } from '@/features/Feed/types/MyFeedResponse.type.ts';
+import { Feed } from '@/features/Feed/types/FeedSentenceResponse.type.ts';
+import { FeedItem } from '@/features/Feed/components/FeedItem.tsx';
 
 const FeedView = () => {
   const feedContainerStyle = css`
@@ -41,13 +43,13 @@ const FeedView = () => {
     align-items: center;
   `;
 
-  const [feedLang, setFeedLang] = useState<string>('ko');
-  const { data: feedData, error: feedError } = useFeeds(feedLang as 'ko' | 'en');
-  const { data: myFeedData, error: myFeedError } = useMyFeed({ lang: feedLang as 'ko' | 'en' });
+  const [feedLang, setFeedLang] = useState<string>('en');
+  const { data: feedData, error: feedError } = useFeedSentence(feedLang as 'ko' | 'en');
+  const user = JSON.parse(sessionStorage.getItem('user') || '{}');
   const handleLangChange = (value: string) => setFeedLang(value);
 
   // 에러가 있을 경우 에러 메시지만 렌더링
-  if (feedError || myFeedError) {
+  if (feedError) {
     return (
       <div className="feed-view-container" css={feedViewContainerStyle}>
         <p>피드 데이터를 불러오는 중 오류가 발생했습니다.</p>
@@ -56,7 +58,7 @@ const FeedView = () => {
   }
 
   // data가 아직 없을 경우 로딩중 메시지만 렌더링
-  if (!feedData || !myFeedData) {
+  if (!feedData) {
     return (
       <div className="feed-view-container" css={feedViewContainerStyle}>
         <ClipLoader color="#000" size={40} />
@@ -76,14 +78,21 @@ const FeedView = () => {
           <p>{feedData.result?.feed.sentenceInfo.sentence}</p>
         </div>
 
-        {myFeedData?.result?.content.length > 0 ? (
-          <div>
-            <FeedCard item={myFeedData.result?.content[0]} isNativeLanguage={feedData.result?.feed.isNativeFeed} />
-          </div>
-        ) : (
-          <Recorder />
-        )}
-        <FeedList feedId={feedData.result?.feed.feedId} />
+        <Recorder feedId={feedData.result?.feed.feedId} />
+        {/* {feedData?.result?.feed.userParticipation.postId && (
+          <FeedItem
+            feedId={feedData.result?.feed.feedId}
+            feedProps={{
+              ...feedData.result?.feed,
+              profileImageUrl: user.profileImageUrl,
+              country: user.country,
+              voiceUrl: user.voiceUrl,
+              voiceCreatedAt: user.voiceCreatedAt,
+            }}
+            isNativeLanguage={!feedData.result?.feed.isNativeFeed}
+          />
+        )} */}
+        <FeedList feedId={feedData.result?.feed.feedId} isNativeLanguage={feedData.result?.feed.isNativeFeed} />
       </div>
     </div>
   );
