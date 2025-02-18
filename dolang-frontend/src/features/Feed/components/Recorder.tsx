@@ -3,7 +3,7 @@ import { Mic, StopCircle, Upload, Volume1 } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import WaveSurfer from 'wavesurfer.js';
 import RecordPlugin from 'wavesurfer.js/dist/plugins/record.esm.js';
-import { useVoiceUpload } from '../hooks/useVoiceUpload';
+import { useVoiceUpload } from '@/features/Feed/hooks/useVoiceUpload';
 import { NameCard } from '@/shared/components/nameCard/NameCard';
 interface RecorderProps {
   maxDuration?: number; // 최대 녹음 시간 (초)
