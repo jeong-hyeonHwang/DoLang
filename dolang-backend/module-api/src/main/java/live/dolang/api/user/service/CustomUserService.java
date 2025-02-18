@@ -6,6 +6,7 @@ import live.dolang.api.common.response.BaseResponseStatus;
 import live.dolang.api.user.dto.*;
 import live.dolang.api.user.repository.CustomUserRepository;
 import live.dolang.core.domain.tag.Tag;
+import live.dolang.core.domain.tag.repository.TagRepository;
 import live.dolang.core.domain.user.User;
 import live.dolang.core.domain.user.repository.UserRepository;
 import live.dolang.core.domain.user_language_level.UserLanguageLevel;
@@ -39,6 +40,7 @@ public class CustomUserService {
     private final UserRepository userRepository;
     private final UserProfileRepository userProfileRepository;
     private final UserTagRepository userTagRepository;
+    private final TagRepository tagRepository;
     private final UserLanguageLevelRepository userLanguageLevelRepository;
     private final S3Client s3Client;
     @Value("${aws.s3.bucket}")
@@ -173,11 +175,11 @@ public class CustomUserService {
     }
 
     private void updateUserTags(RequestUpdateUserInfoDto requestUpdateUserInfoDto, User user) {
-        userTagRepository.deleteAllByUserId(user.getId());
-        userTagRepository.flush();
-        List<Integer> tags = requestUpdateUserInfoDto.getInterests();
-        List<UserTag> userTags = tags.stream()
-                .map(tagId -> new UserTag(null, user, new Tag(tagId, null)))
+        List<UserTag> originUserTags = userTagRepository.findByUser(user);
+        userTagRepository.deleteAllInBatch(originUserTags);
+
+        List<UserTag> userTags = requestUpdateUserInfoDto.getInterests().stream()
+                .map(tagId-> new UserTag(null, user, tagRepository.getReferenceById(tagId)))
                 .toList();
         userTagRepository.saveAll(userTags);
     }
