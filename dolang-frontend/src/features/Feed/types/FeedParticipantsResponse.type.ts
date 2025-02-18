@@ -13,6 +13,8 @@ export interface FeedParticipationMeta {
 
 export interface FeedParticipant {
   postId: number;
+  isUserHearted?: boolean;
+  isUserBookmarked?: boolean;
   profileImageUrl: string;
   country: string;
   voiceUrl: string;

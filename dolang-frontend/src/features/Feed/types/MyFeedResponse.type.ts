@@ -20,7 +20,7 @@ export interface MyFeedResponse {
 }
 
 export interface MyFeed extends Feed {
-  feedId?: number;
+  feedId: number;
   postId: number;
   date: string;
   voiceUrl: string;

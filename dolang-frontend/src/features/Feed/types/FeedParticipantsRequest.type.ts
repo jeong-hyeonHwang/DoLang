@@ -1,5 +1,5 @@
 export interface FeedParticipantsRequest {
   length: number;
-  feedId?: string;
+  feedId?: number;
   nextCursor?: string;
 }
