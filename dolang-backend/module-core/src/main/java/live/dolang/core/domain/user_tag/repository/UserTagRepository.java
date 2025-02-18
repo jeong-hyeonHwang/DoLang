@@ -9,6 +9,4 @@ import java.util.List;
 
 public interface UserTagRepository extends JpaRepository<UserTag, Integer>, QuerydslPredicateExecutor<UserTag> {
     List<UserTag> findByUser(User user);
-
-    void deleteAllByUserId(int userId);
 }
