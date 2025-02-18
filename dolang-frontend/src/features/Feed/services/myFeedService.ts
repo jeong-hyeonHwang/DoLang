@@ -1,6 +1,5 @@
-import { instance } from '@/api/config/axiosConfig';
-import { MyFeedRequest, MyFeedResponse } from '../types';
 import { apiInstance } from '@/api/utils/instance';
+import { MyFeedRequest, MyFeedResponse } from '../types';
 
 // 내 피드 요청
 // http://localhost:8100/api/myfeed?page=0&lang=en

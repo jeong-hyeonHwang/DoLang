@@ -10,11 +10,12 @@ import { postBookmark, postHeart } from '@/features/Feed/services/reactionServic
 import { MyFeed } from '@/features/Feed/types/MyFeedResponse.type';
 import { css } from '@emotion/react';
 import { ClipLoader } from 'react-spinners';
+import { usePostBookmark, usePostHeart } from '@/features/Feed/hooks/useFeedReactions';
 const Container = styled.div`
   margin: 0 auto;
   padding: 32px;
   width: 70%;
-  min-width: 30rem
+  min-width: 30rem;
 `;
 
 const Header = styled.div`
@@ -93,6 +94,23 @@ const LikeButton = styled.div<{ isLiked: boolean }>`
   }
 `;
 
+const BookmarkButton = styled.div<{ isBookmarked: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: absolute;
+  right: 0;
+  top: 0;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 20px;
+  transition: all 0.2s ease;
+  svg {
+    fill: ${(props) => (props.isBookmarked ? '#00c659' : 'none')};
+  }
+`;
+
 const WaveformContainer = styled.div`
   align-self: flex-end;
   position: absolute;
@@ -124,30 +142,58 @@ export default function AudioFeed() {
 
   return (
     <Container>
-      <Header >
+      <Header>
         <Title>내 피드</Title>
         <LanguagePicker value={currentLanguage} onChange={setCurrentLanguage} />
       </Header>
 
-        <MyFeedList>
-          {myFeedList?.result.content.map((item) => (
-            <div
-              className="feed-container"
-              key={item.feedId}
-              style={{ display: 'flex', flexDirection: 'row', gap: '1rem' }}
-            >
-              <DateLabel>{new Date(item.date).toLocaleDateString()}</DateLabel>
-              <FeedCard item={item} isNativeLanguage={isNativeLanguage} />
-            </div>
-          ))}
-        </MyFeedList>
+      <MyFeedList>
+        {myFeedList?.result.content.map((item) => (
+          <div
+            className="feed-container"
+            key={item.feedId}
+            style={{ display: 'flex', flexDirection: 'row', gap: '1rem' }}
+          >
+            <DateLabel>{new Date(item.date).toLocaleDateString()}</DateLabel>
+            <FeedCard item={item} isNativeLanguage={isNativeLanguage} />
+          </div>
+        ))}
+      </MyFeedList>
     </Container>
   );
 }
 
 export const FeedCard = ({ item, isNativeLanguage }: { item: MyFeed; isNativeLanguage: boolean }) => {
-  const handleBookmark = (feedId: number, postId: number) => postBookmark(feedId, postId);
-  const handleHeart = (feedId: number, postId: number) => postHeart(feedId, postId);
+  const { mutate: postBookmark } = usePostBookmark(item.feedId, item.postId);
+  const { mutate: postHeart } = usePostHeart(item.feedId, item.postId);
+
+  const [isBookmarked, setIsBookmarked] = useState(item.isSelfBookmarked);
+  const [isHearted, setIsHearted] = useState(item.isSelfHearted);
+
+  useEffect(() => {
+    setIsBookmarked(item.isSelfBookmarked);
+    setIsHearted(item.isSelfHearted);
+  }, [item.isSelfBookmarked, item.isSelfHearted]);
+
+  const handleBookmark = async (): Promise<void> => {
+    setIsBookmarked((prev) => !prev);
+    try {
+      postBookmark();
+    } catch (err) {
+      console.error(err);
+      setIsBookmarked((prev) => !prev);
+    }
+  };
+
+  const handleHeart = async (): Promise<void> => {
+    setIsHearted((prev) => !prev);
+    try {
+      postHeart();
+    } catch (err) {
+      console.error(err);
+      setIsHearted((prev) => !prev);
+    }
+  };
 
   return (
     <div css={feedCardStyle}>
@@ -158,14 +204,14 @@ export const FeedCard = ({ item, isNativeLanguage }: { item: MyFeed; isNativeLan
         </Text>
 
         {isNativeLanguage ? (
-          <LikeButton isLiked={!!item.isSelfHearted} onClick={() => handleHeart(item.feedId, item.postId)}>
-            <Heart size={20} />
-            {item.heartCount}
-          </LikeButton>
-        ) : (
-          <LikeButton isLiked={!!item.isSelfBookmarked} onClick={() => handleBookmark(item.feedId, item.postId)}>
+          <BookmarkButton isBookmarked={isBookmarked} onClick={handleBookmark}>
             <Bookmark size={20} />
             {item.bookmarkCount}
+          </BookmarkButton>
+        ) : (
+          <LikeButton isLiked={isHearted} onClick={handleHeart}>
+            <Heart size={20} />
+            {item.heartCount}
           </LikeButton>
         )}
 

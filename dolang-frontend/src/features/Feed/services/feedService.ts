@@ -5,6 +5,7 @@ import { FeedVoiceUploadRequest } from '../types/FeedVoiceUploadRequest.type';
 export const getFeed = async (params: FeedSentenceRequest): Promise<FeedSentenceResponse> => {
   try {
     const response = await apiInstance.get('api/feed/today', { params });
+    console.log(response.data);
     return response.data;
   } catch (error) {
     console.error(error);
@@ -13,7 +14,7 @@ export const getFeed = async (params: FeedSentenceRequest): Promise<FeedSentence
 };
 
 // 피드 참여 데이터 요청
-export const getFeedParticipation = async (params: FeedParticipantsRequest): Promise<FeedParticipantsResponse> => {
+export const getFeedParticipants = async (params: FeedParticipantsRequest): Promise<FeedParticipantsResponse> => {
   try {
     const response = await apiInstance.get('api/feed/today/participants', { params });
     console.log(response.data);
@@ -31,6 +32,7 @@ export const postFeedVoiceUpload = async (params: FeedVoiceUploadRequest) => {
     formData.append('file', params.file);
 
     const response = await apiInstance.post(`/api/post/${params.feedId}/upload`, formData);
+    console.log(response.data);
     return response.data;
   } catch (error) {
     console.error(error);

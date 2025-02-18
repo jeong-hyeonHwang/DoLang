@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { FeedItem } from './FeedItem.tsx';
 import { css } from '@emotion/react';
-import { getFeedParticipation } from '../services/feedService.ts';
+import { getFeedParticipants, getFeedParticipation } from '../services/feedService.ts';
 import { FeedParticipant } from '../types/FeedParticipantsResponse.type.ts';
-import { useFeedParticipation } from '../hooks/useFeed.ts';
+import { useFeedParticipaticipants, useFeedParticipation } from '../hooks/useFeed.ts';
 
-const FeedList = ({ feedId }: { feedId: number }) => {
+const FeedList = ({ feedId, isNativeLanguage }: { feedId: number; isNativeLanguage: boolean }) => {
   const feedListContainerStyle = css`
     padding: 1rem;
     display: flex;
@@ -27,7 +27,7 @@ const FeedList = ({ feedId }: { feedId: number }) => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { data: feedParticipationData, error: feedParticipationError } = useFeedParticipation({
+  const { data: feedParticipationData } = useFeedParticipaticipants({
     feedId: feedId.toString(),
   });
 
@@ -35,7 +35,7 @@ const FeedList = ({ feedId }: { feedId: number }) => {
     const fetchFeedParticipation = async () => {
       try {
         setIsLoading(true);
-        const response = await getFeedParticipation({ feedId: feedId.toString(), length: 5 });
+        const response = await getFeedParticipants({ feedId: feedId.toString(), length: 5 });
         console.log(response);
         setIsLoading(false);
       } catch (error) {
@@ -63,7 +63,7 @@ const FeedList = ({ feedId }: { feedId: number }) => {
       ) : (
         feedParticipationData?.participants.map((feed) => (
           <>
-            <FeedItem key={feed.postId} feedId={feed.postId} feedProps={feed} />
+            <FeedItem key={feed.postId} feedId={feed.postId} feedProps={feed} isNativeLanguage={isNativeLanguage} />
             <div
               onClick={() => {
                 console.log(feed);

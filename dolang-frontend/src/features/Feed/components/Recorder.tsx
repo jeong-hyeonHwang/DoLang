@@ -3,8 +3,8 @@ import { Mic, StopCircle, Upload, Volume1 } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import WaveSurfer from 'wavesurfer.js';
 import RecordPlugin from 'wavesurfer.js/dist/plugins/record.esm.js';
-import { postFeedVoiceUpload } from '../services/feedService';
-
+import { useVoiceUpload } from '@/features/Note/hooks/useFeedParticipation';
+import { NameCard } from '@/shared/components/nameCard/NameCard';
 interface RecorderProps {
   maxDuration?: number; // 최대 녹음 시간 (초)
   onRecordingComplete?: (blob: Blob) => void;
@@ -29,8 +29,25 @@ const Recorder: React.FC<RecorderProps> = ({
   const [isPlaying, setIsPlaying] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
+  const [uploadCompleted, setUploadCompleted] = useState(false);
+  const {
+    mutate: uploadVoice,
+    isPending: isUploading,
+    isSuccess: uploadSuccess,
+    error: uploadError,
+  } = useVoiceUpload();
+
+  const recorderContainerStyle = css`
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 48px;
+    gap: 0.5rem;
+  `;
 
   const recorderStyle = css`
+    display: flex;
+    flex-direction: row;
     width: 100%;
     height: 48px;
     border: 1px solid #d1d1d1;
@@ -186,14 +203,19 @@ const Recorder: React.FC<RecorderProps> = ({
 
   const handleSubmit = () => {
     if (recordedBlob) {
-      console.log('recordedBlob', recordedBlob);
-      postFeedVoiceUpload({
-        feedId: feedId,
-        file: recordedBlob,
-      });
+      const file = new File([recordedBlob], `${Date.now()}.ogg`);
+      console.log(feedId);
+      uploadVoice({ feedId, file });
+      if (uploadSuccess) {
+        console.log('업로드 성공');
+      }
     }
   };
-
+  useEffect(() => {
+    if (uploadSuccess) {
+      setUploadCompleted(true);
+    }
+  }, [uploadSuccess]);
   // 초기화
   useEffect(() => {
     createWaveSurfer();
@@ -215,55 +237,69 @@ const Recorder: React.FC<RecorderProps> = ({
       </div>
     );
   }
+  const user = sessionStorage.getItem('user');
+  const userInfo = user ? JSON.parse(user) : null;
 
   return (
-    <div css={recorderStyle}>
-      <div
-        css={css`
-          justify-self: start;
-        `}
-      >
-        {recordedBlob && !isRecording && (
-          <Volume1
-            size={32}
-            onClick={handlePlayPause}
-            css={[
-              volumeStyle,
-              isPlaying &&
-                css`
-                  color: #a11800;
-                `,
-            ]}
+    <>
+      {user?.nickname && (
+        <div css={recorderContainerStyle}>
+          <NameCard
+            userImage={userInfo?.profileImageUrl}
+            userCountry={userInfo?.country}
+            userNickname={userInfo?.nickname}
+            style="compact"
           />
-        )}
-        {isRecording && <span css={progressStyle}>{progress}</span>}
-      </div>
+          <div css={recorderStyle}>
+            <div
+              css={css`
+                justify-self: start;
+              `}
+            >
+              {recordedBlob && !isRecording && (
+                <Volume1
+                  size={32}
+                  onClick={handlePlayPause}
+                  css={[
+                    volumeStyle,
+                    isPlaying &&
+                      css`
+                        color: #a11800;
+                      `,
+                  ]}
+                />
+              )}
+              {isRecording && <span css={progressStyle}>{progress}</span>}
+            </div>
 
-      <div
-        css={css`
-          position: relative;
-          width: 100%;
-        `}
-      >
-        <div ref={recordingsRef} />
-        <div ref={containerRef} />
-      </div>
+            <div
+              css={css`
+                position: relative;
+                width: 100%;
+              `}
+            >
+              <div ref={recordingsRef} />
+              <div ref={containerRef} />
+            </div>
+          </div>
 
-      <div css={controlsContainerStyle}>
-        {recordedBlob && !isRecording && (
-          <button onClick={handleSubmit} css={submitButtonStyle} disabled={!recordedBlob}>
-            <Upload />
-          </button>
-        )}
-        <div onClick={isRecording ? handleStopRecording : handleStartRecording}>
-          {isRecording ? (
-            <StopCircle size={32} stroke="#fff" css={feedButtonStyle} />
-          ) : (
-            <Mic size={32} stroke="#fff" css={feedButtonStyle} />
-          )}
+          <div css={controlsContainerStyle}>
+            {!uploadCompleted && recordedBlob && !isRecording && (
+              <button onClick={handleSubmit} css={submitButtonStyle} disabled={!recordedBlob}>
+                <Upload />
+              </button>
+            )}
+            <div onClick={isRecording ? handleStopRecording : handleStartRecording}>
+              {isRecording ? (
+                <StopCircle size={32} stroke="#fff" css={feedButtonStyle} />
+              ) : (
+                <Mic size={32} stroke="#fff" css={feedButtonStyle} />
+              )}
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      )}
+    </>
   );
 };
 

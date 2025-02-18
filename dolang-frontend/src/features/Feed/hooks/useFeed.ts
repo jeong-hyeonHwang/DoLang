@@ -1,12 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
-import { getFeed, getFeedParticipation } from '../services/feedService';
+import { getFeed, getFeedParticipants } from '../services/feedService';
 import { getMyFeed } from '../services/myFeedService';
 import { MyFeedRequest } from '../types/MyFeedRequest.type';
 import { FeedParticipantsRequest } from '../types/FeedParticipantsRequest.type';
 // 피드 데이터 페칭
-export const useFeeds = (lang: 'ko' | 'en') => {
+export const useFeedSentence = (lang: 'ko' | 'en') => {
   const { data, isLoading, error } = useQuery({
-    queryKey: ['feeds', lang],
+    queryKey: ['feedSentence', lang],
     queryFn: () => getFeed({ lang }),
   });
 
@@ -14,10 +14,10 @@ export const useFeeds = (lang: 'ko' | 'en') => {
 };
 
 // 피드 참여 데이터 페칭
-export const useFeedParticipation = (params: Partial<FeedParticipantsRequest>) => {
+export const useFeedParticipaticipants = (params: Partial<FeedParticipantsRequest>) => {
   const { data, isLoading, error } = useQuery({
-    queryKey: ['feedParticipation', params],
-    queryFn: () => getFeedParticipation({ ...params, length: params.length ?? 10 }),
+    queryKey: ['feedParticipants', params],
+    queryFn: () => getFeedParticipants({ ...params, length: params.length ?? 10 }),
   });
 
   return { data, isLoading, error };

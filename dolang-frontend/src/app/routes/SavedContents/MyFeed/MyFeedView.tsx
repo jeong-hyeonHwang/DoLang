@@ -2,8 +2,8 @@ import React from 'react';
 import { css } from '@emotion/react';
 import styled from '@emotion/styled';
 
-import MyAudioPlayer from './MyAudioPlayer';
-import MyAudioFeed from './MyFeed';
+// import MyAudioPlayer from './MyAudioPlayer';
+import AudioFeed from './AudioFeed';
 import { Flex } from 'antd';
 
 const PageContainer = styled.div`
@@ -86,7 +86,7 @@ function MyFeedView() {
 
           <ContentOutline>
             <ContentContainer>
-              <MyAudioFeed />
+              <AudioFeed />
             </ContentContainer>
           </ContentOutline>
         </PageContainer>
