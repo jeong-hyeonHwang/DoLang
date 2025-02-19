@@ -6,7 +6,6 @@ import { FeedParticipantsResponse, MyFeedRequest, MyFeedResponse } from '../type
 export const getMyFeed = async (params: Partial<MyFeedRequest>): Promise<MyFeedResponse> => {
   try {
     const response = await apiInstance.get('api/myfeed', { params });
-    console.log(response.data);
     return response.data;
   } catch (error) {
     console.error(error);
@@ -19,7 +18,6 @@ export const getMyFeed = async (params: Partial<MyFeedRequest>): Promise<MyFeedR
 export const getFeedWithMyReaction = async (lang: string): Promise<MyFeedResponse> => {
   try {
     const response = await apiInstance.get(`api/myfeed/liked?lang=${lang}`);
-    console.log(response.data);
     return response.data;
   } catch (error) {
     console.error(error);
@@ -32,7 +30,6 @@ export const getFeedWithMyReaction = async (lang: string): Promise<MyFeedRespons
 export const getFeedWithMyReactionByFeedId = async (feedId: number): Promise<FeedParticipantsResponse> => {
   try {
     const response = await apiInstance.get(`api/myfeed/liked/${feedId}`);
-    console.log(response.data);
     return response.data;
   } catch (error) {
     console.error(error);

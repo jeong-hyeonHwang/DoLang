@@ -143,7 +143,6 @@ export default function VoiceRecorder() {
 
   const location = useLocation();
   const callInfo = location.state?.callInfo;
-  console.log('log', callInfo);
 
   return (
     <>

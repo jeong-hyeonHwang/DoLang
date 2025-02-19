@@ -31,7 +31,6 @@ export const postFeedVoiceUpload = async (params: FeedVoiceUploadRequest) => {
     formData.append('file', params.file);
 
     const response = await apiInstance.post(`/api/post/${params.feedId}/upload`, formData);
-    console.log(response.data);
     return response.data;
   } catch (error) {
     console.error(error);

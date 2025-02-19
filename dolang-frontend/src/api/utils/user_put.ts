@@ -36,11 +36,8 @@ export const userPut = async (data: FormData, access_token?: string) => {
       method: 'PUT',
       headers: {
         accept: '*/*',
-        // 'Content-Type': 'application/json',
-        // 'Content-Type': 'multipart/form-data',
         Authorization: `Bearer ${token}`,
       },
-      // body: JSON.stringify(data),
       body: data,
     });
 
@@ -60,9 +57,8 @@ export const userPut = async (data: FormData, access_token?: string) => {
       ? await response.json()
       : null;
 
-    console.log('PUT 응답:', responseData);
     return responseData;
-  } catch (error: any) {
+  } catch (error) {
     console.error('프로필 업데이트 중 오류 발생:', error);
     alert('업데이트에 실패했습니다.');
   }

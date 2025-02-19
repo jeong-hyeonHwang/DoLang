@@ -35,7 +35,7 @@ export const usePostBookmark = () => {
       return { previousData: oldData };
     },
     onError: (_, variables, context) => {
-      console.log('onError');
+      console.error('onError');
       if (context?.previousData) {
         queryClient.setQueryData(['feedParticipants', { feedId: variables.feedId }], context.previousData);
       }
@@ -76,7 +76,7 @@ export const usePostHeart = () => {
       return { previousData: oldData };
     },
     onError: (_, variables, context) => {
-      console.log('onError');
+      console.error('onError');
       if (context?.previousData) {
         queryClient.setQueryData(['feedParticipants', { feedId: variables.feedId }], context.previousData);
       }

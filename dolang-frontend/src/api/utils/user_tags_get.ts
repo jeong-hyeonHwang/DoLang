@@ -22,10 +22,7 @@ export const tagsGet = async (navigate: ReturnType<typeof useNavigate>) => {
         Authorization: `Bearer ${token}`,
       },
     });
-    if (response.ok) {
-      console.log(response);
-    }
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 };

@@ -94,8 +94,6 @@ export const StompClientProvider = ({ children }: StompClientProviderProps) => {
             setRemotePeer(matchingResult.matchedUser.peerId);
             setMatchedUser(matchingResult.matchedUser);
             setIsMatching(false);
-            console.log(matchingResult);
-            console.log('Matched with user:', matchingResult.matchedUser);
           });
         },
         onStompError: (frame) => {
@@ -153,7 +151,6 @@ export const StompClientProvider = ({ children }: StompClientProviderProps) => {
 
   useEffect(() => {
     return () => {
-      console.log('unmount');
       if (stompClientRef.current) {
         stompClientRef.current.deactivate();
       }
