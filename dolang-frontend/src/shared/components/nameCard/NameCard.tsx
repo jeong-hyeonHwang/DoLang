@@ -93,7 +93,7 @@ export const UserImageWrapper = ({
 
   return (
     <div className="user-image-wrapper" css={userImageWrapperStyle}>
-      <img src={profileImageUrl} alt="User profile" css={userImageStyle} onError={handleImageError} />
+      <img src={profileImageUrl} alt="" css={userImageStyle} onError={handleImageError} />
       {userCountry && <span className={`fi fi-${userCountry}`} css={flagStyle} />}
     </div>
   );
