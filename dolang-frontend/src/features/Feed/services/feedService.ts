@@ -5,7 +5,7 @@ import { FeedVoiceUploadRequest } from '../types/FeedVoiceUploadRequest.type';
 export const getFeed = async (params: FeedSentenceRequest): Promise<FeedSentenceResponse> => {
   try {
     const response = await apiInstance.get('api/feed/today', { params });
-    console.log(response.data);
+    if (response.status === 403) throw new Error('403');
     return response.data;
   } catch (error) {
     console.error(error);
@@ -17,7 +17,6 @@ export const getFeed = async (params: FeedSentenceRequest): Promise<FeedSentence
 export const getFeedParticipants = async (params: FeedParticipantsRequest): Promise<FeedParticipantsResponse> => {
   try {
     const response = await apiInstance.get('api/feed/today/participants', { params });
-    console.log(response.data);
     return response.data.result;
   } catch (error) {
     console.error(error);
