@@ -1,10 +1,5 @@
-import React from 'react';
-import { css } from '@emotion/react';
 import styled from '@emotion/styled';
-
-import MyAudioPlayer from './MyAudioPlayer';
-import MyAudioFeed from './MyAudioFeed';
-import { Flex } from 'antd';
+import AudioFeed from './AudioFeed';
 
 const PageContainer = styled.div`
   background-color: #fff;

@@ -82,7 +82,7 @@ export const FeedSentence = ({ item }: { item: Feed }) => {
   `;
   return (
     <div className="feed-sentence-section" css={feedSentenceSectionStyle}>
-      <p>{item.sentenceInfo.sentence}</p>
+      <p>{item?.sentenceInfo.sentence}</p>
     </div>
   );
 };
