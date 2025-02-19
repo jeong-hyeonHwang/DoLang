@@ -1,4 +1,4 @@
 [
-  { "value": "en", "label": "English", "flag": "gb" },
+  { "value": "en", "label": "English", "flag": "us" },
   { "value": "ko", "label": "한국어", "flag": "kr" }
 ]

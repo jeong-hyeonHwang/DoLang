@@ -1,3 +1,5 @@
+import { Feed } from './FeedSentenceResponse.type';
+
 export interface MyFeedResponse {
   isSuccess: boolean;
   code: number;
@@ -17,7 +19,7 @@ export interface MyFeedResponse {
   };
 }
 
-export interface MyFeed {
+export interface MyFeed extends Feed {
   feedId: number;
   postId: number;
   date: string;

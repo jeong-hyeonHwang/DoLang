@@ -101,7 +101,11 @@ public class PostController {
         Integer userId = Integer.parseInt(jwt.getId());
         String fileUrl = customUserDateSentenceService.uploadTest(file);
         System.out.println("결과 : " + fileUrl);
-        postService.createUserDateSentence(userId, feedId, fileUrl);
+        try {
+            postService.createUserDateSentence(userId, feedId, fileUrl);
+        } catch (Exception e) {
+            throw new NotFoundException(BaseResponseStatus.EXIST_POST);
+        }
         return BaseResponse.ok();
     }
 

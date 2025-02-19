@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { FeedItem } from './FeedItem.tsx';
 import { css } from '@emotion/react';
-import { getFeedParticipation } from '../services/feedService.ts';
-import { FeedParticipant } from '../types/FeedParticipantsResponse.type.ts';
+import { getFeedParticipants } from '../services/feedService.ts';
+import { useFeedParticipaticipants } from '../hooks/useFeed.ts';
 
-const FeedList = ({ feedId }: { feedId: number }) => {
+const FeedList = ({ feedId, isNativeLanguage }: { feedId: number; isNativeLanguage: boolean }) => {
   const feedListContainerStyle = css`
     padding: 1rem;
     display: flex;
@@ -15,47 +15,52 @@ const FeedList = ({ feedId }: { feedId: number }) => {
     border-radius: 0.6rem;
     box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1) inset;
   `;
-  const [feedParticipants, setFeedParticipants] = useState<FeedParticipant[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { data: feedParticipationData, error: feedParticipationError } = useFeedParticipaticipants({
+    feedId: feedId,
+  });
 
   useEffect(() => {
     const fetchFeedParticipation = async () => {
       try {
         setIsLoading(true);
-        const response = await getFeedParticipation({ feedId: '1', length: 5 });
+        const response = await getFeedParticipants(feedId);
         console.log(response);
-        setFeedParticipants(response.participants);
         setIsLoading(false);
       } catch (error) {
-        setError(error as string);
         setIsLoading(false);
       }
     };
     fetchFeedParticipation();
   }, []);
 
-  if (error) {
+  if (feedParticipationError) {
     return (
       <section className="feed-list-container" css={feedListContainerStyle}>
-        <p>오류가 발생했습니다.</p>
+        <p>모국어 피드에 참여하시면 학습 언어 피드를 확인할 수 있습니다!</p>
       </section>
     );
   }
-
-  if (isLoading || feedParticipants.length === 0) {
+  if (feedId === undefined) {
     return (
       <section className="feed-list-container" css={feedListContainerStyle}>
-        {isLoading ? <p>피드를 불러오는 중입니다...</p> : <p>참여자가 없습니다. 오늘의 첫 참여자가 되어 보세요!</p>}
+        <p>피드 정보가 없습니다.</p>
       </section>
     );
   }
-
   return (
     <section className="feed-list-container" css={feedListContainerStyle}>
-      {feedParticipants.map((feed) => (
-        <FeedItem key={feed.postId} feedId={feedId} feedProps={feed} />
-      ))}
+      {isLoading || feedParticipationData?.participants?.length === 0 ? (
+        <>
+          {isLoading ? <p>피드를 불러오는 중입니다...</p> : <p>참여자가 없습니다. 오늘의 첫 참여자가 되어 보세요!</p>}
+        </>
+      ) : (
+        feedParticipationData?.participants?.map((feed) => (
+          <>
+            <FeedItem key={feed.postId} feedId={feedId} feedProps={feed} isNativeLanguage={isNativeLanguage} />
+          </>
+        ))
+      )}
     </section>
   );
 };
