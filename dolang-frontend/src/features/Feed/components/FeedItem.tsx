@@ -4,8 +4,7 @@ import { Heart, Bookmark } from 'lucide-react';
 import { NameCard } from '../../../shared/components/nameCard/NameCard.tsx';
 import { FeedParticipant } from '../types/FeedParticipantsResponse.type.ts';
 import { usePostBookmark, usePostHeart } from '../hooks/useFeedReactions.ts';
-import { useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 const feedStyle = css`
   display: flex;
@@ -46,12 +45,8 @@ export const FeedItem = ({
 }) => {
   const { mutate: postBookmark } = usePostBookmark();
   const { mutate: postHeart } = usePostHeart();
-  const handleBookmark = async (): Promise<void> => {
-    postBookmark({ feedId, postId: feedProps.postId });
-  };
-  const handleHeart = async (): Promise<void> => {
-    postHeart({ feedId, postId: feedProps.postId });
-  };
+  const handleBookmark = async (): Promise<void> =>    postBookmark({ feedId, postId: feedProps.postId });
+  const handleHeart = async (): Promise<void> =>     postHeart({ feedId, postId: feedProps.postId });
 
   const user = JSON.parse(sessionStorage.getItem('user') || '{}');
   //
@@ -97,3 +92,5 @@ export const FeedItem = ({
     </div>
   );
 };
+
+
