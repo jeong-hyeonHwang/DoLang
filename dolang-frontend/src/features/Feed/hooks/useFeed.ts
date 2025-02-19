@@ -12,6 +12,7 @@ export const useFeedSentence = (lang: 'ko' | 'en') => {
   } = useQuery({
     queryKey: ['feedSentence', lang],
     queryFn: () => getFeed({ lang }),
+    staleTime: 0,
   });
 
   return { data, isLoading, error: feedSentenceError };
