@@ -31,7 +31,6 @@ const Waveform = ({ audioSrc }: { audioSrc: string }) => {
       });
     }
     if (audioSrc) waveRef.current?.load(audioSrc);
-    return () => waveRef.current?.destroy();
   }, [audioSrc]);
 
   const waveIndicatorStyle = css`
