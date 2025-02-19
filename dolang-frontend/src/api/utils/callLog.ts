@@ -22,7 +22,6 @@ export const callLogGet = async (access_token?: string, pageNum: number, sizeNum
       },
     });
 
-    // console.log('callLogGet', response);
     if (response.data.code === 200) {
       return response.data.result;
     }

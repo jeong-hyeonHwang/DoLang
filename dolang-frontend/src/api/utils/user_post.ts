@@ -31,7 +31,6 @@ const accessToken = Cookies.get('access_token');
 
 export const userPost = async (data: PostData, access_token?: string) => {
   const token = access_token || accessToken;
-  console.log('posttoken', token);
 
   try {
     const response = await axios.post(`${SERVER_URL}/api/user`, data, {
@@ -43,7 +42,6 @@ export const userPost = async (data: PostData, access_token?: string) => {
     });
 
     // const responseData = response.data;
-    console.log('posttt', response);
     if (response.data.code === 200) {
       return response;
     }
@@ -51,7 +49,7 @@ export const userPost = async (data: PostData, access_token?: string) => {
     //   alert('다시 회원가입을 시도해주세요.');
     // }
   } catch (error: any) {
-    console.log('Error', error);
+    console.error('Error', error);
     const errorMessage = error.response?.data?.message || '회원가입을 다시 시도해주세요.';
     alert(errorMessage);
   }

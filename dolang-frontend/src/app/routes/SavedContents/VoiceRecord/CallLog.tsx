@@ -127,8 +127,6 @@ export default function CallLog() {
     const fetchCallLogs = async () => {
       try {
         const res = await callLogGet(accessToken, page, 5);
-        console.log(res);
-
         setTotalPages(res.totalPages);
 
         // countryId로 시간 변환
@@ -142,8 +140,6 @@ export default function CallLog() {
           formattedTime: convertToCountryTime(log.startedAt, log.endedAt, log.me.countryId),
         }));
 
-        // console.log(formattedLogs);
-        // setCallLogs(res.content);
         setCallLogs(formattedLogs);
       } catch (error) {
         setError('Error fetching call log data');
