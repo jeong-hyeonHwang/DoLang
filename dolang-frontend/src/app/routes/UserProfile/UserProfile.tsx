@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { useRecoilState } from 'recoil';
@@ -7,10 +8,9 @@ import CountryPicker from '../../../shared/components/Picker/CountryPicker';
 import LanguagePicker from '../../../shared/components/Picker/LanguagePicker';
 import ProficiencyLevelPicker from '../../../shared/components/Picker/ProficiencyLevelPicker';
 import TagInput from '../../../shared/components/Tag/TagInput';
+import { userGet } from '@/api/utils/useUser';
 import { userPut } from '../../../api/utils/user_put';
-import languages from '../../../shared/components/Picker/languages.json';
-import countries from '../../../shared/components/Picker/countries.json';
-import proficiencyLevel from '../../../shared/components/Picker/proficiencyLevel.json';
+
 import Cookies from 'js-cookie';
 
 type Interest = {
@@ -26,24 +26,8 @@ export interface UserProfileData {
   proficiencyLevel: string;
   interests: Interest[];
   profileImageUrl?: string;
+  profileImage?: File | string;
 }
-
-const getLanguageLabel = (code: string) => {
-  const language = languages.find((lang) => lang.value === code);
-  return language ? language.label : '알 수 없음';
-};
-const getFlagEmoji = (code: string) => {
-  const language = languages.find((lang) => lang.value === code);
-  return language ? `🇨🇭` : '';
-};
-const getProficiencyLabel = (code: string) => {
-  const proficiency = proficiencyLevel.find((level) => level.value === code);
-  return proficiency ? proficiency.label : '알 수 없음';
-};
-const getCountryLabel = (code: string) => {
-  const country = countries.find((coun) => coun.value === code);
-  return country ? country.label : '알 수 없음';
-};
 
 const PageContainer = styled.div`
   background-color: #ffffff;
@@ -52,7 +36,7 @@ const PageContainer = styled.div`
   margin: 2rem auto;
   padding: 2rem;
   border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
 `;
 
 const Title = styled.h2`
@@ -67,6 +51,7 @@ const Form = styled.form`
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  padding: 20px;
 `;
 
 const FormGroup = styled.div`
@@ -79,13 +64,15 @@ const FormItem = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  /* align-items: center; */
 `;
 
 const RowContainer = styled.div`
   display: flex;
   gap: 1rem;
   width: 100%;
+  justify-content: space-between;
+  padding: 10px;
 `;
 
 const Label = styled.label`
@@ -93,6 +80,7 @@ const Label = styled.label`
   font-size: 16px;
   color: #495057;
   text-align: left;
+  margin-bottom: 10px;
 `;
 
 const Input = styled.input`
@@ -128,6 +116,13 @@ const SubmitButton = styled.button`
   &:hover {
     background-color: #43a047;
   }
+  &:disabled {
+    background-color: #5f5f5f;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+  }
 `;
 
 const ProfileImageContainer = styled.div`
@@ -162,22 +157,17 @@ const ImageUploadButton = styled.label`
 function UserProfile() {
   const [user, setUser] = useRecoilState(userState);
   const [loading, setLoading] = useState(true);
-  const [profileImageUrl, setProfileImageUrl] = useState<string>('/placeholder.svg');
+  const [profileImageUrl, setProfileImageUrl] = useState<string>('default-user.png');
+  const [profileImage, setProfileImage] = useState<File | string>();
 
-  useEffect(() => {
-    const storedUser = sessionStorage.getItem('user');
-    if (storedUser) {
-      const parsedUser = JSON.parse(storedUser);
-      setUser(parsedUser);
-    }
-    setLoading(false);
-  }, [setUser]);
+  const accessToken = Cookies.get('access_token');
 
   const {
     register,
     handleSubmit,
     control,
     setValue,
+    watch,
     formState: { errors },
     reset,
   } = useForm<UserProfileData>({
@@ -188,33 +178,44 @@ function UserProfile() {
       targetLanguage: '',
       proficiencyLevel: '',
       interests: [],
-      profileImageUrl: '/placeholder.svg',
+      profileImageUrl: 'default-user.png',
+      profileImage: '',
     },
   });
 
   useEffect(() => {
-    if (user) {
-      reset({
-        nickname: user.nickname ?? '',
-        nationality: user.nationality ?? '',
-        nativeLanguage: user.nativeLanguage ?? '',
-        targetLanguage: user.targetLanguage ?? '',
-        proficiencyLevel: user.proficiencyLevel ?? '',
-        interests: user.interests ?? [],
-        profileImageUrl: user.profileImageUrl ?? '',
-      });
-      setProfileImageUrl(user.profileImageUrl ?? '');
-    }
-  }, [user, reset]);
+    const fetchUser = async () => {
+      try {
+        const storedUser = await userGet(accessToken);
+        if (storedUser) {
+          setUser(storedUser.result);
+
+          reset({
+            nickname: storedUser.result.nickname ?? '',
+            nationality: storedUser.result.nationality ?? '',
+            nativeLanguage: storedUser.result.nativeLanguage ?? '',
+            targetLanguage: storedUser.result.targetLanguage ?? '',
+            proficiencyLevel: storedUser.result.proficiencyLevel ?? '',
+            interests: storedUser.result.interests ?? [],
+            profileImageUrl: storedUser.result.profileImageUrl ?? 'default-user.png',
+            profileImage: storedUser.result.profileImageUrl || '',
+          });
+          setProfileImageUrl(storedUser.result.profileImageUrl ?? 'default-user.png');
+        }
+      } catch (error) {
+        console.error('failed to fetch user', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUser();
+  }, [accessToken, reset, setUser]);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
+
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfileImageUrl(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      setProfileImage(file);
     }
   };
 
@@ -223,28 +224,48 @@ function UserProfile() {
     handleSubmit(onSubmit)();
   };
 
-  const accessToken = Cookies.get('access_token');
-
   const onSubmit = async (data: UserProfileData) => {
     setLoading(true);
     try {
-      const formattedData = {
-        ...data,
-        interests: data.interests.map((item) => ({
-          tagId: item.tagId,
-          name: typeof item.name === 'string' ? item.name : item.name?.name || '',
-        })),
-      };
-      const formattedInter = {
+      const formattedInterest = {
         ...data,
         interests: data.interests.map((value) => value.tagId),
       };
 
-      const res = await userPut(formattedInter, accessToken);
+      if ((data.nativeLanguage ?? user?.nativeLanguage) === (data.targetLanguage ?? user?.targetLanguage)) {
+        alert('모국어와 관심언어 설정을 다르게 해주세요.');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('nickname', data.nickname);
+      formData.append('nationality', data.nationality);
+      formData.append('nativeLanguage', data.nativeLanguage);
+      formData.append('targetLanguage', data.targetLanguage);
+      formData.append('proficiencyLevel', data.proficiencyLevel);
+      formData.append('profileImageUrl', 'default-user.png');
+      formData.append('interests', formattedInterest.interests.join(', '));
+
+      if (profileImage) {
+        formData.append('profileImage', profileImage);
+      }
+
+      const userPutData: UserProfileData = {
+        nickname: data.nickname,
+        nationality: data.nationality,
+        nativeLanguage: data.nativeLanguage,
+        targetLanguage: data.targetLanguage,
+        proficiencyLevel: data.proficiencyLevel,
+        interests: formattedInterest.interests,
+        profileImageUrl: 'default-user.png',
+        profileImage: profileImage,
+      };
+      const res = await userPut(formData, accessToken);
       if (res.code === 200) {
         alert('프로필이 성공적으로 업데이트되었습니다.');
-        setUser(data);
-        sessionStorage.setItem('user', JSON.stringify(data));
+        const res = await userGet(accessToken);
+        setUser(res.result);
+        sessionStorage.setItem('user', JSON.stringify(res.result));
       } else {
         throw new Error('업데이트에 실패했습니다.');
       }
@@ -261,7 +282,12 @@ function UserProfile() {
       <Title>사용자 프로필</Title>
       <Form>
         <ProfileImageContainer>
-          <ProfileImage src={profileImageUrl} alt="Profile" />
+          <ProfileImage
+            src={
+              profileImage instanceof File ? URL.createObjectURL(profileImage) : profileImageUrl || 'default-user.png'
+            }
+            alt="Profile"
+          />
           <ImageUploadButton>
             프로필 사진 변경
             <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImageUpload} />
@@ -282,7 +308,9 @@ function UserProfile() {
                 name="nationality"
                 control={control}
                 rules={{ required: '국적을 선택해주세요.' }}
-                render={({ field }) => <CountryPicker {...field} />}
+                render={({ field }) => {
+                  return <CountryPicker {...field} disabled={true} />;
+                }}
               />
               {errors.nationality && <ErrorMessage>{errors.nationality.message}</ErrorMessage>}
             </FormItem>
@@ -292,7 +320,7 @@ function UserProfile() {
                 name="nativeLanguage"
                 control={control}
                 rules={{ required: '모국어를 선택해주세요.' }}
-                render={({ field }) => <LanguagePicker {...field} />}
+                render={({ field }) => <LanguagePicker {...field} disabled={true} />}
               />
               {errors.nativeLanguage && <ErrorMessage>{errors.nativeLanguage.message}</ErrorMessage>}
             </FormItem>
@@ -317,7 +345,9 @@ function UserProfile() {
                 name="proficiencyLevel"
                 control={control}
                 rules={{ required: '회화수준을 선택해주세요.' }}
-                render={({ field }) => <ProficiencyLevelPicker {...field} />}
+                render={({ field }) => {
+                  return <ProficiencyLevelPicker {...field} />;
+                }}
               />
               {errors.proficiencyLevel && <ErrorMessage>{errors.proficiencyLevel.message}</ErrorMessage>}
             </FormItem>
@@ -367,7 +397,7 @@ function UserProfile() {
           />
         </FormGroup>
 
-        <SubmitButton type="submit" onClick={handleFormSubmit}>
+        <SubmitButton type="submit" disabled={watch('interests')?.length < 3} onClick={handleFormSubmit}>
           프로필 업데이트
         </SubmitButton>
       </Form>

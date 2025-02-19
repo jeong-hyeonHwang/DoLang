@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useRecoilState } from 'recoil';
 import { authState } from './authState.ts';
+import { useMutation, useQueryClient } from 'react-query';
 import { userGet } from '../../api/utils/useUser.ts';
 import GoogleAuthModal from './GoogleAuthModal.tsx';
 import Cookies from 'js-cookie';
@@ -24,14 +25,16 @@ const AUTHORIZATION = import.meta.env.VITE_GOOGLE_AUTHORIZATION;
 
 const GoogleLogin = () => {
   const navigate = useNavigate();
-  // const setAuth = useSetRecoilState(authState);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [accessToken, setAccessToken] = useState<string | undefined>(undefined);
   const [auth, setAuth] = useRecoilState(authState);
+  // const queryClient = useQueryClient();
 
   useEffect(() => {
-    console.log('auth: ', auth.user);
-    sessionStorage.setItem('user', JSON.stringify(auth.user));
+    sessionStorage.setItem(
+      'user',
+      JSON.stringify({ ...auth.user, profileImageUrl: auth.user?.profileImageUrl || '/default-user.png' })
+    );
   }, [auth]);
 
   // 1. Authorization code 발급
@@ -97,7 +100,7 @@ const GoogleLogin = () => {
         }));
 
         const res = await userGet(data.access_token);
-        console.log('res', res);
+        // console.log('res', res);
         if (res.result?.nickname && res.result?.nationality) {
           alert('로그인 되었습니다.');
           sessionStorage.setItem('isLoggedIn', JSON.stringify(true));
@@ -115,7 +118,7 @@ const GoogleLogin = () => {
             refreshToken: data.refresh_token,
             user: null,
           });
-          console.log(data.access_token);
+          // console.log(data.access_token);
           navigate('/signup/register');
         }
       }

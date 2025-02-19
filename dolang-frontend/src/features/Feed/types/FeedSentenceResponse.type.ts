@@ -1,4 +1,5 @@
-import { FeedParticipantsResponse } from './FeedParticipantsResponse.type.ts';
+import { FeedParticipant, FeedParticipantsResponse } from './FeedParticipantsResponse.type.ts';
+import { MyFeed } from './MyFeedResponse.type.ts';
 export interface FeedSentenceResponse {
   isSuccess: boolean;
   code: number;
@@ -19,5 +20,5 @@ export interface Feed {
   lang: string;
   isNativeFeed: boolean;
   sentenceInfo: SentenceInfo;
-  userParticipation: Partial<FeedParticipantsResponse>;
+  userParticipation: Partial<MyFeed>;
 }

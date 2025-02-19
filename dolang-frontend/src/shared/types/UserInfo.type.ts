@@ -1,7 +1,6 @@
 export interface Interest {
-  tagId: number;
-  // nativeLanguageId: string;
-  name: string;
+  tagId?: number;
+  name?: string;
 }
 
 export interface User {
@@ -12,4 +11,5 @@ export interface User {
   targetLanguage: string | null;
   proficiencyLevel: string | null;
   interests: Interest[];
+  profileImage?: File | null;
 }

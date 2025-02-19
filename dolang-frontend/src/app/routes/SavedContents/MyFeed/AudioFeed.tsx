@@ -6,15 +6,15 @@ import { Bookmark, Heart } from 'lucide-react';
 import Waveform from '@/shared/components/waveform/Waveform';
 import { useRecoilState } from 'recoil';
 import { userState } from '@/features/Auth/userState';
-import { postBookmark, postHeart } from '@/features/Feed/services/reactionService';
 import { MyFeed } from '@/features/Feed/types/MyFeedResponse.type';
 import { css } from '@emotion/react';
 import { ClipLoader } from 'react-spinners';
+import { usePostBookmark, usePostHeart } from '@/features/Feed/hooks/useFeedReactions';
 const Container = styled.div`
   margin: 0 auto;
   padding: 32px;
-  width: 70%;
-  min-width: 30rem
+  width: 100%;
+  min-width: 30rem;
 `;
 
 const Header = styled.div`
@@ -23,12 +23,6 @@ const Header = styled.div`
   align-items: center;
   gap: 1rem;
   margin-bottom: 32px;
-`;
-
-const Title = styled.h1`
-  font-size: 28px;
-  font-weight: bold;
-  color: #212529;
 `;
 
 const MyFeedList = styled.div`
@@ -64,8 +58,8 @@ const Text = styled.div`
 `;
 
 const NativeText = styled.p`
-  font-size: 0.5rem;
-  min-height: 0.5rem;
+  font-size: 0.7rem;
+  min-height: 0.7rem;
   color: #495057;
   margin-bottom: 8px;
 `;
@@ -90,6 +84,23 @@ const LikeButton = styled.div<{ isLiked: boolean }>`
   transition: all 0.2s ease;
   svg {
     fill: ${(props) => (props.isLiked ? '#e03131' : 'none')};
+  }
+`;
+
+const BookmarkButton = styled.div<{ isBookmarked: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: absolute;
+  right: 0;
+  top: 0;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 20px;
+  transition: all 0.2s ease;
+  svg {
+    fill: ${(props) => (props.isBookmarked ? '#00c659' : 'none')};
   }
 `;
 
@@ -120,34 +131,39 @@ export default function AudioFeed() {
       </div>
     );
   if (error) return <div>데이터를 불러오는 중 오류가 발생했습니다.</div>;
-  if (myFeedList?.result.content.length === 0) return <div>등록된 피드가 없습니다.</div>;
+  if (myFeedList?.result.content.length === 0) return <div>참여한 피드가 없습니다. 피드에 참여해보세요!</div>;
 
   return (
     <Container>
-      <Header >
-        <Title>내 피드</Title>
+      <Header>
         <LanguagePicker value={currentLanguage} onChange={setCurrentLanguage} />
       </Header>
 
-        <MyFeedList>
-          {myFeedList?.result.content.map((item) => (
-            <div
-              className="feed-container"
-              key={item.feedId}
-              style={{ display: 'flex', flexDirection: 'row', gap: '1rem' }}
-            >
-              <DateLabel>{new Date(item.date).toLocaleDateString()}</DateLabel>
-              <FeedCard item={item} isNativeLanguage={isNativeLanguage} />
-            </div>
-          ))}
-        </MyFeedList>
+      <MyFeedList>
+        {myFeedList?.result.content.map((item) => (
+          <div
+            className="feed-container"
+            key={item.feedId}
+            style={{ display: 'flex', flexDirection: 'row', gap: '1rem' }}
+          >
+            <DateLabel>{new Date(item.date).toLocaleDateString()}</DateLabel>
+            <FeedCard item={item} isNativeLanguage={isNativeLanguage} />
+          </div>
+        ))}
+      </MyFeedList>
     </Container>
   );
 }
 
 export const FeedCard = ({ item, isNativeLanguage }: { item: MyFeed; isNativeLanguage: boolean }) => {
-  const handleBookmark = (feedId: number, postId: number) => postBookmark(feedId, postId);
-  const handleHeart = (feedId: number, postId: number) => postHeart(feedId, postId);
+  const { mutate: postBookmark } = usePostBookmark();
+  const { mutate: postHeart } = usePostHeart();
+  const handleBookmark = async (): Promise<void> => {
+    postBookmark({ feedId: item.feedId, postId: item.postId });
+  };
+  const handleHeart = async (): Promise<void> => {
+    postHeart({ feedId: item.feedId, postId: item.postId });
+  };
 
   return (
     <div css={feedCardStyle}>
@@ -158,14 +174,14 @@ export const FeedCard = ({ item, isNativeLanguage }: { item: MyFeed; isNativeLan
         </Text>
 
         {isNativeLanguage ? (
-          <LikeButton isLiked={!!item.isSelfHearted} onClick={() => handleHeart(item.feedId, item.postId)}>
-            <Heart size={20} />
-            {item.heartCount}
-          </LikeButton>
-        ) : (
-          <LikeButton isLiked={!!item.isSelfBookmarked} onClick={() => handleBookmark(item.feedId, item.postId)}>
+          <BookmarkButton isBookmarked={item.isSelfBookmarked ?? false} onClick={handleBookmark}>
             <Bookmark size={20} />
             {item.bookmarkCount}
+          </BookmarkButton>
+        ) : (
+          <LikeButton isLiked={item.isSelfHearted ?? false} onClick={handleHeart}>
+            <Heart size={20} />
+            {item.heartCount}
           </LikeButton>
         )}
 

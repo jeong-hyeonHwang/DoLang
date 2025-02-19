@@ -1,4 +1,4 @@
-import React, { useState, forwardRef } from 'react';
+import React, { useState, forwardRef, useEffect } from 'react';
 import { Select } from 'antd';
 import proficiencyLevel from './proficiencyLevel.json';
 
@@ -10,11 +10,17 @@ interface ProficiencyLevelProps {
 const ProficiencyLevelPicker = forwardRef<HTMLSelectElement, ProficiencyLevelProps>(({ value, onChange }, ref) => {
   const [selectedProficiencyLevel, setSelectedProficiencyLevel] = useState<string | null>(value || null);
 
+  useEffect(() => {
+    setSelectedProficiencyLevel(value || null);
+  }, [value]);
+
   const handleChange = (value: string) => {
     const selected = proficiencyLevel.find((level) => level.value === value);
     if (selected) {
       setSelectedProficiencyLevel(selected.value);
-      onChange?.(value);
+      if (onChange) {
+        onChange(value);
+      }
     }
   };
 
@@ -43,4 +49,5 @@ const ProficiencyLevelPicker = forwardRef<HTMLSelectElement, ProficiencyLevelPro
   );
 });
 
+ProficiencyLevelPicker.displayName = 'ProficiencyLevelPicker';
 export default ProficiencyLevelPicker;

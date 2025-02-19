@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const AppContainer = styled.div`
   background-color: black;
@@ -185,27 +186,29 @@ const FloatingRecord = () => {
   return (
     <>
       <FloatingButton onClick={() => setIsModalOpen(true)}>+</FloatingButton>
-      {isModalOpen && (
-        <ModalContainer>
-          <CloseButton onClick={() => setIsModalOpen(false)}>×</CloseButton>
-          <h2>기록장</h2>
-          <RecordList>
-            {records.map((record, index) => (
-              <RecordItem key={index}>
-                {record}
-                <DeleteButton onClick={() => deleteRecord(index)}>삭제</DeleteButton>
-              </RecordItem>
-            ))}
-          </RecordList>
-          <RecordInput
-            style={{ marginTop: '1rem' }}
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            placeholder="단어를 입력하세요..."
-          />
-          <Button onClick={addRecord}>저장</Button>
-        </ModalContainer>
-      )}
+      <AnimatePresence>
+        {isModalOpen && (
+          <ModalContainer>
+            <CloseButton onClick={() => setIsModalOpen(false)}>×</CloseButton>
+            <h2>기록장</h2>
+            <RecordList>
+              {records.map((record, index) => (
+                <RecordItem key={index}>
+                  {record}
+                  <DeleteButton onClick={() => deleteRecord(index)}>삭제</DeleteButton>
+                </RecordItem>
+              ))}
+            </RecordList>
+            <RecordInput
+              style={{ marginTop: '1rem' }}
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              placeholder="단어를 입력하세요..."
+            />
+            <Button onClick={addRecord}>저장</Button>
+          </ModalContainer>
+        )}
+      </AnimatePresence>
     </>
   );
 };
