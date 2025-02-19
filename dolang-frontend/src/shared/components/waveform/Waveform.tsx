@@ -18,6 +18,7 @@ const Waveform = ({ audioSrc }: { audioSrc: string }) => {
       waveRef.current = WaveSurfer.create({
         container: waveContainerRef.current,
         waveColor: '#959595',
+        url: audioSrc,
         width: 80,
         height: 48,
         progressColor: '#000000',
@@ -29,7 +30,7 @@ const Waveform = ({ audioSrc }: { audioSrc: string }) => {
         cursorColor: '#ffffff0',
       });
     }
-    waveRef.current?.load(audioSrc);
+    if (audioSrc) waveRef.current?.load(audioSrc);
   }, [audioSrc]);
 
   const waveIndicatorStyle = css`
@@ -39,7 +40,6 @@ const Waveform = ({ audioSrc }: { audioSrc: string }) => {
     gap: 1rem;
   `;
 
-  if (!waveRef.current) return null;
 
   return (
     <div css={waveIndicatorStyle}>

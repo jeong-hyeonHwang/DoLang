@@ -34,6 +34,7 @@ public enum BaseResponseStatus {
     /**
      * 피드 에러
      */
+    EXIST_POST(false, HttpStatus.NOT_FOUND.value(), "이미 POST를 기록했습니다."),
     NOT_EXIST_FEED(false, HttpStatus.NOT_FOUND.value(), "존재하지 않는 피드입니다."),
     /**
      * 기록 에러
