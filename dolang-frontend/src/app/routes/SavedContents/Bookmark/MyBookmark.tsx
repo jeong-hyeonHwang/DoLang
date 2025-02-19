@@ -1,11 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ClipLoader } from 'react-spinners';
+import { useQuery } from '@tanstack/react-query';
 import styled from '@emotion/styled';
 import LanguagePicker from '@/shared/components/Picker/LanguagePicker';
 import { useFeedWithMyReaction } from '@/features/Feed/hooks/useFeed';
 import { MyFeed } from '@/features/Feed/types/MyFeedResponse.type';
+import { FeedParticipant } from '@/features/Feed/types/FeedParticipantsResponse.type';
+import { getFeedWithMyReactionByFeedId } from '@/features/Feed/services/myFeedService';
 import { css } from '@emotion/react';
-
 const Container = styled.div`
   margin: 0 auto;
   padding: 32px;
@@ -46,6 +48,8 @@ const CardWrapper = styled.div`
   flex: 1 1;
   padding: 1rem;
   gap: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 0.6rem;
 `;
 
 const Text = styled.div`
@@ -68,77 +72,44 @@ const TargetText = styled.b`
   color: #212529;
 `;
 
-const LikeButton = styled.div<{ isLiked: boolean }>`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  position: absolute;
-  right: 0;
-  top: 0;
-  border: none;
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 20px;
-  transition: all 0.2s ease;
-  svg {
-    fill: ${(props) => (props.isLiked ? '#e03131' : 'none')};
-  }
+const FeedDetails = styled.div`
+  margin-top: 32px;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
 `;
 
-const BookmarkButton = styled.div<{ isBookmarked: boolean }>`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  position: absolute;
-  right: 0;
-  top: 0;
-  border: none;
-  cursor: pointer;
+const FeedItem = styled.div`
   padding: 8px;
-  border-radius: 20px;
-  transition: all 0.2s ease;
-  svg {
-    fill: ${(props) => (props.isBookmarked ? '#00c659' : 'none')};
-  }
-`;
-
-const WaveformContainer = styled.div`
-  align-self: flex-end;
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  padding: 8px;
-`;
-
-const feedSentenceSectionStyle = css`
-  background-color: #d1d1d1;
-  padding: 1rem;
-  display: flex;
-  flex: 1 1;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  border-radius: 1rem;
-  gap: 1rem;
+  border-bottom: 1px solid #ddd;
 `;
 
 export default function MyBookmark() {
   const [currentLanguage, setCurrentLanguage] = useState<string>('ko');
-  const [isUnfold, setIsUnfold] = useState<boolean>(false);
+  const [selectedFeedId, setSelectedFeedId] = useState<number | null>(null);
   const { data: bookmarkList, isLoading, error } = useFeedWithMyReaction({ lang: currentLanguage as 'ko' | 'en' });
+
+  const {
+    data: feedParticipants,
+    isLoading: participantsLoading,
+    error: participantsError,
+  } = useQuery({
+    queryKey: ['feedParticipants', selectedFeedId],
+    queryFn: () => getFeedWithMyReactionByFeedId(selectedFeedId!),
+    enabled: !!selectedFeedId,
+  });
+
   useEffect(() => {
     console.log(bookmarkList);
   }, [bookmarkList]);
 
-  if (isLoading)
-    return (
-      <div>
-        <ClipLoader color="#000" size={40} />
-        <p>피드를 불러오는 중입니다...</p>
-      </div>
-    );
+  if (isLoading) return <ClipLoader color="#000" size={40} />;
   if (error) return <div>데이터를 불러오는 중 오류가 발생했습니다.</div>;
   if (bookmarkList?.result.content.length === 0) return <div>북마크한 피드가 없습니다. 피드를 북마크해보세요!</div>;
+
+  const handleFeedClick = (feedId: number) => {
+    setSelectedFeedId(feedId);
+  };
 
   return (
     <Container>
@@ -148,19 +119,50 @@ export default function MyBookmark() {
 
       <MyFeedList>
         {bookmarkList?.result?.content?.map((item) => (
-          <CardWrapper key={item.feedId}>
+          <div
+            key={item.feedId}
+            css={css`
+              display: flex;
+              flex-direction: row;
+              gap: 1rem;
+            `}
+          >
             <DateLabel>{new Date(item.date).toLocaleDateString()}</DateLabel>
-            <MyFeedSentence item={item} />
-          </CardWrapper>
+            <CardWrapper key={item.feedId} onClick={() => handleFeedClick(item.feedId)}>
+              <MyFeedSentence item={item} />
+            </CardWrapper>
+          </div>
         ))}
       </MyFeedList>
+
+      {selectedFeedId && (
+        <FeedDetails>
+          {participantsLoading ? (
+            <ClipLoader color="#000" size={40} />
+          ) : participantsError ? (
+            <div>피드 참여자 데이터를 불러오는 중 오류가 발생했습니다.</div>
+          ) : (
+            <div>
+              <h3>피드 참여 목록</h3>
+              {feedParticipants?.participants?.map((participant: FeedParticipant) => (
+                <FeedItem key={participant.postId}>
+                  <p>{participant.profileImageUrl}</p>
+                  <p>{participant.country}</p>
+                  <p>{participant.voiceUrl}</p>
+                  <p>{participant.voiceCreatedAt}</p>
+                </FeedItem>
+              ))}
+            </div>
+          )}
+        </FeedDetails>
+      )}
     </Container>
   );
 }
 
 export const MyFeedSentence = ({ item }: { item: MyFeed }) => {
   return (
-    <div className="feed-sentence-section" css={feedSentenceSectionStyle}>
+    <div className="feed-sentence-section">
       <TargetText>{item.targetSentence}</TargetText>
       <NativeText>{item.nativeSentence}</NativeText>
     </div>

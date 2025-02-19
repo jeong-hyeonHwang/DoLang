@@ -21,31 +21,30 @@ const FeedView = () => {
     gap: 1rem;
   `;
 
-  const feedviewcontainerstyle = css`
+  const feedViewContainerStyle = css`
     display: flex;
     flex-direction: column;
     gap: 1rem;
     align-items: center;
   `;
 
-  const [feedlang, setfeedlang] = useState<string>('en');
-  const { data: feeddata, error: feederror } = useFeedSentence(feedlang as 'ko' | 'en');
-  const user = JSON.parse(sessionStorage.getItem('user') || '{}');
-  const handlelangchange = (value: string) => setfeedlang(value);
+  const [feedLang, setFeedLang] = useState<string>('en');
+  const { data: feedData, error: feedError } = useFeedSentence(feedLang as 'ko' | 'en');
+  const handleLangChange = (value: string) => setFeedLang(value);
 
   // 에러가 있을 경우 에러 메시지만 렌더링
-  if (feederror) {
+  if (feedError) {
     return (
-      <div className="feed-view-container" css={feedviewcontainerstyle}>
+      <div className="feed-view-container" css={feedViewContainerStyle}>
         <p>피드 데이터를 불러오는 중 오류가 발생했습니다.</p>
       </div>
     );
   }
 
   // data가 아직 없을 경우 로딩중 메시지만 렌더링
-  if (!feeddata) {
+  if (!feedData) {
     return (
-      <div className="feed-view-container" css={feedviewcontainerstyle}>
+      <div className="feed-view-container" css={feedViewContainerStyle}>
         <ClipLoader color="#000" size={40} />
         <p>피드를 불러오는 중입니다...</p>
       </div>
@@ -53,16 +52,16 @@ const FeedView = () => {
   }
 
   return (
-    <div className="feed-view-container" css={feedviewcontainerstyle}>
+    <div className="feed-view-container" css={feedViewContainerStyle}>
       <div className="feed-container" css={feedContainerStyle}>
         <div className="feed-header" css={feedHeaderStyle}>
           <h2>오늘의 피드</h2>
-          <LanguagePicker value={feedlang} onChange={handlelangchange} />
+          <LanguagePicker value={feedLang} onChange={handleLangChange} />
         </div>
 
-        <FeedSentence item={feeddata.result?.feed} />
-        <Recorder feedId={feeddata.result?.feed.feedId} />
-        <FeedList feedId={feeddata.result?.feed.feedId} isNativeLanguage={feeddata.result?.feed.isNativeFeed} />
+        <FeedSentence item={feedData?.result?.feed} />
+        <Recorder feedId={feedData?.result?.feed.feedId} />
+        <FeedList feedId={feedData?.result?.feed.feedId} isNativeLanguage={feedData?.result?.feed.isNativeFeed} />
       </div>
     </div>
   );
