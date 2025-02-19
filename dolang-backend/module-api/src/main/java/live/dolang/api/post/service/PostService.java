@@ -78,6 +78,9 @@ public class PostService {
         DateSentence dateSentence = dateSentenceRepository.findById(dateSentenceId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 ID의 날짜별 문장이 없습니다: " + dateSentenceId));
 
+        if (userDateSentenceRepository.existsByUser_IdAndDateSentence_Id(userId, dateSentenceId))
+            throw new IllegalArgumentException("이미 post 등록을 했습니다: " + dateSentenceId);
+
         // 새로운 피드 객체 생성 및 저장
         UserDateSentence userDateSentence = UserDateSentence.builder()
                 .user(user)
