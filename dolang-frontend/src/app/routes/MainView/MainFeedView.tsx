@@ -1,4 +1,3 @@
-import MainFeedList from './MainFeedList.tsx';
 import { theme } from './MainTheme.ts';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
@@ -6,9 +5,10 @@ import { css } from '@emotion/react';
 import { useFeedSentence } from '@/features/Feed/hooks/useFeed.ts';
 import LanguagePicker from '@/shared/components/Picker/LanguagePicker.tsx';
 import { ClipLoader } from 'react-spinners';
-import { Feed } from '@/features/Feed/types/FeedSentenceResponse.type.ts';
 import { motion } from 'framer-motion';
+import { FeedSentence } from '../FeedView.tsx';
 import styled from '@emotion/styled';
+import BaseFeedList from '@/features/Feed/components/BaseFeedList.tsx';
 
 const FeedContainer = styled(motion.div)`
   padding: 2rem;
@@ -106,30 +106,20 @@ const MainFeedView = () => {
             </button>
           </div>
 
-          <FeedSentence item={feedData?.result?.feed} />
-          <MainFeedList feedId={feedData?.result?.feed.feedId} isNativeLanguage={feedData?.result?.feed.isNativeFeed} />
+          {feedData?.code === 403 ? (
+            <FeedSentence sentence={'모국어 피드에 참여하시면 학습 언어 피드를 확인할 수 있습니다!'} />
+          ) : (
+            <FeedSentence sentence={feedData?.result?.feed.sentenceInfo.sentence} />
+          )}
+          <BaseFeedList
+            feedId={feedData?.result?.feed.feedId}
+            isNativeLanguage={feedData?.result?.feed.isNativeFeed}
+            variant="main"
+          />
         </div>
       </div>
     </FeedContainer>
   );
 };
 
-export const FeedSentence = ({ item }: { item: Feed }) => {
-  const feedSentenceSectionStyle = css`
-    background-color: #d1d1d1;
-    height: 3rem;
-    padding: 1rem;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    border-radius: 1rem;
-  `;
-  return (
-    <div className="feed-sentence-section" css={feedSentenceSectionStyle}>
-      <p>{item?.sentenceInfo.sentence}</p>
-    </div>
-  );
-};
 export default MainFeedView;

@@ -1,4 +1,4 @@
-import FeedList from '../../features/Feed/components/FeedList.tsx';
+import BaseFeedList from '../../features/Feed/components/BaseFeedList.tsx';
 import { useState } from 'react';
 import { css } from '@emotion/react';
 import Recorder from '../../features/Feed/components/Recorder.tsx';
@@ -22,6 +22,7 @@ const FeedView = () => {
 
   const feedViewContainerStyle = css`
     display: flex;
+    padding: 1rem;
     flex-direction: column;
     gap: 1rem;
     align-items: center;
@@ -65,7 +66,11 @@ const FeedView = () => {
         )}
         <Recorder feedId={feedData?.result?.feed.feedId} />
         {feedData?.code !== 403 && (
-          <FeedList feedId={feedData?.result?.feed.feedId} isNativeLanguage={feedData?.result?.feed.isNativeFeed} />
+          <BaseFeedList
+            feedId={feedData?.result?.feed.feedId}
+            isNativeLanguage={feedData?.result?.feed.isNativeFeed}
+            variant="default"
+          />
         )}
       </div>
     </div>
@@ -91,4 +96,3 @@ export const FeedSentence = ({ sentence }: { sentence: string }) => {
   );
 };
 export default FeedView;
-
