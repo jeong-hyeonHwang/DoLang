@@ -1,8 +1,7 @@
 import styled from '@emotion/styled';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Phone } from 'lucide-react';
 import FeedSection from './FeedSection';
-import UserProfileImage from './UserProfileImage';
 import { theme } from './MainTheme';
 import { motion } from 'framer-motion';
 import Modal from 'antd/es/modal/Modal';
@@ -10,6 +9,11 @@ import { useStompClientContext } from '@/features/Matching/hooks/useClientContex
 import { usePeerContext } from '@/features/VoiceCall/hooks/usePeerContext';
 import { MatchingComponent } from '@/features/Matching/components/MatchingComponent';
 import { useNavigate } from 'react-router';
+import { useRecoilState } from 'recoil';
+import { userGet } from '@/api/utils/useUser';
+import { userState } from '@/features/Auth/userState';
+import Cookies from 'js-cookie';
+import MainFeedView from './MainFeedView';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -38,6 +42,10 @@ const CallSection = styled(motion.div)`
   margin-bottom: 2rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition: box-shadow 0.3s ease;
+  height: 10rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 
   &:hover {
     box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
@@ -48,24 +56,33 @@ const TopicRow = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1.5rem;
+  width: 100%;
+  /* margin-bottom: 1rem; */
 `;
 
 const TopicContent = styled.div`
   display: flex;
   align-items: center;
-  gap: 1rem;
+  justify-content: space-between;
+  /* gap: 3rem; */
+  /* align-items: center; */
+  width: 100%;
 `;
 
 const Flag = styled.img`
-  width: 2rem;
-  height: 1.5rem;
-  object-fit: contain;
+  width: 4rem;
+  height: 2.5rem;
+  margin-top: 10px;
+  /* text-decoration: none; */
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.2);
+  /* object-fit: contain; */
 `;
 
 const Topics = styled.span`
   color: ${theme.colors.lightText};
   font-size: ${theme.fontSizes.medium};
+  margin-top: -40px;
+  flex-grow: 1;
 `;
 
 const CallButton = styled(motion.button)`
@@ -80,6 +97,7 @@ const CallButton = styled(motion.button)`
   color: ${theme.colors.white};
   cursor: pointer;
   transition: background 0.3s ease;
+  /* margin-left: 30px; */
 
   &:hover {
     background: ${theme.colors.primary};
@@ -118,6 +136,35 @@ export default function MainViewComponent() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { isConnected, isMatching, matchedUser, connectionError, connect, disconnect, startMatching, cancelMatching } =
     useStompClientContext();
+  const [user, setUser] = useRecoilState(userState);
+  const [loading, setLoading] = useState(true);
+  const isLoggedIn = JSON.parse(sessionStorage.getItem('isLoggedIn') || 'false');
+
+  const accessToken = Cookies.get('access_token');
+  const defaultUser = sessionStorage.getItem('user');
+
+  // 실제 user의 정보를 불러와서 call 옆에 띄우기
+  useEffect(() => {
+    if (!accessToken) {
+      setLoading(false);
+      return;
+    }
+
+    const fetchUser = async () => {
+      try {
+        const storedUser = await userGet(accessToken);
+        console.log(storedUser);
+        setUser(storedUser?.result || defaultUser);
+      } catch (error) {
+        console.error('failed to fetch user', error);
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, [accessToken]);
 
   const {
     peerId,
@@ -149,13 +196,6 @@ export default function MainViewComponent() {
     cancelMatching();
     setIsModalOpen(false);
   };
-  const users = [
-    { id: '1', name: 'User 1', profileImage: 'https://i.pravatar.cc/150?img=1' },
-    { id: '2', name: 'User 2', profileImage: 'https://i.pravatar.cc/150?img=2' },
-    { id: '3', name: 'User 3', profileImage: 'https://i.pravatar.cc/150?img=3' },
-    { id: '4', name: 'User 4', profileImage: 'https://i.pravatar.cc/150?img=4' },
-    { id: '5', name: 'User 5', profileImage: 'https://i.pravatar.cc/150?img=5' },
-  ];
 
   return (
     <Container>
@@ -164,27 +204,54 @@ export default function MainViewComponent() {
       <CallSection initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
         <TopicRow>
           <TopicContent>
-            <Flag src="https://flagcdn.com/w40/us.png" alt="US Flag" />
-            <Topics>#Sports #Movie #Music</Topics>
+            {loading ? (
+              <p>불러오는 중...</p>
+            ) : isLoggedIn && user ? (
+              <Flag className={`fi fi-${user?.nationality}`} />
+            ) : null}
+            <Topics style={{ marginLeft: '10px', marginRight: '10px' }}>
+              {loading ? (
+                <p>불러오는 중...</p>
+              ) : isLoggedIn && user ? (
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    width: '100%',
+                    flexDirection: 'column',
+                    textAlign: 'center',
+                  }}
+                >
+                  <p style={{ fontWeight: 'bold' }}>
+                    나의 관심사 태그
+                    <button onClick={() => navigate('/profile')} style={{ marginLeft: '10px', fontSize: '12px' }}>
+                      수정
+                    </button>
+                  </p>
+                  <span style={{ whiteSpace: 'wrap' }}>
+                    {user.interests?.length > 0
+                      ? user.interests.map((interest) => `#${interest.tagName || interest.name}`).join(', ')
+                      : '관심사 설정이 필요합니다.'}
+                  </span>
+                </div>
+              ) : (
+                <p>로그인이 필요합니다.</p>
+              )}
+            </Topics>
           </TopicContent>
-          <CallButton whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={openModal}>
-            <Phone size={24} />
-          </CallButton>
+          {isLoggedIn && (
+            <CallButton whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={openModal}>
+              <Phone size={24} />
+            </CallButton>
+          )}
         </TopicRow>
         <Modal title="대화 상대 매칭" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
           <MatchingComponent />
         </Modal>
-
-        <UserProfiles>
-          {users.map((user) => (
-            <UserProfile key={user.id} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-              <UserProfileImage src={user.profileImage} alt={`${user.name}'s profile`} />
-            </UserProfile>
-          ))}
-        </UserProfiles>
       </CallSection>
 
-      <FeedSection />
+      <MainFeedView />
     </Container>
   );
 }

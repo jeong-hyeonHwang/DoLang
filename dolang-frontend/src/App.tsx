@@ -39,7 +39,14 @@ function App() {
                 <Route index element={<MainView />} />
               </Route>
               <Route element={<Layout />}>
-                <Route path="feed" element={<FeedView />} />
+                <Route
+                  path="feed"
+                  element={
+                    <ProtectedRoute>
+                      <FeedView />
+                    </ProtectedRoute>
+                  }
+                />
                 <Route path="savedContents" element={<SavedContentsView />} />
                 <Route
                   path="profile"
