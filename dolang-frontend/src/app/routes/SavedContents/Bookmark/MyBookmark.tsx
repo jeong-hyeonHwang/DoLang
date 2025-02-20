@@ -85,7 +85,8 @@ const FeedItem = styled.div`
 `;
 
 export default function MyBookmark() {
-  const [currentLanguage, setCurrentLanguage] = useState<string>('ko');
+  const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+  const [currentLanguage, setCurrentLanguage] = useState<string>(user?.nativeLanguage as 'ko' | 'en');
   const [selectedFeedId, setSelectedFeedId] = useState<number | null>(null);
   const { data: bookmarkList, isLoading, error } = useFeedWithMyReaction({ lang: currentLanguage as 'ko' | 'en' });
 
