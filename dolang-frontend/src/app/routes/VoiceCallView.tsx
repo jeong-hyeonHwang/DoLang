@@ -85,7 +85,7 @@ const CallTopic = ({
   onNextQuestion: () => void;
 }) => (
   <div css={styles.callTopicContainer}>
-    <CallTagsContainer tags={tags} />
+    {/* <CallTagsContainer tags={tags} /> */}
     <CallTopicContent question={question} onNextQuestion={onNextQuestion} />
     <CallSttWrapper />
     <audio ref={audioRef} autoPlay controls style={{ visibility: 'hidden' }} />
@@ -121,13 +121,13 @@ const CallSttWrapper = () => {
   );
 };
 
-const CallTagsContainer = ({ tags }: { tags: Tag[] }) => (
-  <div css={styles.callTagsContainer}>
-    {tags.map((tag) => (
-      <span key={tag.tagId}>#{tag.translatedName}</span>
-    ))}
-  </div>
-);
+// const CallTagsContainer = ({ tags }: { tags: Tag[] }) => (
+//   <div css={styles.callTagsContainer}>
+//     {tags.map((tag) => (
+//       <span key={tag.tagId}>#{tag.translatedName}</span>
+//     ))}
+//   </div>
+// );
 
 const CallControls = () => (
   <div css={styles.callControlsContainer}>
