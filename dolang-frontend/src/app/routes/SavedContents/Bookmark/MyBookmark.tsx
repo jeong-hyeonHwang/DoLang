@@ -5,9 +5,9 @@ import styled from '@emotion/styled';
 import LanguagePicker from '@/shared/components/Picker/LanguagePicker';
 import { useFeedWithMyReaction } from '@/features/Feed/hooks/useFeed';
 import { MyFeed } from '@/features/Feed/types/MyFeedResponse.type';
-import { FeedParticipant } from '@/features/Feed/types/FeedParticipantsResponse.type';
 import { getFeedWithMyReactionByFeedId } from '@/features/Feed/services/myFeedService';
 import { css } from '@emotion/react';
+import { FeedCard } from '../MyFeed/AudioFeed';
 const Container = styled.div`
   margin: 0 auto;
   padding: 32px;
@@ -101,11 +101,6 @@ export default function MyBookmark() {
 
   if (isLoading) return <ClipLoader color="#000" size={40} />;
   if (error) return <div>데이터를 불러오는 중 오류가 발생했습니다.</div>;
-  if (bookmarkList?.result.content.length === 0) return <div>북마크한 피드가 없습니다. 피드를 북마크해보세요!</div>;
-
-  const handleFeedClick = (feedId: number) => {
-    setSelectedFeedId(feedId);
-  };
 
   return (
     <Container>
@@ -113,44 +108,24 @@ export default function MyBookmark() {
         <LanguagePicker value={currentLanguage} onChange={setCurrentLanguage} />
       </Header>
 
-      <MyFeedList>
-        {bookmarkList?.result?.content?.map((item) => (
-          <div
-            key={item.feedId}
-            css={css`
-              display: flex;
-              flex-direction: row;
-              gap: 1rem;
-            `}
-          >
-            <DateLabel>{new Date(item.date).toLocaleDateString()}</DateLabel>
-            <CardWrapper key={item.feedId} onClick={() => handleFeedClick(item.feedId)}>
-              <MyFeedSentence item={item} />
-            </CardWrapper>
-          </div>
-        ))}
-      </MyFeedList>
-
-      {selectedFeedId && (
-        <FeedDetails>
-          {participantsLoading ? (
-            <ClipLoader color="#000" size={40} />
-          ) : participantsError ? (
-            <div>피드 참여자 데이터를 불러오는 중 오류가 발생했습니다.</div>
-          ) : (
-            <div>
-              <h3>피드 참여 목록</h3>
-              {feedParticipants?.participants?.map((participant: FeedParticipant) => (
-                <FeedItem key={participant.postId}>
-                  <p>{participant.profileImageUrl}</p>
-                  <p>{participant.country}</p>
-                  <p>{participant.voiceUrl}</p>
-                  <p>{participant.voiceCreatedAt}</p>
-                </FeedItem>
-              ))}
+      {bookmarkList?.result.content.length === 0 ? (
+        <div>북마크한 피드가 없습니다. 피드를 북마크해보세요!</div>
+      ) : (
+        <MyFeedList>
+          {bookmarkList?.result?.content?.map((item) => (
+            <div
+              key={item.feedId}
+              css={css`
+                display: flex;
+                flex-direction: row;
+                gap: 1rem;
+              `}
+            >
+              <DateLabel>{new Date(item.date).toLocaleDateString()}</DateLabel>
+              <FeedCard item={item} isNativeLanguage={item.isNativeFeed} />
             </div>
-          )}
-        </FeedDetails>
+          ))}
+        </MyFeedList>
       )}
     </Container>
   );

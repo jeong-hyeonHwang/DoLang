@@ -1,7 +1,6 @@
 import styled from '@emotion/styled';
 import { useEffect, useState } from 'react';
 import { Phone } from 'lucide-react';
-import FeedSection from './FeedSection';
 import { theme } from './MainTheme';
 import { motion } from 'framer-motion';
 import Modal from 'antd/es/modal/Modal';
@@ -108,8 +107,7 @@ const CallButton = styled(motion.button)`
 
 export default function MainViewComponent() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { isConnected, isMatching, matchedUser, connectionError, connect, disconnect, startMatching, cancelMatching } =
-    useStompClientContext();
+  const { matchedUser, disconnect, cancelMatching } = useStompClientContext();
   const [user, setUser] = useRecoilState(userState);
   const [loading, setLoading] = useState(true);
   const isLoggedIn = JSON.parse(sessionStorage.getItem('isLoggedIn') || 'false');
