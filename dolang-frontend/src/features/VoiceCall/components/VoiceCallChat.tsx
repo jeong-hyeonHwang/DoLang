@@ -5,6 +5,12 @@ const VoiceCallChat = () => {
   const { messages, sendMessage } = usePeerContext();
   const [message, setMessage] = useState('');
 
+  const handleSendMessage = () => {
+    if (message.trim()) {
+      sendMessage(message);
+      setMessage('');
+    }
+  };
   return (
     <div style={styles.chatContainer}>
       <h3>💬 실시간 채팅</h3>
@@ -26,16 +32,11 @@ const VoiceCallChat = () => {
           onChange={(e) => setMessage(e.target.value)}
           placeholder="메시지를 입력하세요..."
           style={styles.chatInput}
-        />
-        <button
-          style={styles.sendButton}
-          onClick={() => {
-            if (message.trim()) {
-              sendMessage(message);
-              setMessage('');
-            }
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') handleSendMessage();
           }}
-        >
+        />
+        <button style={styles.sendButton} onClick={handleSendMessage}>
           ➤ 전송
         </button>
       </div>
@@ -53,6 +54,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     position: 'fixed',
     right: 0,
     height: '100vh',
+    maxWidth: '20vw',
   },
   chatBox: {
     overflowY: 'auto',

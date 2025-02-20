@@ -17,7 +17,7 @@ export interface MatchingResult {
 
 export interface MatchedUser {
   peerId: string;
-  userId: string;
+  userId: number;
   username: string;
   gender: 'M' | 'F';
   profileImageUrl: string;

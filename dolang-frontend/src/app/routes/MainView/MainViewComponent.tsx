@@ -13,6 +13,8 @@ import { userGet } from '@/api/utils/useUser';
 import { userState } from '@/features/Auth/userState';
 import Cookies from 'js-cookie';
 import MainFeedView from './MainFeedView';
+import { postStartCall } from '@/features/VoiceCall/services/callService';
+import { useCallContext } from '@/features/VoiceCall/hooks/useCallContext';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -107,7 +109,7 @@ const CallButton = styled(motion.button)`
 
 export default function MainViewComponent() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { matchedUser, disconnect, cancelMatching } = useStompClientContext();
+  const { matchingResult, disconnect, cancelMatching } = useStompClientContext();
   const [user, setUser] = useRecoilState(userState);
   const [loading, setLoading] = useState(true);
   const isLoggedIn = JSON.parse(sessionStorage.getItem('isLoggedIn') || 'false');
@@ -139,16 +141,26 @@ export default function MainViewComponent() {
   }, [accessToken]);
 
   const { remotePeerId, initiateCall } = usePeerContext();
+  const { setCallId } = useCallContext();
   const navigate = useNavigate();
 
   const openModal = () => {
     setIsModalOpen(true);
   };
 
-  const handleOk = () => {
-    if (matchedUser) {
-      navigate('/call');
-      initiateCall(remotePeerId);
+  const handleOk = async () => {
+    if (!matchingResult) return;
+
+    navigate('/call');
+    initiateCall(remotePeerId);
+
+    if (matchingResult.ownerYN) {
+      try {
+        const callId = await postStartCall(matchingResult.matchedUser.peerId);
+        setCallId(callId);
+      } catch (error) {
+        console.error('failed to start call', error);
+      }
     }
   };
 

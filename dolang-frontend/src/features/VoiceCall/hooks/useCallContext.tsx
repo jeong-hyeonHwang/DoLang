@@ -1,4 +1,5 @@
-import React, { useEffect, useState, createContext, useContext } from 'react';
+import React, { useEffect, useState, createContext, useContext, useRef } from 'react';
+import { postEndCall, postStartCall } from '../services/callService';
 
 interface CallContextValue {
   hour: number;
@@ -6,6 +7,8 @@ interface CallContextValue {
   second: number;
   isCallEnded: boolean;
   endCall: () => void;
+  callId: number;
+  setCallId: (callId: number) => void;
   hours: number;
   minutes: number;
   seconds: number;
@@ -15,14 +18,13 @@ const CallContext = createContext<CallContextValue | null>(null);
 
 export function useCallContext() {
   const context = useContext(CallContext);
-  if (!context) {
-    throw new Error('useCallContext must be used within a CallContextProvider');
-  }
+  if (!context) throw new Error('useCallContext must be used within a CallContextProvider');
   return context;
 }
 
 export const CallContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [isCallEnded, setIsCallEnded] = useState(false);
+  const [callId, setCallId] = useState<number>(0);
   const [totalSeconds, setTotalSeconds] = useState<number>(0);
 
   const hours = Math.floor(totalSeconds / 3600);
@@ -42,6 +44,7 @@ export const CallContextProvider = ({ children }: { children: React.ReactNode })
 
   const endCall = () => {
     setIsCallEnded(true);
+    postEndCall(callId);
   };
 
   const value = {
@@ -53,6 +56,8 @@ export const CallContextProvider = ({ children }: { children: React.ReactNode })
     hours,
     minutes,
     seconds,
+    callId,
+    setCallId,
   };
   return <CallContext.Provider value={value}>{children}</CallContext.Provider>;
 };

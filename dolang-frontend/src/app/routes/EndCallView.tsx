@@ -7,8 +7,8 @@ import { useEffect } from 'react';
 import { useCallContext } from '@/features/VoiceCall/hooks/useCallContext';
 
 function EndCallView() {
-  const { matchedUser } = useStompClientContext();
-  const { endCall, hour, minute, second } = useCallContext();
+  const { matchingResult } = useStompClientContext();
+  const { endCall, hour, minute, second, callId } = useCallContext();
   const viewStyle = css`
     display: flex;
     flex-direction: column;
@@ -32,12 +32,8 @@ function EndCallView() {
     background-color: #575a5e;
   `;
 
-  // 분, 초를 두 자리 숫자로 포매팅
-  const formattedMinute = minute.toString().padStart(2, '0');
-  const formattedSecond = second.toString().padStart(2, '0');
-
   useEffect(() => {
-    endCall();
+    if (matchingResult?.ownerYN) endCall();
   }, []);
 
   return (
@@ -50,9 +46,9 @@ function EndCallView() {
           style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
         >
           <UserImageWrapper
-            profileImageUrl={matchedUser?.profileImageUrl || ''}
-            userNickname={matchedUser?.nickname || ''}
-            userCountry={matchedUser?.countryId || ''}
+            profileImageUrl={matchingResult?.matchedUser?.profileImageUrl || ''}
+            userNickname={matchingResult?.matchedUser?.nickname || ''}
+            userCountry={matchingResult?.matchedUser?.countryId || ''}
           />
         </div>
         <div
@@ -66,10 +62,6 @@ function EndCallView() {
         >
           <h2>대화가 종료되었습니다.</h2>
           <b>대화 내용을 마이페이지에서 다시 볼 수 있어요.</b>
-          <p>
-            총 통화 시간: {hour > 0 ? `${hour}:` : ''}
-            {formattedMinute}:{formattedSecond}
-          </p>
         </div>
 
         <Link to="/">
