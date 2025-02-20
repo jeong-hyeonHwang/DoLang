@@ -1,7 +1,6 @@
-import { Tag } from '@/features/Matching/types/Matching.type';
 export interface PromptQuestionRequest {
-  interestA: Tag[];
-  interestB: Tag[];
+  interestA: string[];
+  interestB: string[];
 }
 
 export interface PromptQuestionResponse {

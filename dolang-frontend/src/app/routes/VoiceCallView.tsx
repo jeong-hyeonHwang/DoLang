@@ -80,7 +80,7 @@ const CallTopic = ({
   onNextQuestion,
 }: {
   audioRef: RefObject<HTMLAudioElement>;
-  tags: Tag[];
+  tags: string[];
   question: string;
   onNextQuestion: () => void;
 }) => (
