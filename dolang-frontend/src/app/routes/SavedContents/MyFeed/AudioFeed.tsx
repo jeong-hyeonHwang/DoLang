@@ -127,6 +127,11 @@ export default function AudioFeed() {
 
   const { data: myFeedList, isLoading, error } = useMyFeed({ lang: currentLanguage as 'ko' | 'en' });
 
+  if (error) return <div>데이터를 불러오는 중 오류가 발생했습니다.</div>;
+  if (myFeedList === undefined || myFeedList.result === undefined)
+    return <div>내가 참여한 피드가 아직 없습니다. 피드에 참여해보세요!</div>;
+  if (myFeedList?.result.content.length === 0) return <div>참여한 피드가 없습니다. 피드에 참여해보세요!</div>;
+
   if (isLoading)
     return (
       <div>
@@ -134,8 +139,7 @@ export default function AudioFeed() {
         <p>피드를 불러오는 중입니다...</p>
       </div>
     );
-  if (error) return <div>데이터를 불러오는 중 오류가 발생했습니다.</div>;
-  if (myFeedList?.result.content.length === 0) return <div>참여한 피드가 없습니다. 피드에 참여해보세요!</div>;
+
 
   return (
     <Container>
