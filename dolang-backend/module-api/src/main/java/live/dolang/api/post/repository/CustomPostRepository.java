@@ -50,12 +50,12 @@ public class CustomPostRepository {
                 ))
                 .from(userDateSentence)
                 // 음성 관련 정보를 위해 dateSentence과 조인 (기본 피드 정보)
+                .join(userProfile)
+                .on(userDateSentence.user.id.eq(userProfile.user.id))
                 .join(voiceDateSentence)
                 .on(userDateSentence.dateSentence.id.eq(voiceDateSentence.id)
                         .and(voiceDateSentence.language.id.eq(resolvedTargetLanguageExpr)))
                 // 사용자 프로필을 가져오기 위해 조인
-                .join(userProfile)
-                .on(userDateSentence.user.id.eq(userProfile.user.id))
                 // 모국어 문장을 위해 date_sentences를 left join
                 .leftJoin(nativeDateSentence)
                 .on(nativeDateSentence .language.id.eq(userProfile.nativeLanguageId)
