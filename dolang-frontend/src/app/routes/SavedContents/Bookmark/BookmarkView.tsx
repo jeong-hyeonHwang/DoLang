@@ -11,8 +11,6 @@ const PageContainer = styled.div`
   max-width: 1000px;
   min-width: 700px;
   margin: 0 auto;
-  padding: 0 4rem;
-  min-height: 1000px;
   height: 100vh;
   display: flex;
 
