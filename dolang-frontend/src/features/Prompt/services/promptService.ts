@@ -17,6 +17,7 @@ export const getPromptQuestion = async ({ interestA, interestB }: PromptQuestion
       interestA,
       interestB,
     });
+    console.log(response.data);
     return response.data;
   } catch (err) {
     console.error(err);

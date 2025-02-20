@@ -9,16 +9,30 @@ import VoiceCallChat from '@/features/VoiceCall/components/VoiceCallChat.tsx';
 import { useNavigate } from 'react-router';
 import { User } from 'lucide-react';
 import { useCallContext } from '@/features/VoiceCall/hooks/useCallContext.tsx';
+import { useQuestionPrompt } from '@/features/Prompt/hooks/useQuestionPrompt.ts';
 
 function VoiceCallView() {
   const { audioRef } = usePeerContext();
   const { matchingResult } = useStompClientContext();
+
+  const { data: questionsData } = useQuestionPrompt({
+    interestA: matchingResult?.me?.userTagList ?? [],
+    interestB: matchingResult?.matchedUser?.userTagList ?? [],
+  });
+
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!matchingResult) navigate('/');
   }, [matchingResult, navigate]);
+
+  const handleNextQuestion = () => {
+    if (questionsData && questionsData.result.length > 0) {
+      setCurrentIndex((prev) => (prev + 1) % questionsData.length);
+    }
+  };
 
   if (!matchingResult) return null;
 
@@ -33,6 +47,8 @@ function VoiceCallView() {
             <CallTopic
               audioRef={audioRef}
               tags={[...matchingResult.matchedUser.userTagList, ...matchingResult.me.userTagList]}
+              question={questionsData?.result[currentIndex] ?? '질문을 불러오는 중...'}
+              onNextQuestion={handleNextQuestion}
             />
             <CallParticipant user={matchingResult.matchedUser} />
           </>
@@ -56,19 +72,31 @@ const CallParticipant = ({ user }: { user: MatchedUser }) => (
   </div>
 );
 
-const CallTopic = ({ audioRef, tags }: { audioRef: RefObject<HTMLAudioElement>; tags: Tag[] }) => (
+const CallTopic = ({
+  audioRef,
+  tags,
+  question,
+  onNextQuestion,
+}: {
+  audioRef: RefObject<HTMLAudioElement>;
+  tags: Tag[];
+  question: string;
+  onNextQuestion: () => void;
+}) => (
   <div css={styles.callTopicContainer}>
     <CallTagsContainer tags={tags} />
-    <CallTopicContent topic={''} question={''} />
+    <CallTopicContent question={question} onNextQuestion={onNextQuestion} />
     <CallSttWrapper />
     <audio ref={audioRef} autoPlay controls style={{ visibility: 'hidden' }} />
   </div>
 );
 
-const CallTopicContent = ({ topic, question }: { topic: string; question: string }) => (
+const CallTopicContent = ({ question, onNextQuestion }: { question: string; onNextQuestion: () => void }) => (
   <div css={styles.callTopicContent}>
-    <div>{topic}</div>
     <div>{question}</div>
+    <button onClick={onNextQuestion} css={styles.nextQuestionButton}>
+      다음 질문
+    </button>
   </div>
 );
 
