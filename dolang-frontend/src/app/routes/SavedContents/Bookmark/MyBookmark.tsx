@@ -23,7 +23,7 @@ const Header = styled.div`
   margin-bottom: 32px;
 `;
 
-const MyFeedList = styled.div`
+const MyBookmarkList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -112,7 +112,7 @@ export default function MyBookmark() {
       {bookmarkList?.result.content.length === 0 ? (
         <div>북마크한 피드가 없습니다. 피드를 북마크해보세요!</div>
       ) : (
-        <MyFeedList>
+        <MyBookmarkList>
           {bookmarkList?.result?.content?.map((item) => (
             <div
               key={item.feedId}
@@ -123,10 +123,10 @@ export default function MyBookmark() {
               `}
             >
               <DateLabel>{new Date(item.date).toLocaleDateString()}</DateLabel>
-              <FeedCard item={item} isNativeLanguage={item.isNativeFeed} />
+              <FeedCard item={item} isNativeLanguage={!item.isNativeFeed} />
             </div>
           ))}
-        </MyFeedList>
+        </MyBookmarkList>
       )}
     </Container>
   );

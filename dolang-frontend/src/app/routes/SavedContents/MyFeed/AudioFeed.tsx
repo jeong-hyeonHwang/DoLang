@@ -119,7 +119,7 @@ const WaveformContainer = styled.div`
 export default function AudioFeed() {
   const user = JSON.parse(sessionStorage.getItem('user') || '{}');
   const [currentLanguage, setCurrentLanguage] = useState<string | undefined>(user?.nativeLanguage as 'ko' | 'en');
-  const [isNativeLanguage, setIsNativeLanguage] = useState<boolean>(false);
+  const [isNativeLanguage, setIsNativeLanguage] = useState<boolean>(user?.nativeLanguage === currentLanguage);
 
   useEffect(() => {
     if (user?.nativeLanguage === currentLanguage) setIsNativeLanguage(true);
