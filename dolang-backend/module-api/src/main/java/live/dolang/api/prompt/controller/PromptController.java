@@ -8,10 +8,7 @@ import live.dolang.api.prompt.dto.RequestChatQuestionDto;
 import live.dolang.api.prompt.service.PromptService;
 import live.dolang.api.common.response.BaseResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -30,7 +27,8 @@ public class PromptController {
             description = "매칭된 두 사용자의 관심사를 기반으로 스몰톡 질문 리스트를 조회합니다.",
             security = @SecurityRequirement(name = "BearerAuth") // JWT 인증 적용
     )
-    @GetMapping("/question")
+
+    @PostMapping("/question")
     public BaseResponse<List<String>> getChatQuestion(@RequestBody RequestChatQuestionDto requestChatQuestionDto) {
         List<String> questionList = promptService.getChatQuestion(requestChatQuestionDto);
         return BaseResponse.ok(questionList);
