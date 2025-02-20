@@ -25,6 +25,6 @@ export interface MatchedUser {
   countryId: 'en' | 'kr';
   nativeLanguageId: 'en' | 'kr';
   interestLanguageId: 'en' | 'kr';
-  userTagList: string[];
+  userTagList: { tagId: number; translatedName: string }[];
 }
 
