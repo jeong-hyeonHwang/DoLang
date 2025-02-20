@@ -5,7 +5,6 @@ import styled from '@emotion/styled';
 import LanguagePicker from '@/shared/components/Picker/LanguagePicker';
 import { useFeedWithMyReaction } from '@/features/Feed/hooks/useFeed';
 import { MyFeed } from '@/features/Feed/types/MyFeedResponse.type';
-import { FeedParticipant } from '@/features/Feed/types/FeedParticipantsResponse.type';
 import { getFeedWithMyReactionByFeedId } from '@/features/Feed/services/myFeedService';
 import { css } from '@emotion/react';
 import { FeedCard } from '../MyFeed/AudioFeed';
@@ -102,7 +101,6 @@ export default function MyBookmark() {
 
   if (isLoading) return <ClipLoader color="#000" size={40} />;
   if (error) return <div>데이터를 불러오는 중 오류가 발생했습니다.</div>;
-  if (bookmarkList?.result.content.length === 0) return <div>북마크한 피드가 없습니다. 피드를 북마크해보세요!</div>;
 
   return (
     <Container>
@@ -110,21 +108,25 @@ export default function MyBookmark() {
         <LanguagePicker value={currentLanguage} onChange={setCurrentLanguage} />
       </Header>
 
-      <MyFeedList>
-        {bookmarkList?.result?.content?.map((item) => (
-          <div
-            key={item.feedId}
-            css={css`
-              display: flex;
-              flex-direction: row;
-              gap: 1rem;
-            `}
-          >
-            <DateLabel>{new Date(item.date).toLocaleDateString()}</DateLabel>
-            <FeedCard item={item} isNativeLanguage={item.isNativeFeed} />
-          </div>
-        ))}
-      </MyFeedList>
+      {bookmarkList?.result.content.length === 0 ? (
+        <div>북마크한 피드가 없습니다. 피드를 북마크해보세요!</div>
+      ) : (
+        <MyFeedList>
+          {bookmarkList?.result?.content?.map((item) => (
+            <div
+              key={item.feedId}
+              css={css`
+                display: flex;
+                flex-direction: row;
+                gap: 1rem;
+              `}
+            >
+              <DateLabel>{new Date(item.date).toLocaleDateString()}</DateLabel>
+              <FeedCard item={item} isNativeLanguage={item.isNativeFeed} />
+            </div>
+          ))}
+        </MyFeedList>
+      )}
     </Container>
   );
 }
