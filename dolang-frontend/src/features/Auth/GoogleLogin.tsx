@@ -83,6 +83,7 @@ const GoogleLogin = () => {
       const data = await response.json();
 
       if (data.access_token && data.refresh_token) {
+        console.log(data.access_token);
         saveAccessTokenToCookie(data.access_token);
         saveRefreshTokenToCookie(data.refresh_token);
         setAccessToken(data.access_token);
@@ -129,7 +130,6 @@ const GoogleLogin = () => {
   const saveRefreshTokenToCookie = (token: string) => {
     document.cookie = `refresh_token=${token}; path=/; SameSite=None;`;
   };
-
 
   return (
     <>

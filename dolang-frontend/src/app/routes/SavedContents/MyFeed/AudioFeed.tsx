@@ -48,6 +48,7 @@ const CardWrapper = styled.div`
   display: flex;
   padding: 1rem;
   gap: 1rem;
+  min-height: 140px;
 `;
 
 const Text = styled.div`
@@ -97,6 +98,8 @@ const BookmarkButton = styled.div<{ isBookmarked: boolean }>`
   border: none;
   cursor: pointer;
   padding: 8px;
+  padding-top: 15px;
+  padding-right: 20px;
   border-radius: 20px;
   transition: all 0.2s ease;
   svg {
@@ -110,6 +113,7 @@ const WaveformContainer = styled.div`
   bottom: 0;
   right: 0;
   padding: 8px;
+  padding-right: 20px;
 `;
 
 export default function AudioFeed() {

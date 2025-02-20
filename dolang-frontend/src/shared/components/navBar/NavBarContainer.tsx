@@ -263,7 +263,7 @@ const linkItems: LinkItem[] = [
   { key: '4', href: '/profile', title: '프로필', icon: <User /> },
 ];
 
-const BottomLinkItems: LinkItem[] = [{ key: '1', href: '/guide', title: '서비스 가이드', icon: <Settings /> }];
+// const BottomLinkItems: LinkItem[] = [{ key: '1', href: '/guide', title: '서비스 가이드', icon: <Settings /> }];
 
 export const NavBarContainer = () => {
   const auth = useRecoilState(authState);
@@ -274,8 +274,18 @@ export const NavBarContainer = () => {
   return (
     <div css={sidebarStyle}>
       <div css={topSectionStyle}>
-        <Link to="/">
-          <Logo />
+        <Link
+          to="/"
+          style={{
+            display: 'flex',
+            justifyContent: 'space-evenly',
+            alignItems: 'center',
+            marginRight: '12px',
+            marginTop: '8px',
+          }}
+        >
+          <Logo style={{ marginRight: '8px' }} />
+          <img src="/YeonDo_f.png" width={32.5} height={35} />
         </Link>
 
         {isLoggedIn && user ? (
@@ -292,7 +302,8 @@ export const NavBarContainer = () => {
             css={nameCardContainerStyle}
             style={{
               display: 'flex',
-              justifyContent: 'space-evenly',
+              justifyContent: 'center',
+              width: '100%',
               gap: '15px',
               marginTop: '2.2rem',
               marginBottom: '1rem',
@@ -301,29 +312,18 @@ export const NavBarContainer = () => {
             <Link to="oauth2/code">
               <button
                 style={{
-                  backgroundColor: '#ffffff',
-                  color: '#202022',
-                  width: '80px',
-                  height: '35px',
-                  border: '1px solid #a0a0a0',
-                  borderRadius: '6px',
-                }}
-              >
-                SignUp
-              </button>
-            </Link>
-            <Link to="oauth2/code">
-              <button
-                style={{
                   backgroundColor: '#202022',
                   color: '#ffffff',
-                  width: '80px',
+                  width: '100px',
                   height: '35px',
                   border: '1px solid #a0a0a0',
                   borderRadius: '6px',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
                 }}
               >
-                Login
+                <p>LOGIN</p>
               </button>
             </Link>
           </div>
@@ -333,9 +333,9 @@ export const NavBarContainer = () => {
       <div css={middleSectionStyle}>
         <NavLinks linkItems={linkItems} />
       </div>
-      <div css={middleSectionStyle2}>
+      {/* <div css={middleSectionStyle2}>
         <NavLinks linkItems={BottomLinkItems} customLinkStyle={bottomLinkStyle} />
-      </div>
+      </div> */}
 
       <div css={bottomSectionStyle}>{isLoggedIn && user ? <GoogleLogout /> : null}</div>
     </div>
