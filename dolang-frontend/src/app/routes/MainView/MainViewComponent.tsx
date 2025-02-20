@@ -125,7 +125,7 @@ export default function MainViewComponent() {
     const fetchUser = async () => {
       try {
         const storedUser = await userGet(accessToken);
-        console.log(storedUser);
+        // console.log(storedUser);
         setUser(storedUser?.result || defaultUser);
       } catch (error) {
         console.error('failed to fetch user', error);
