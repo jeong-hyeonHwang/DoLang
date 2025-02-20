@@ -29,11 +29,11 @@ const SERVER_URL = import.meta.env.VITE_USER_SERVER_URL;
 const accessToken = Cookies.get('access_token');
 // const token = accessToken;
 
-export const userPost = async (data: PostData, access_token?: string) => {
+export const translatePost = async (data: PostData, access_token?: string) => {
   const token = access_token || accessToken;
 
   try {
-    const response = await axios.post(`${SERVER_URL}/api/user`, data, {
+    const response = await axios.post(`${SERVER_URL}/api/translate`, data, {
       headers: {
         accept: '*/*',
         'Content-Type': 'application/json',
@@ -41,13 +41,11 @@ export const userPost = async (data: PostData, access_token?: string) => {
       },
     });
 
+    console.log(response);
     // const responseData = response.data;
     if (response.data.code === 200) {
       return response;
     }
-    // else {
-    //   alert('다시 회원가입을 시도해주세요.');
-    // }
   } catch (error: any) {
     console.error('Error', error);
     const errorMessage = error.response?.data?.message || '회원가입을 다시 시도해주세요.';

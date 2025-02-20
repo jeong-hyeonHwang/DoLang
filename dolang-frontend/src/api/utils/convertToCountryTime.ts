@@ -1,8 +1,6 @@
 import { toZonedTime, format } from 'date-fns-tz';
 
 function convertToCountryTime(startedAt: string, endedAt: string, countryId: string) {
-  //   console.log('ttt', startedAt, endedAt, countryId);
-
   const countryTimeZone: Record<string, { timeZone: string; label: string }> = {
     kr: { timeZone: 'Asia/Seoul', label: 'KST (UTC+9)' },
     us: { timeZone: 'America/New_York', label: 'ET' },

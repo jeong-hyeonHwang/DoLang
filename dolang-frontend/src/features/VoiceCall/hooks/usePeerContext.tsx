@@ -47,12 +47,10 @@ export const PeerContextProvider = ({ children }: { children: React.ReactNode })
     peer.current.on('open', (id) => {
       // brokering ID of the peer
       setPeerId(id);
-      console.log('Peer ID:', id);
       setCallStatus('피어링 성공');
     });
 
     peer.current.on('connection', (conn) => {
-      console.log('데이터 연결 수립');
       dataConnectionRef.current = conn;
       setEventsOnDataConnection(conn);
     });
@@ -60,7 +58,6 @@ export const PeerContextProvider = ({ children }: { children: React.ReactNode })
     // Emitted when the peer is destroyed and can no longer accept or create any new connections
     peer.current.on('close', () => {
       peer.current?.destroy();
-      console.log(`Peer ${peerId} Closed`);
     });
 
     // Emitted when a remote peer attempts to call you.
@@ -85,15 +82,12 @@ export const PeerContextProvider = ({ children }: { children: React.ReactNode })
   };
 
   const initiateCall = (peerIdToCall) => {
-    console.log(peerIdToCall);
-
     if (peer.current) {
       navigator.mediaDevices
         .getUserMedia({ audio: true })
         .then((stream) => {
           const mediaConnection = peer.current!.call(peerIdToCall, stream);
           mediaConnectionRef.current = mediaConnection;
-          console.log('mediaStream' + mediaConnection);
           setEventsOnMediaConnection(mediaConnection);
           mediaStreamRef.current = stream;
         })
@@ -111,7 +105,6 @@ export const PeerContextProvider = ({ children }: { children: React.ReactNode })
   const setEventsOnMediaConnection = (mediaConnection) => {
     setCallStatus('통화중');
     mediaConnection.on('stream', (remoteStream) => {
-      console.log('오디오 설정됨:', remoteStream);
       if (audioRef.current) {
         audioRef.current.srcObject = remoteStream;
       }
@@ -127,7 +120,6 @@ export const PeerContextProvider = ({ children }: { children: React.ReactNode })
 
   const setEventsOnDataConnection = (dataConnection: DataConnection) => {
     dataConnection.on('data', (message: string) => {
-      console.log('메시지 수신:', message);
       setMessages((prev) => [...prev, `상대방: ${message}`]);
     });
 

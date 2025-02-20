@@ -1,7 +1,7 @@
-import React, { useState, forwardRef } from 'react';
+import { useState, forwardRef } from 'react';
 import { DatePicker as AntdDatePicker } from 'antd';
 import styled from '@emotion/styled';
-import moment, { Moment } from 'moment';
+import { Moment } from 'moment';
 
 const StyledDatePicker = styled(AntdDatePicker)`
   &.ant-picker {
@@ -26,7 +26,6 @@ const DatePicker = forwardRef<any, DatePickerProps>(({ selectedDate }, ref) => {
 
   const handleChange = (date: Moment | null, dateString: string) => {
     setDate(date);
-    console.log(date, dateString);
   };
 
   return (
@@ -40,4 +39,5 @@ const DatePicker = forwardRef<any, DatePickerProps>(({ selectedDate }, ref) => {
   );
 });
 
+DatePicker.displayName = 'DatePicker';
 export default DatePicker;

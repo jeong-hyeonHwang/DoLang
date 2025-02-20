@@ -129,6 +129,7 @@ const Recorder: React.FC<RecorderProps> = ({
         barRadius: 5,
         dragToSeek: true,
         cursorColor: '#ffffff0',
+        normalize: true,
       });
 
       // Record Plugin 등록
@@ -204,11 +205,7 @@ const Recorder: React.FC<RecorderProps> = ({
   const handleSubmit = () => {
     if (recordedBlob) {
       const file = new File([recordedBlob], `${Date.now()}.ogg`);
-      console.log(feedId);
       uploadVoice({ feedId, file });
-      if (uploadSuccess) {
-        console.log('업로드 성공');
-      }
     }
   };
   useEffect(() => {

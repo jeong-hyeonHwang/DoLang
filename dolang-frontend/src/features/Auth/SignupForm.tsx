@@ -193,7 +193,6 @@ function SignupForm() {
   });
 
   const accessToken = Cookies.get('access_token');
-  // console.log('signuptk', accessToken);
 
   const onSubmit = async (data: SignupFormData) => {
     if (!isNicknameChecked) {
@@ -211,7 +210,6 @@ function SignupForm() {
       };
 
       const responseData = await userPost(formattedDate, accessToken);
-      console.log('resData: ', responseData);
       if (responseData.data.code === 200) {
         setAuth((prevAuth) => ({
           ...prevAuth,
@@ -301,13 +299,6 @@ function SignupForm() {
                   control={control}
                   rules={{
                     required: '모국어를 선택해주세요.',
-                    // validate: (value) => {
-                    //   const targetLanguage = watch('targetLanguage');
-                    //   if (value === targetLanguage) {
-                    //     return '관심언어와 다르게 설정해주세요.';
-                    //   }
-                    //   return true;
-                    // },
                   }}
                   render={({ field }) => <LanguagePicker {...field} onChange={(value) => field.onChange(value)} />}
                 />
@@ -325,13 +316,6 @@ function SignupForm() {
                   control={control}
                   rules={{
                     required: '관심언어를 선택해주세요.',
-                    // validate: (value) => {
-                    //   const nativeLanguage = watch('nativeLanguage');
-                    //   if (value === nativeLanguage) {
-                    //     return '모국어와 다르게 설정해 주세요.';
-                    //   }
-                    //   return true;
-                    // },
                   }}
                   render={({ field }) => <LanguagePicker {...field} onChange={(value) => field.onChange(value)} />}
                 />
@@ -357,7 +341,7 @@ function SignupForm() {
             <Controller
               name="interests"
               control={control}
-              // rules={{ required: '최소 3개의 관심사를 입력해주세요.' }}
+              rules={{ required: '최소 3개의 관심사를 입력해주세요.' }}
               render={({ field }) => {
                 // const tagNames = field.value.map((interest: Interest) => interest.name);
                 const names = Array.isArray(field.value)
@@ -406,15 +390,15 @@ function SignupForm() {
 
           <SubmitButton
             type="submit"
-            // disabled={
-            //   !isValid ||
-            //   !isNicknameChecked ||
-            //   !watch('nationality') ||
-            //   !watch('nativeLanguage') ||
-            //   !watch('targetLanguage') ||
-            //   !watch('proficiencyLevel') ||
-            //   watch('interests')?.length < 3
-            // }
+            disabled={
+              !isValid ||
+              !isNicknameChecked ||
+              !watch('nationality') ||
+              !watch('nativeLanguage') ||
+              !watch('targetLanguage') ||
+              !watch('proficiencyLevel') ||
+              watch('interests')?.length < 3
+            }
           >
             회원가입
           </SubmitButton>
