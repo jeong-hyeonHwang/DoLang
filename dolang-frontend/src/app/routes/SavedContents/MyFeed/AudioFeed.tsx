@@ -117,20 +117,18 @@ const WaveformContainer = styled.div`
 `;
 
 export default function AudioFeed() {
-  const [currentLanguage, setCurrentLanguage] = useState<string | undefined>(undefined);
+  const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+  const [currentLanguage, setCurrentLanguage] = useState<string | undefined>(user?.nativeLanguage as 'ko' | 'en');
   const [isNativeLanguage, setIsNativeLanguage] = useState<boolean>(false);
-  const [user, setUser] = useRecoilState(userState);
 
   useEffect(() => {
     if (user?.nativeLanguage === currentLanguage) setIsNativeLanguage(true);
+    else setIsNativeLanguage(false);
   }, [user?.nativeLanguage, currentLanguage]);
 
   const { data: myFeedList, isLoading, error } = useMyFeed({ lang: currentLanguage as 'ko' | 'en' });
 
   if (error) return <div>데이터를 불러오는 중 오류가 발생했습니다.</div>;
-  if (myFeedList === undefined || myFeedList.result === undefined)
-    return <div>내가 참여한 피드가 아직 없습니다. 피드에 참여해보세요!</div>;
-  if (myFeedList?.result.content.length === 0) return <div>참여한 피드가 없습니다. 피드에 참여해보세요!</div>;
 
   if (isLoading)
     return (
@@ -140,25 +138,28 @@ export default function AudioFeed() {
       </div>
     );
 
-
   return (
     <Container>
       <Header>
         <LanguagePicker value={currentLanguage} onChange={setCurrentLanguage} />
       </Header>
 
-      <MyFeedList>
-        {myFeedList?.result.content.map((item) => (
-          <div
-            className="feed-container"
-            key={item.feedId}
-            style={{ display: 'flex', flexDirection: 'row', gap: '1rem' }}
-          >
-            <DateLabel>{new Date(item.date).toLocaleDateString()}</DateLabel>
-            <FeedCard item={item} isNativeLanguage={isNativeLanguage} />
-          </div>
-        ))}
-      </MyFeedList>
+      {myFeedList === undefined || myFeedList.result === undefined || myFeedList?.result.content.length === 0 ? (
+        <div>내가 참여한 피드가 아직 없습니다. 피드에 참여해보세요!</div>
+      ) : (
+        <MyFeedList>
+          {myFeedList?.result.content.map((item) => (
+            <div
+              className="feed-container"
+              key={item.feedId}
+              style={{ display: 'flex', flexDirection: 'row', gap: '1rem' }}
+            >
+              <DateLabel>{new Date(item.date).toLocaleDateString()}</DateLabel>
+              <FeedCard item={item} isNativeLanguage={isNativeLanguage} />
+            </div>
+          ))}
+        </MyFeedList>
+      )}
     </Container>
   );
 }
