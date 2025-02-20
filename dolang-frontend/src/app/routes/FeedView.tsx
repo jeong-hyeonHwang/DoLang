@@ -62,15 +62,15 @@ const FeedView = () => {
         {feedData?.code === 403 ? (
           <FeedSentence sentence={'모국어 피드에 참여하시면 학습 언어 피드를 확인할 수 있습니다!'} />
         ) : (
-          <FeedSentence sentence={feedData?.result?.feed.sentenceInfo.sentence} />
-        )}
-        <Recorder feedId={feedData?.result?.feed.feedId} />
-        {feedData?.code !== 403 && (
-          <BaseFeedList
-            feedId={feedData?.result?.feed.feedId}
-            isNativeLanguage={feedData?.result?.feed.isNativeFeed}
-            variant="default"
-          />
+          <>
+            <FeedSentence sentence={feedData?.result?.feed.sentenceInfo.sentence} />
+            <Recorder feedId={feedData?.result?.feed.feedId} />
+            <BaseFeedList
+              feedId={feedData?.result?.feed.feedId}
+              isNativeLanguage={feedData?.result?.feed.isNativeFeed}
+              variant="default"
+            />
+          </>
         )}
       </div>
     </div>
