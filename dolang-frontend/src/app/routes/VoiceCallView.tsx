@@ -17,8 +17,8 @@ function VoiceCallView() {
   const { matchingResult } = useStompClientContext();
 
   const { data: questionsData } = useQuestionPrompt({
-    interestA: matchingResult?.me?.userTagList ?? [],
-    interestB: matchingResult?.matchedUser?.userTagList ?? [],
+    interestA: matchingResult?.me?.userTagList.map((tag) => tag.translatedName) ?? [],
+    interestB: matchingResult?.matchedUser?.userTagList.map((tag) => tag.translatedName) ?? [],
   });
 
   const [currentIndex, setCurrentIndex] = useState(0);
