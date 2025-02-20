@@ -252,7 +252,17 @@ export default function VoiceRecorder() {
                     marginBottom: '20px',
                   }}
                 >
-                  <TextLabel style={{ margin: '0 auto' }}>한국어</TextLabel>
+                  <TextLabel
+                    style={{
+                      margin: '0 auto',
+                      fontWeight: 'bold',
+                      marginRight: '80px',
+                      fontSize: '20px',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    한국어
+                  </TextLabel>
                   <button style={{ marginTop: '-40' }}>번역</button>
                 </div>
 
@@ -264,7 +274,18 @@ export default function VoiceRecorder() {
 
             <TextArea>
               <Text>
-                <TextLabel>English</TextLabel>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    width: '100%',
+                    marginBottom: '20px',
+                  }}
+                >
+                  <TextLabel style={{ margin: '0 auto', marginRight: '80px', fontWeight: 'bold' }}>English</TextLabel>
+                  <button style={{ marginTop: '-40' }}>번역</button>
+                </div>
                 <TextContent>
                   The quick brown fox jumps over the lazy dog. This pangram contains every letter of the English
                   alphabet at least once.

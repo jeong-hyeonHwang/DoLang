@@ -161,17 +161,19 @@ export default function CallLog() {
 
   return (
     <Container>
-      <PaginationContainer>
-        <PaginationButton onClick={goToPreviousPage} disabled={page === 0} style={{ marginRight: '20px' }}>
-          <ChevronLeft style={{ marginLeft: '-5px' }} />
-        </PaginationButton>
-        <span>{`Page ${page + 1} of ${totalPages}`}</span>
-        <PaginationButton onClick={goToNextPage} disabled={page === totalPages - 1} style={{ marginLeft: '20px' }}>
-          <ChevronRight style={{ marginLeft: '-5px' }} />
-        </PaginationButton>
-      </PaginationContainer>
-
       <MainContent>
+        {!(totalPages === 0) && (
+          <PaginationContainer style={{ marginTop: '-30px', marginBottom: '20px' }}>
+            <PaginationButton onClick={goToPreviousPage} disabled={page === 0} style={{ marginRight: '20px' }}>
+              <ChevronLeft style={{ marginLeft: '-5px' }} />
+            </PaginationButton>
+            <span>{`Page ${page + 1} of ${totalPages}`}</span>
+            <PaginationButton onClick={goToNextPage} disabled={page === totalPages - 1} style={{ marginLeft: '20px' }}>
+              <ChevronRight style={{ marginLeft: '-5px' }} />
+            </PaginationButton>
+          </PaginationContainer>
+        )}
+
         {(() => {
           if (callLogs && callLogs.length > 0) {
             return callLogs.map((log, index) => (
