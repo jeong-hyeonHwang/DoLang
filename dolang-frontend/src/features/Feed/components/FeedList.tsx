@@ -20,42 +20,36 @@ const FeedList = ({ feedId, isNativeLanguage }: { feedId: number; isNativeLangua
     feedId: feedId,
   });
 
-  useEffect(() => {
-    const fetchFeedParticipation = async () => {
-      try {
-        setIsLoading(true);
-        const response = await getFeedParticipants(feedId);
-        setIsLoading(false);
-      } catch (error) {
-        setIsLoading(false);
-      }
-    };
-    fetchFeedParticipation();
-  }, []);
 
-  if (feedParticipationError) {
-    if (feedParticipationError.message === '403') {
-      return (
-        <section className="feed-list-container" css={feedListContainerStyle}>
-          <p>모국어 피드에 참여하시면 학습 언어 피드를 확인할 수 있습니다!</p>
-        </section>
-      );
-    } else {
-      return (
-        <section className="feed-list-container" css={feedListContainerStyle}>
-          <p>피드 참여 데이터를 불러오는 중 오류가 발생했습니다.</p>
-        </section>
-      );
+useEffect(() => {
+  const fetchFeedParticipation = async () => {
+    try {
+      setIsLoading(true);
+      const response = await getFeedParticipants(feedId);
+      setIsLoading(false);
+    } catch (error) {
+      setIsLoading(false);
     }
-  }
-  
-  if (feedId === undefined) {
-    return (
-      <section className="feed-list-container" css={feedListContainerStyle}>
-        <p>피드 정보가 없습니다.</p>
-      </section>
-    );
-  }
+  };
+  fetchFeedParticipation();
+}, []);
+
+if (feedParticipationError) {
+  return (
+    <section className="feed-list-container" css={feedListContainerStyle}>
+      <p>피드 참여 데이터를 불러오는 중 오류가 발생했습니다.</p>
+    </section>
+  );
+}
+
+if (feedId === undefined) {
+  return (
+    <section className="feed-list-container" css={feedListContainerStyle}>
+      <p>피드 정보가 없습니다.</p>
+    </section>
+  );
+}
+
   return (
     <section className="feed-list-container" css={feedListContainerStyle}>
       {isLoading || feedParticipationData?.participants?.length === 0 ? (
