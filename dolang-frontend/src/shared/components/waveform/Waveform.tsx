@@ -5,19 +5,23 @@ import { Volume1 } from 'lucide-react';
 
 const Waveform = ({ audioSrc }: { audioSrc: string }) => {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isReady, setIsReady] = useState(false);
   const waveContainerRef = useRef<HTMLDivElement>(null);
   const waveRef = useRef<WaveSurfer | null>(null);
 
   useEffect(() => {
-    if (isPlaying) waveRef.current?.play();
-    else waveRef.current?.pause();
-  }, [isPlaying]);
+    if (!waveContainerRef.current) return;
 
-  useEffect(() => {
-    if (waveContainerRef.current && !waveRef.current) {
+    if (waveRef.current) {
+      waveRef.current.destroy();
+      waveRef.current = null;
+    }
+
+    if (waveContainerRef.current) {
       waveRef.current = WaveSurfer.create({
         container: waveContainerRef.current,
         waveColor: '#959595',
+        url: audioSrc,
         width: 80,
         height: 48,
         progressColor: '#000000',
@@ -29,7 +33,15 @@ const Waveform = ({ audioSrc }: { audioSrc: string }) => {
         cursorColor: '#ffffff0',
       });
     }
+
+    waveRef.current?.on('ready', () => setIsReady(true));
+    waveRef.current?.on('play', () => setIsPlaying(true));
+    waveRef.current?.on('pause', () => setIsPlaying(false));
+    waveRef.current?.on('finish', () => setIsPlaying(false));
+
     waveRef.current?.load(audioSrc);
+
+    return () => waveRef.current?.destroy();
   }, [audioSrc]);
 
   const waveIndicatorStyle = css`
@@ -39,11 +51,25 @@ const Waveform = ({ audioSrc }: { audioSrc: string }) => {
     gap: 1rem;
   `;
 
-  if (!waveRef.current) return null;
+  const playButtonStyle = css`
+    cursor: pointer;
+    color: ${isPlaying ? '#959595' : ' #000000'};
+  `;
 
+  const handlePlayPause = () => {
+    if (!waveRef.current || !isReady) return;
+
+    if (isPlaying) {
+      waveRef.current.pause();
+    } else {
+      waveRef.current.play().catch((e) => {
+        console.error('Playback error:', e);
+      });
+    }
+  };
   return (
     <div css={waveIndicatorStyle}>
-      <Volume1 onClick={() => setIsPlaying((prev) => !prev)} />
+      <Volume1 onClick={handlePlayPause} css={playButtonStyle} />
       <div ref={waveContainerRef} />
     </div>
   );

@@ -99,10 +99,6 @@ export default function MyBookmark() {
     enabled: !!selectedFeedId,
   });
 
-  useEffect(() => {
-    console.log(bookmarkList);
-  }, [bookmarkList]);
-
   if (isLoading) return <ClipLoader color="#000" size={40} />;
   if (error) return <div>데이터를 불러오는 중 오류가 발생했습니다.</div>;
   if (bookmarkList?.result.content.length === 0) return <div>북마크한 피드가 없습니다. 피드를 북마크해보세요!</div>;

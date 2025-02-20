@@ -25,7 +25,6 @@ const FeedList = ({ feedId, isNativeLanguage }: { feedId: number; isNativeLangua
       try {
         setIsLoading(true);
         const response = await getFeedParticipants(feedId);
-        console.log(response);
         setIsLoading(false);
       } catch (error) {
         setIsLoading(false);

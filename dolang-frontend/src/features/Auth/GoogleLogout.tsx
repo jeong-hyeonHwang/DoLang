@@ -14,7 +14,6 @@ function GoogleLogout() {
     removeLoginCookie();
     sessionStorage.removeItem('isLoggedIn');
     sessionStorage.removeItem('user');
-    console.log('Logout not_HttpOnly');
 
     setIsLoggedIn({
       isLoggedIn: false,

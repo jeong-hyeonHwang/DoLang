@@ -14,7 +14,6 @@ const fetchRandomTags = async () => {
   try {
     // const response = await fetch(`${SERVER_URL}/api/tag/all`);
     const response = await fetch(`${SERVER_URL}/api/tag/all?nativeLanguageId=kr`);
-    console.log('taggg', response);
     if (response.ok) {
       const data = await response.json();
       setSuggestions(data.slice(0, 10));
