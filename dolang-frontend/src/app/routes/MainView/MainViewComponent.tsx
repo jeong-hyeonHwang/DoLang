@@ -20,8 +20,10 @@ const Container = styled.div`
   min-width: 700px;
   margin: 0 auto;
   padding: 2rem;
+  overflow: hidden;
   font-family: ${theme.fonts.body};
   color: ${theme.colors.text};
+  margin-bottom: 3rem;
 
   @media (max-width: ${theme.breakpoints.tablet}) {
     padding: 1rem;
@@ -104,34 +106,6 @@ const CallButton = styled(motion.button)`
   }
 `;
 
-const UserProfiles = styled.div`
-  display: flex;
-  gap: 0.75rem;
-  margin-top: 1.5rem;
-  overflow-x: auto;
-  padding: 0.5rem;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-  &::-webkit-scrollbar {
-    display: none;
-  }
-`;
-
-const UserProfile = styled(motion.div)`
-  width: 3rem;
-  height: 3rem;
-  border-radius: 50%;
-  overflow: hidden;
-  flex-shrink: 0;
-  border: 2px solid ${theme.colors.white};
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease;
-
-  &:hover {
-    transform: scale(1.1);
-  }
-`;
-
 export default function MainViewComponent() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { isConnected, isMatching, matchedUser, connectionError, connect, disconnect, startMatching, cancelMatching } =
@@ -166,18 +140,7 @@ export default function MainViewComponent() {
     fetchUser();
   }, [accessToken]);
 
-  const {
-    peerId,
-    remotePeerId,
-    callStatus,
-    mediaConnectionRef,
-    mediaStreamRef,
-    peering,
-    initiateCall,
-    closeCall,
-    setPeer,
-    setRemotePeer,
-  } = usePeerContext();
+  const { remotePeerId, initiateCall } = usePeerContext();
   const navigate = useNavigate();
 
   const openModal = () => {
@@ -231,7 +194,7 @@ export default function MainViewComponent() {
                   </p>
                   <span style={{ whiteSpace: 'wrap' }}>
                     {user.interests?.length > 0
-                      ? user.interests.map((interest) => `#${interest.tagName || interest.name}`).join(', ')
+                      ? user.interests.map((interest) => `#${interest.tagName || interest.name}`).join(' ')
                       : '관심사 설정이 필요합니다.'}
                   </span>
                 </div>
