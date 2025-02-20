@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router';
 import { User } from 'lucide-react';
 import { useCallContext } from '@/features/VoiceCall/hooks/useCallContext.tsx';
 import { useQuestionPrompt } from '@/features/Prompt/hooks/useQuestionPrompt.ts';
+import { css } from '@emotion/react';
 
 function VoiceCallView() {
   const { audioRef } = usePeerContext();
@@ -30,7 +31,7 @@ function VoiceCallView() {
 
   const handleNextQuestion = () => {
     if (questionsData && questionsData.result.length > 0) {
-      setCurrentIndex((prev) => (prev + 1) % questionsData.length);
+      setCurrentIndex((prev) => (prev + 1) % questionsData.result.length);
     }
   };
 
@@ -94,11 +95,19 @@ const CallTopic = ({
 const CallTopicContent = ({ question, onNextQuestion }: { question: string; onNextQuestion: () => void }) => (
   <div css={styles.callTopicContent}>
     <div>{question}</div>
-    <button onClick={onNextQuestion} css={styles.nextQuestionButton}>
+    <button onClick={onNextQuestion} css={nextQuestionButtonStyle}>
       다음 질문
     </button>
   </div>
 );
+
+const nextQuestionButtonStyle = css`
+  background-color: #000;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 5px;
+`;
+
 
 const CallSttWrapper = () => {
   const [stt, setStt] = useState<string>('');
