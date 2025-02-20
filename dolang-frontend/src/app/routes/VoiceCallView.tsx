@@ -4,7 +4,7 @@ import { useStompClientContext } from '../../features/Matching/hooks/useClientCo
 import { usePeerContext } from '../../features/VoiceCall/hooks/usePeerContext.tsx';
 import { CallTimer } from '@/features/VoiceCall/components/CallTimer.tsx';
 import { styles } from '../../features/VoiceCall/components/styles.ts';
-import { MatchedUser, Tag } from '@/features/Matching/types/Matching.type.ts';
+import { MatchedUser } from '@/features/Matching/types/Matching.type.ts';
 import VoiceCallChat from '@/features/VoiceCall/components/VoiceCallChat.tsx';
 import { useNavigate } from 'react-router';
 import { User } from 'lucide-react';
