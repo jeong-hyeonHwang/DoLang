@@ -129,6 +129,7 @@ const Recorder: React.FC<RecorderProps> = ({
         barRadius: 5,
         dragToSeek: true,
         cursorColor: '#ffffff0',
+        normalize: true,
       });
 
       // Record Plugin 등록
