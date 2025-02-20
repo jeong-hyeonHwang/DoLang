@@ -5,9 +5,7 @@ const PageContainer = styled.div`
   background-color: #fff;
   max-width: 1000px;
   min-width: 700px;
-  margin: 0 auto;
-  padding: 0 4rem;
-  min-height: 1000px;
+  margin: 0 4rem;
   height: 100vh;
   display: flex;
 
