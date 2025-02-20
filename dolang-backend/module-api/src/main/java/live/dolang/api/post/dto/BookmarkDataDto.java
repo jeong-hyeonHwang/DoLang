@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BookmarkDataDto {
-    private boolean isBookmarked;
+    private boolean bookmarked;
     private long timestamp;
 }

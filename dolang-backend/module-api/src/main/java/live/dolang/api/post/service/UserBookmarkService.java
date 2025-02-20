@@ -76,8 +76,7 @@ public class UserBookmarkService {
      */
     public boolean isBookmarked(Integer userId, Integer feedId, Integer postId) {
         String dataKey = getDataKey(userId, feedId);
-        String field = postId.toString();
-        BookmarkDataDto data = bookmarkHashOperations.get(dataKey, field);
+        BookmarkDataDto data = bookmarkHashOperations.get(dataKey, postId);
         if (data != null) {
             return data.isBookmarked();
         }

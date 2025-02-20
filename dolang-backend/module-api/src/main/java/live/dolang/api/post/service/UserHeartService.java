@@ -76,8 +76,7 @@ public class UserHeartService {
      */
     public boolean isHearted(Integer userId, Integer feedId, Integer postId) {
         String dataKey = getDataKey(userId, feedId);
-        String field = postId.toString();
-        HeartDataDto data = heartHashOperations.get(dataKey, field);
+        HeartDataDto data = heartHashOperations.get(dataKey, postId);
         if (data != null) {
             return data.isHearted();
         }

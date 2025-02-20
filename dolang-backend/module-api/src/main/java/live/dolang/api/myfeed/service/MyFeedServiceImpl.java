@@ -35,8 +35,8 @@ public class MyFeedServiceImpl implements MyFeedService {
             list = feedRepository.selectMyHeartedParticipantsList(userId, feedId, length, nextCursor);
         } else {
             list = feedRepository.selectMyBookmarkedParticipantsList(userId, feedId, length, nextCursor);
-
         }
+
         if (isNativeFeed) { // 모국어 피드 - 하트
             for(LikedFeedParticipantsResponseDto.FeedParticipant p : list.getParticipants()) {
                 p.setHeartCount(postHeartService.getPostHeartCount(feedId, p.getPostId()));
