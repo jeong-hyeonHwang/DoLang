@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router';
 import styled from '@emotion/styled';
+import { translatePost } from '@/api/utils/translate_post';
 import { Plus, Edit, MessageSquare, ChevronLeft, ChevronRight } from 'lucide-react';
+import Cookies from 'js-cookie';
 
 const UserContent = styled.div`
   flex: 1;
@@ -136,17 +138,33 @@ const TextContent = styled.div`
 `;
 
 export default function VoiceRecorder() {
+  const [text, setText] = useState('');
+  const [translateText, setTranslateText] = useState('');
+  const accessToken = Cookies.get('access_token');
   const navigate = useNavigate();
+
+  const location = useLocation();
+  const callInfo = location.state?.callInfo;
+
   const handleBack = () => {
     navigate(`/savedContents/calls`);
   };
 
-  // const handleTranslate = () => {
-  //   const response =
-  // };
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setText(e.target.value);
+  };
 
-  const location = useLocation();
-  const callInfo = location.state?.callInfo;
+  const handleTranslate = async () => {
+    try {
+      const response = await translatePost(text, callInfo.me.interestLanguageId, accessToken);
+
+      if (response?.data.code === 200) {
+        setTranslateText(response.data.result.translations[0]);
+      }
+    } catch (error) {
+      console.error('API ERROR', error);
+    }
+  };
 
   return (
     <>
@@ -240,7 +258,7 @@ export default function VoiceRecorder() {
             </Controls>
           </Header>
 
-          <div style={{ display: 'flex', justifyContent: 'space-evenly', gap: '20px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-evenly', gap: '20px', alignItems: 'center' }}>
             <TextArea>
               <Text>
                 <div
@@ -263,15 +281,33 @@ export default function VoiceRecorder() {
                   >
                     한국어
                   </TextLabel>
-                  <button style={{ marginTop: '-40' }}>번역</button>
                 </div>
 
                 <TextContent>
                   다람쥐 헌 쳇바퀴에 타고파. 이 문장은 한글 자음과 모음을 모두 포함하고 있습니다.
                 </TextContent>
               </Text>
+              <div>
+                <textarea type="text" value={text} onChange={handleChange} placeholder="텍스트 입력" />
+              </div>
             </TextArea>
-
+            <button
+              onClick={handleTranslate}
+              style={{
+                marginTop: '-40',
+                whiteSpace: 'nowrap',
+                width: '60px',
+                height: '40px',
+                display: 'flex',
+                alignItems: 'center',
+                backgroundColor: '#d3d3d3',
+                fontWeight: 'bold',
+                textAlign: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              번역
+            </button>
             <TextArea>
               <Text>
                 <div
@@ -283,13 +319,27 @@ export default function VoiceRecorder() {
                     marginBottom: '20px',
                   }}
                 >
-                  <TextLabel style={{ margin: '0 auto', marginRight: '80px', fontWeight: 'bold' }}>English</TextLabel>
-                  <button style={{ marginTop: '-40' }}>번역</button>
+                  <TextLabel
+                    style={{
+                      margin: '0 auto',
+                      fontWeight: 'bold',
+                      marginRight: '80px',
+                      fontSize: '20px',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    English
+                  </TextLabel>
+                  {/* <button style={{ marginTop: '-40', whiteSpace: 'nowrap' }}>번역</button> */}
                 </div>
                 <TextContent>
                   The quick brown fox jumps over the lazy dog. This pangram contains every letter of the English
                   alphabet at least once.
                 </TextContent>
+                <div>
+                  번역 결과 <br />
+                  {translateText.text}
+                </div>
               </Text>
             </TextArea>
           </div>

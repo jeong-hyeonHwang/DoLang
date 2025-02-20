@@ -25,6 +25,7 @@ const MainContent = styled.div`
   padding: 32px;
   display: flex;
   flex-direction: column;
+  align-items: center;
 `;
 
 const ProfileImage = styled.img`
