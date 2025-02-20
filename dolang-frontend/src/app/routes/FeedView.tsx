@@ -5,7 +5,6 @@ import Recorder from '../../features/Feed/components/Recorder.tsx';
 import { useFeedSentence } from '../../features/Feed/hooks/useFeed.ts';
 import LanguagePicker from '@/shared/components/Picker/LanguagePicker.tsx';
 import { ClipLoader } from 'react-spinners';
-import { Feed } from '../../features/Feed/types/FeedSentenceResponse.type.ts';
 
 const FeedView = () => {
   const feedContainerStyle = css`
@@ -59,15 +58,21 @@ const FeedView = () => {
           <LanguagePicker value={feedLang} onChange={handleLangChange} />
         </div>
 
-        <FeedSentence item={feedData?.result?.feed} />
+        {feedData?.code === 403 ? (
+          <FeedSentence sentence={'모국어 피드에 참여하시면 학습 언어 피드를 확인할 수 있습니다!'} />
+        ) : (
+          <FeedSentence sentence={feedData?.result?.feed.sentenceInfo.sentence} />
+        )}
         <Recorder feedId={feedData?.result?.feed.feedId} />
-        <FeedList feedId={feedData?.result?.feed.feedId} isNativeLanguage={feedData?.result?.feed.isNativeFeed} />
+        {feedData?.code !== 403 && (
+          <FeedList feedId={feedData?.result?.feed.feedId} isNativeLanguage={feedData?.result?.feed.isNativeFeed} />
+        )}
       </div>
     </div>
   );
 };
 
-export const FeedSentence = ({ item }: { item: Feed }) => {
+export const FeedSentence = ({ sentence }: { sentence: string }) => {
   const feedSentenceSectionStyle = css`
     background-color: #d1d1d1;
     height: 3rem;
@@ -81,7 +86,7 @@ export const FeedSentence = ({ item }: { item: Feed }) => {
   `;
   return (
     <div className="feed-sentence-section" css={feedSentenceSectionStyle}>
-      <p>{item?.sentenceInfo.sentence}</p>
+      <p>{sentence}</p>
     </div>
   );
 };
