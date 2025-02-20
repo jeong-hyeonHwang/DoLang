@@ -368,7 +368,7 @@ function SignupForm() {
             />
           </FormGroup>
 
-          <FormGroup>
+          {/* <FormGroup>
             <Label>관심사 태그</Label>
             <TagInput
               value={watch('interests')}
@@ -378,7 +378,7 @@ function SignupForm() {
               nativeLanguageId={watch('nativeLanguage')}
               onChange={(tags) => setValue('interests', tags)}
             />
-          </FormGroup>
+          </FormGroup> */}
 
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>

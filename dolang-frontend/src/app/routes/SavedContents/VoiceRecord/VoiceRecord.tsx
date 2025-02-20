@@ -65,7 +65,7 @@ const UserText = styled.div`
 
 const Container = styled.div`
   display: flex;
-  height: calc(100vh - 60px);
+  /* height: calc(100vh - 60px); */
   background-color: #f8f9fa;
   border-radius: 30px;
 `;
@@ -140,6 +140,10 @@ export default function VoiceRecorder() {
   const handleBack = () => {
     navigate(`/savedContents/calls`);
   };
+
+  // const handleTranslate = () => {
+  //   const response =
+  // };
 
   const location = useLocation();
   const callInfo = location.state?.callInfo;
@@ -239,18 +243,31 @@ export default function VoiceRecorder() {
           <div style={{ display: 'flex', justifyContent: 'space-evenly', gap: '20px' }}>
             <TextArea>
               <Text>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    width: '100%',
+                    marginBottom: '20px',
+                  }}
+                >
+                  <TextLabel style={{ margin: '0 auto' }}>한국어</TextLabel>
+                  <button style={{ marginTop: '-40' }}>번역</button>
+                </div>
+
+                <TextContent>
+                  다람쥐 헌 쳇바퀴에 타고파. 이 문장은 한글 자음과 모음을 모두 포함하고 있습니다.
+                </TextContent>
+              </Text>
+            </TextArea>
+
+            <TextArea>
+              <Text>
                 <TextLabel>English</TextLabel>
                 <TextContent>
                   The quick brown fox jumps over the lazy dog. This pangram contains every letter of the English
                   alphabet at least once.
-                </TextContent>
-              </Text>
-            </TextArea>
-            <TextArea>
-              <Text>
-                <TextLabel>한국어</TextLabel>
-                <TextContent>
-                  다람쥐 헌 쳇바퀴에 타고파. 이 문장은 한글 자음과 모음을 모두 포함하고 있습니다.
                 </TextContent>
               </Text>
             </TextArea>
