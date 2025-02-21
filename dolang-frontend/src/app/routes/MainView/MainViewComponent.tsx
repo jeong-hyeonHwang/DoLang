@@ -148,19 +148,16 @@ export default function MainViewComponent() {
     setIsModalOpen(true);
   };
 
-  const handleOk = async () => {
+  const handleOk = () => {
     if (!matchingResult) return;
 
     navigate('/call');
     initiateCall(remotePeerId);
 
     if (matchingResult.ownerYN) {
-      try {
-        const callId = await postStartCall(matchingResult.matchedUser.peerId);
+      postStartCall(matchingResult.matchedUser.peerId).then((callId) => {
         setCallId(callId);
-      } catch (error) {
-        console.error('failed to start call', error);
-      }
+      });
     }
   };
 
