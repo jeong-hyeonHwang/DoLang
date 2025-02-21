@@ -24,13 +24,11 @@ export const tagsSearchGet = async (nativeLanguageId: string, query: string, acc
       },
     });
 
-    console.log('tagrrr', response);
     if (response.ok) {
       const data = await response.json();
       const tags =
         data.result?.map((tag: { tagId: number; name: string }) => ({ tagId: tag.tagId, name: tag.name })) || [];
       // const tagNames = data.result?.map((tag: { name: string }) => tag.name) || [];
-      console.log('tname: ', tags);
       if (tags.length >= 1) {
         return tags;
       } else {
@@ -38,7 +36,7 @@ export const tagsSearchGet = async (nativeLanguageId: string, query: string, acc
       }
     }
   } catch (error) {
-    console.log('Error fetching tags: ', error);
+    console.error('Error fetching tags: ', error);
   }
   return [];
 };

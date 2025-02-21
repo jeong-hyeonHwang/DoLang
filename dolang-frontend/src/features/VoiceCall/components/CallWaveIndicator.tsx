@@ -61,6 +61,7 @@ export const CallWaveIndicator = () => {
         {mediaConnectionRef && <span> {progress}</span>}
         <button onClick={() => closeCall()}>Close</button>
       </div>
+
     </>
   );
 };

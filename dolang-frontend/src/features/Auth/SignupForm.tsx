@@ -65,19 +65,22 @@ const FormGroup = styled.div`
   flex-direction: column;
   gap: 0.5rem;
   min-width: 500px;
-`;
-
-const FormItem = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  justify-content: space-evenly;
 `;
 
 const RowContainer = styled.div`
   display: flex;
   gap: 1rem;
   width: 100%;
+  justify-content: space-between;
+`;
+
+const FormItem = styled.div`
+  flex: 1;
+  /* flex-basis: 48%; */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 `;
 
 const Label = styled.label`
@@ -185,16 +188,19 @@ function SignupForm() {
       proficiencyLevel: '',
       interests: [],
       agreement: false,
-      profileImageUrl: '',
+      profileImageUrl: 'default-user.png',
     },
   });
 
   const accessToken = Cookies.get('access_token');
-  // console.log('signuptk', accessToken);
 
   const onSubmit = async (data: SignupFormData) => {
     if (!isNicknameChecked) {
       setNicknameErrorMessage('닉네임 중복 확인이 필요합니다.');
+      return;
+    }
+    if (data.nativeLanguage === data.targetLanguage) {
+      alert('모국어와 관심언어 설정을 다르게 해주세요.');
       return;
     }
     try {
@@ -204,7 +210,6 @@ function SignupForm() {
       };
 
       const responseData = await userPost(formattedDate, accessToken);
-      console.log('resData: ', responseData);
       if (responseData.data.code === 200) {
         setAuth((prevAuth) => ({
           ...prevAuth,
@@ -280,7 +285,9 @@ function SignupForm() {
                 <Controller
                   name="nationality"
                   control={control}
-                  rules={{ required: '국적을 선택해주세요.' }}
+                  rules={{
+                    required: '국적을 선택해주세요.',
+                  }}
                   render={({ field }) => <CountryPicker {...field} onChange={(value) => field.onChange(value)} />}
                 />
                 {errors.nationality && <ErrorMessage>{errors.nationality.message}</ErrorMessage>}
@@ -290,7 +297,9 @@ function SignupForm() {
                 <Controller
                   name="nativeLanguage"
                   control={control}
-                  rules={{ required: '모국어를 선택해주세요.' }}
+                  rules={{
+                    required: '모국어를 선택해주세요.',
+                  }}
                   render={({ field }) => <LanguagePicker {...field} onChange={(value) => field.onChange(value)} />}
                 />
                 {errors.nativeLanguage && <ErrorMessage>{errors.nativeLanguage.message}</ErrorMessage>}
@@ -305,7 +314,9 @@ function SignupForm() {
                 <Controller
                   name="targetLanguage"
                   control={control}
-                  rules={{ required: '관심언어를 선택해주세요.' }}
+                  rules={{
+                    required: '관심언어를 선택해주세요.',
+                  }}
                   render={({ field }) => <LanguagePicker {...field} onChange={(value) => field.onChange(value)} />}
                 />
                 {errors.targetLanguage && <ErrorMessage>{errors.targetLanguage.message}</ErrorMessage>}
@@ -342,7 +353,7 @@ function SignupForm() {
                     {...field}
                     value={names}
                     maxTags={10}
-                    minTags={3}
+                    // minTags={3}
                     error={errors.interests?.message}
                     nativeLanguageId={watch('nativeLanguage')}
                     onChange={(tags) => {

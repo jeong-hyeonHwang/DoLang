@@ -6,14 +6,14 @@ import languages from './languages.json';
 interface LanguagePickerProps {
   value?: string;
   onChange?: (value: string) => void;
+  disabled?: boolean;
 }
 
-const LanguagePicker = React.forwardRef<HTMLDivElement, LanguagePickerProps>(({ value, onChange }, ref) => {
+const LanguagePicker = React.forwardRef<HTMLDivElement, LanguagePickerProps>(({ value, onChange, disabled }, ref) => {
   const [selectedLanguage, setSelectedLanguage] = useState<string | null>(value || null);
 
   const handleChange = (value: string) => {
     const selected = languages.find((lang) => lang.value === value);
-    console.log(selected);
 
     if (selected) {
       setSelectedLanguage(selected.value);
@@ -25,7 +25,8 @@ const LanguagePicker = React.forwardRef<HTMLDivElement, LanguagePickerProps>(({ 
 
   return (
     <Select
-      ref={ref} // ref 전달
+      ref={ref}
+      disabled={disabled}
       showSearch
       style={{ width: 150, height: 40, borderRadius: '8px' }}
       placeholder="Select Language"
@@ -41,8 +42,8 @@ const LanguagePicker = React.forwardRef<HTMLDivElement, LanguagePickerProps>(({ 
         ),
         title: label,
       }))}
-      value={selectedLanguage}
-      onChange={handleChange}
+      value={value}
+      onChange={onChange}
       dropdownRender={(menu) => (
         <div>
           {menu}
@@ -53,4 +54,5 @@ const LanguagePicker = React.forwardRef<HTMLDivElement, LanguagePickerProps>(({ 
   );
 });
 
+LanguagePicker.displayName = 'LanguagePicker';
 export default LanguagePicker;

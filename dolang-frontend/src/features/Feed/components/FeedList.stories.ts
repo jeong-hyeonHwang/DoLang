@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import FeedList from './FeedList.tsx';
+import FeedList from './BaseFeedList.tsx';
 
 const meta: Meta<typeof FeedList> = {
   component: FeedList,

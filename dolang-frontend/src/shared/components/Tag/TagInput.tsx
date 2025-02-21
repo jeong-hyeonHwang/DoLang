@@ -232,11 +232,11 @@ export default function TagInput({
             disabled={value.length >= maxTags}
           />
 
-          <SuggestionsContainer>
+          <SuggestionsContainer style={{ marginTop: '30px' }}>
             {suggestions.length === 0 ? (
               <span>검색 결과가 없습니다.</span>
             ) : (
-              suggestions.slice(0, 10).map((suggestion, index) => (
+              suggestions.slice(0, 20).map((suggestion, index) => (
                 <SuggestionItem key={index} onClick={(e) => handleSuggestionClick(suggestion.tag, e)}>
                   #{suggestion.tag.name}
                 </SuggestionItem>

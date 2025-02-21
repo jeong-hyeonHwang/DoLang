@@ -1,28 +1,17 @@
+import { userGet } from '@/api/utils/useUser';
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
-
-interface UserInfo {
-  userName: string | null;
-  userFlag: string | null;
-  userImage: string | null;
-}
+import Cookies from 'js-cookie';
+import { UserProfileData } from '@/app/routes/UserProfile/UserProfile';
 
 export const useUserQuery = () => {
-  const token = sessionStorage.getItem('accessToken');
-  return useQuery<UserInfo | null>({
+  const token = Cookies.get('access_token');
+  return useQuery<UserProfileData | null>({
     queryKey: ['user'],
     queryFn: async () => {
-      try {
-        const res = await axios.get('/api/user', {});
-        return res.data;
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-        throw error;
-      }
+      const user = await userGet();
+      return user.result;
     },
     enabled: !!token,
-    staleTime: 5 * 60 * 1000,
-    gcTime: 30 * 60 * 1000,
     refetchOnReconnect: false,
     refetchOnMount: false,
     refetchOnWindowFocus: false,

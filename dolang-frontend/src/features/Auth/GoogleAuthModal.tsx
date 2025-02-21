@@ -70,12 +70,6 @@ const iconStyle = css`
   vertical-align: middle;
 `;
 
-const consoleCheck = () => {
-  console.log('button Click');
-};
-
-// css={buttonStyle('#FEE500', 'black', '#E4C700')}
-// const GoogleLoginModal: React.FC<GoogleLoginButtonProps> = ({ onLoginClick }) => {
 function GoogleAuthModal({ onLoginClick }: GoogleLoginButtonProps) {
   return (
     <>

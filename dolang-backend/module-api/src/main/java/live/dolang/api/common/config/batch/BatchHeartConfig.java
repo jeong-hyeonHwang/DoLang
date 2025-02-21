@@ -2,19 +2,22 @@ package live.dolang.api.common.config.batch;
 
 import live.dolang.api.post.dto.HeartDataDto;
 import live.dolang.core.domain.date_sentence.DateSentence;
-import live.dolang.core.domain.date_sentence.repository.DateSentenceRepository;
 import live.dolang.core.domain.user.User;
-import live.dolang.core.domain.user.repository.UserRepository;
 import live.dolang.core.domain.user_date_sentence.UserDateSentence;
-import live.dolang.core.domain.user_date_sentence.repository.UserDateSentenceRepository;
+import live.dolang.core.domain.user_sentence_like.UserSentenceLike;
+import live.dolang.core.domain.user_sentence_like.repository.UserSentenceLikeRepository;
 import live.dolang.core.domain.user_sentence_like_log.UserSentenceLikeLog;
 import live.dolang.core.domain.user_sentence_like_log.repository.UserSentenceLikeLogRepository;
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.DuplicateJobException;
+import org.springframework.batch.core.configuration.JobRegistry;
 import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.core.configuration.support.ReferenceJobFactory;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
@@ -25,16 +28,14 @@ import org.springframework.batch.item.support.IteratorItemReader;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.*;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
+@Slf4j
 @Configuration
 @RequiredArgsConstructor
 public class BatchHeartConfig {
@@ -45,33 +46,34 @@ public class BatchHeartConfig {
     @Value("${spring.data.redis.heart.postfix}")
     private String heartPostfix;    // 예: ":heart"
 
+    private final JobRegistry jobRegistry;
     private final JobRepository jobRepository;
     private final PlatformTransactionManager transactionManager;
-    private final RedisTemplate<String, Object> redisTemplate;
-    private final UserRepository userRepository;
-    private final DateSentenceRepository dateSentenceRepository;
-    private final UserDateSentenceRepository userDateSentenceRepository;
+    private final RedisTemplate<String, Integer> redisTemplate;
     private final UserSentenceLikeLogRepository userSentenceLikeLogRepository;
+    private final UserSentenceLikeRepository userSentenceLikeRepository;
 
     /**
-     * Redis에 저장된 dirty 플래그가 있는 북마크 데이터를 DB에 반영하는 Job
+     * Redis 에 저장된 dirty 플래그가 있는 북마크 데이터를 DB에 반영하는 Job
      */
     @Bean
-    public Job redisHeartToDatabaseJob() {
-        return new JobBuilder("redisHeartToDatabaseJob", jobRepository)
+    public Job redisHeartToDatabaseJob() throws DuplicateJobException {
+        Job job = new JobBuilder("redisHeartToDatabaseJob", jobRepository)
                 .start(redisHeartToDatabaseStep())
                 .build();
+        jobRegistry.register(new ReferenceJobFactory(job));
+        return job;
     }
 
     /**
      * Step 구성
-     * Chunk 단위로 BookmarkLogWrapper를 읽고 처리한 후 DB 저장 및 dirty 플래그 제거
+     * Chunk 단위로 HeartLogWrapper 를 읽고 처리한 후 DB 저장 및 dirty 플래그 제거
      */
     @Bean
     public Step redisHeartToDatabaseStep() {
         return new StepBuilder("redisHeartToDatabaseStep", jobRepository)
                 .<HeartLogWrapper, HeartLogWrapper>chunk(100, transactionManager)
-                .reader(redisHeartItemReader())
+                .reader(redisHeartItemReader(redisTemplate))
                 .processor(redisHeartItemProcessor())
                 .writer(redisHeartItemWriter())
                 .faultTolerant()
@@ -82,89 +84,81 @@ public class BatchHeartConfig {
                 .build();
     }
 
-    // ItemReader: Redis에서 dirty 플래그가 있는 각 데이터 항목(키와 필드)을 읽어 BookmarkLogWrapper 목록을 생성
+
+    /**
+     * Redis 에서 dirty 플래그가 있는 각 데이터 항목(키와 필드)을 읽어 {@link HeartLogWrapper} 목록을 생성
+     * <p>
+     * {@code heartKey} 에는 Hash 자료구조 ({@code UserDateSentenceId}, {@link HeartDataDto})
+     * <br/>
+     * K(User 가 DateSentence) 의 HK(UserDateSentence) 에 HV(좋아요를 했는지 안했는지)를 알 수 있다.
+     * </p>
+     *
+     * <p>
+     * {@code heartKey + dirty} 에는 Set 자료구조 {@code UserDateSentenceId}
+     * <br/>
+     * K(User 가 DateSentence) 의 V(UserDateSentence) 에 변경을 가했음을 의미한다.
+     * </p>
+     *
+     * @param redisTemplate {@link RedisTemplate}
+     * @return {@link ItemReader}
+     */
     @Bean
     @StepScope
-    public ItemReader<HeartLogWrapper> redisHeartItemReader() {
+    public IteratorItemReader<HeartLogWrapper> redisHeartItemReader(RedisTemplate<String, Integer> redisTemplate) {
+
         List<HeartLogWrapper> wrapperList = new ArrayList<>();
-        // 키 패턴: "user:*:feed:*{heartPostfix}"
-        String pattern = userPrefix + "*:feed:*" + heartPostfix;
-        Set<String> dataKeys = redisTemplate.keys(pattern);
 
-        if (dataKeys == null) {
-            return new IteratorItemReader<>(wrapperList);
+        HashOperations<String, Integer, HeartDataDto> hashOperations = redisTemplate.opsForHash();
+        SetOperations<String, Integer> setOperations = redisTemplate.opsForSet();
+
+        // heartKey 패턴: "user:*:feed:*:heartPostfix"
+        String heartKeyPattern = userPrefix + "*:feed:*" + heartPostfix;
+        try (Cursor<String> c = redisTemplate.scan(
+                ScanOptions.scanOptions().match(heartKeyPattern).count(100).build()
+        )) {
+            // heartKey 패턴에 해당되는 모든 heartKey 에 대하여
+            c.forEachRemaining(heartKey -> {
+                // 패턴으로 해석 보장됨
+                String[] parts = heartKey.split(":");
+                int userId = Integer.parseInt(parts[1]);
+                int feedId = Integer.parseInt(parts[3]);
+
+                // heartDirtyKey 키: heartKey + ":dirty"
+                String heartDirtyKey = heartKey + ":dirty";
+                try (Cursor<Integer> cc = setOperations.scan(
+                        heartDirtyKey,
+                        ScanOptions.scanOptions().count(50).build()
+                )) {
+                    // 각 userDateSentenceId 에 대하여
+                    cc.forEachRemaining(userDateSentenceId -> {
+                        try {
+                            HeartDataDto heartDataDto = hashOperations.get(heartKey, userDateSentenceId);
+                            if (heartDataDto != null) {
+                                wrapperList.add(
+                                        HeartLogWrapper.builder()
+                                                .log(
+                                                        UserSentenceLikeLog.builder()
+                                                                .user(User.builder().id(userId).build())
+                                                                .dateSentence(DateSentence.builder().id(feedId).build())
+                                                                .userDateSentence(UserDateSentence.builder().id(userDateSentenceId).build())
+                                                                .likeYn(heartDataDto.isHearted())
+                                                                .createdAt(Instant.ofEpochSecond(heartDataDto.getTimestamp()))
+                                                                .build()
+                                                )
+                                                .heartKey(heartKey)
+                                                .userDateSentenceId(userDateSentenceId)
+                                                .build()
+                                );
+                            }
+                        } catch (Exception e) {
+                            log.error("Error processing HeartDataDto for key: {}", heartKey, e);
+                        }
+                    });
+                }
+
+            });
         }
 
-        for (String dataKey : dataKeys) {
-            String[] parts = dataKey.split(":");
-            if (parts.length < 5) {
-                continue;
-            }
-            int userId;
-            int feedId;
-            try {
-                userId = Integer.parseInt(parts[1]);
-                feedId = Integer.parseInt(parts[3]);
-            } catch (NumberFormatException e) {
-                continue;
-            }
-
-            // dirty 세트 키: dataKey + ":dirty"
-            String dirtySetKey = dataKey + ":dirty";
-            Set<Object> dirtyFields = redisTemplate.opsForSet().members(dirtySetKey);
-            if (dirtyFields == null || dirtyFields.isEmpty()) {
-                continue;
-            }
-
-            // dirty 세트에 등록된 각 필드(포스트 ID)에 대해 로그 생성
-            for (Object fieldObj : dirtyFields) {
-                String field = (String) fieldObj;
-                Object value = redisTemplate.opsForHash().get(dataKey, field);
-                if (!(value instanceof HeartDataDto heartData)) {
-                    if (value != null) {
-                        System.err.println("Unexpected data type in Redis: " + value.getClass());
-                    }
-                    continue;
-                }
-                User user = userRepository.findById(userId).orElse(null);
-                if (user == null) {
-                    System.err.println("User not found for ID: " + userId);
-                    continue;
-                }
-                int sentenceId;
-                try {
-                    sentenceId = Integer.parseInt(field);
-                } catch (NumberFormatException e) {
-                    System.err.println("Invalid sentence ID format: " + field);
-                    continue;
-                }
-
-                DateSentence dateSentence = dateSentenceRepository.findById(feedId).orElse(null);
-                if (dateSentence == null) {
-                    System.err.println("DateSentence not found for ID: " + feedId);
-                    continue;
-                }
-
-                UserDateSentence userDateSentence = userDateSentenceRepository.findById(sentenceId).orElse(null);
-                if (userDateSentence == null) {
-                    System.err.println("UserDateSentence not found for ID: " + sentenceId);
-                    continue;
-                }
-
-                LocalDateTime createdAt = LocalDateTime.ofEpochSecond(heartData.getTimestamp(), 0, ZoneOffset.UTC);
-                Instant instant = createdAt.atZone(ZoneOffset.UTC).toInstant();
-                UserSentenceLikeLog log = UserSentenceLikeLog.builder()
-                        .user(user)
-                        .dateSentence(dateSentence)
-                        .userDateSentence(userDateSentence)
-                        .likeYn(heartData.isHearted())
-                        .createdAt(instant)
-                        .build();
-                // 각 dirty 항목과 관련된 dataKey와 field 정보를 함께 전달할 수 있도록 Wrapper에 담음
-                HeartLogWrapper wrapper = new HeartLogWrapper(log, dataKey, field);
-                wrapperList.add(wrapper);
-            }
-        }
         return new IteratorItemReader<>(wrapperList);
     }
 
@@ -173,32 +167,76 @@ public class BatchHeartConfig {
         return wrapper -> wrapper;
     }
 
-    //ItemWriter: 로그를 DB에 저장한 후, 해당 dirty 플래그를 Redis에서 제거
+    //ItemWriter: 로그를 DB에 저장한 후, 해당 dirty 플래그를 Redis 에서 제거
     @Bean
     public ItemWriter<HeartLogWrapper> redisHeartItemWriter() {
         return wrappers -> {
-            List<UserSentenceLikeLog> logsToSave = new ArrayList<>();
-            for (HeartLogWrapper wrapper : wrappers) {
-                logsToSave.add(wrapper.getLog());
+            // 사용자의 좋아요 여부에 따라서 partition 처리
+            List<? extends HeartLogWrapper> wrappersItems = wrappers.getItems();
+            Map<Boolean, List<HeartLogWrapper>> partitioned = wrappersItems.stream()
+                    .collect(Collectors.groupingBy(
+                            w -> new AbstractMap.SimpleEntry<>(
+                                    w.getLog().getUser(),
+                                    w.getLog().getUserDateSentence()
+                            ),
+                            Collectors.maxBy(Comparator.comparing(
+                                    w -> w.getLog().getCreatedAt()
+                            ))
+                    ))
+                    .values().stream()
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .collect(Collectors.partitioningBy(w -> w.getLog().isLikeYn()));
+
+            List<HeartLogWrapper> hearted = partitioned.get(true);
+            List<HeartLogWrapper> notHearted = partitioned.get(false);
+
+            // 좋아요 했으나, DB에 저장된 좋아요가 없는 경우 이를 Insert한다.
+            for (HeartLogWrapper wrapper : hearted) {
+                Integer userId = wrapper.getLog().getUser().getId();
+                Integer userDateSentenceId = wrapper.getLog().getUserDateSentence().getId();
+
+                Optional<UserSentenceLike> existing =
+                        userSentenceLikeRepository.findByUserIdAndUserDateSentenceId(userId, userDateSentenceId);
+                if (existing.isEmpty()) {
+                    UserSentenceLike newHeart = UserSentenceLike.builder()
+                            .user(User.builder().id(userId).build())
+                            .userDateSentence(UserDateSentence.builder().id(userDateSentenceId).build())
+                            .build();
+                    userSentenceLikeRepository.save(newHeart);
+                }
             }
+
+            // 좋아요 취소를 했으나, DB에 좋아요가 저장된 경우 이를 지운다.
+            for (HeartLogWrapper wrapper : notHearted) {
+                Integer userId = wrapper.getLog().getUser().getId();
+                Integer userDateSentenceId = wrapper.getLog().getUserDateSentence().getId();
+
+                userSentenceLikeRepository.findByUserIdAndUserDateSentenceId(userId, userDateSentenceId)
+                        .ifPresent(userSentenceLikeRepository::delete);
+            }
+
             // DB 저장
-            userSentenceLikeLogRepository.saveAll(logsToSave);
+            userSentenceLikeLogRepository.saveAll(
+                    wrappersItems.stream().map(HeartLogWrapper::getLog).toList()
+            );
+
             // 저장 후, 각 항목의 dirty 플래그 제거
-            for (HeartLogWrapper wrapper : wrappers) {
-                String dirtySetKey = wrapper.getDataKey() + ":dirty";
-                redisTemplate.opsForSet().remove(dirtySetKey, wrapper.getField());
+            for (HeartLogWrapper wrapper : wrappersItems) {
+                String dirtySetKey = wrapper.getHeartKey() + ":dirty";
+                redisTemplate.opsForSet().remove(dirtySetKey, wrapper.getUserDateSentenceId());
             }
         };
     }
 
     /**
-     * Wrapper 클래스: Redis의 데이터 키, 필드와 DB에 저장할 로그 엔티티를 함께 보관
+     * Wrapper 클래스: Redis 의 데이터 키, 필드와 DB에 저장할 로그 엔티티를 함께 보관
      */
     @Getter
-    @AllArgsConstructor
+    @Builder
     public static class HeartLogWrapper {
         private final UserSentenceLikeLog log;
-        private final String dataKey;
-        private final String field;
+        private final String heartKey;
+        private final Integer userDateSentenceId;
     }
 }

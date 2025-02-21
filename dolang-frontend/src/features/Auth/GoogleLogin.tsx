@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useRecoilState } from 'recoil';
 import { authState } from './authState.ts';
+import { useMutation, useQueryClient } from 'react-query';
 import { userGet } from '../../api/utils/useUser.ts';
 import GoogleAuthModal from './GoogleAuthModal.tsx';
 import Cookies from 'js-cookie';
@@ -24,14 +25,16 @@ const AUTHORIZATION = import.meta.env.VITE_GOOGLE_AUTHORIZATION;
 
 const GoogleLogin = () => {
   const navigate = useNavigate();
-  // const setAuth = useSetRecoilState(authState);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [accessToken, setAccessToken] = useState<string | undefined>(undefined);
   const [auth, setAuth] = useRecoilState(authState);
+  // const queryClient = useQueryClient();
 
   useEffect(() => {
-    console.log('auth: ', auth.user);
-    sessionStorage.setItem('user', JSON.stringify(auth.user));
+    sessionStorage.setItem(
+      'user',
+      JSON.stringify({ ...auth.user, profileImageUrl: auth.user?.profileImageUrl || '/default-user.png' })
+    );
   }, [auth]);
 
   // 1. Authorization code 발급
@@ -50,7 +53,6 @@ const GoogleLogin = () => {
     const code = params.get('code');
 
     if (code) {
-      // console.log('Authorization code: ', code);
       codeForToken(code);
       window.history.replaceState({}, '', window.location.pathname);
     }
@@ -74,17 +76,14 @@ const GoogleLogin = () => {
         body: body.toString(),
         credentials: 'include', //refresh token 쿠키로 저장
       });
-      // console.log(response);
       if (!response.ok) {
         throw new Error(`Token request failed: ${response.status} ${response.statusText}`);
       }
 
       const data = await response.json();
-      // console.log('Token Response: ', data);
 
       if (data.access_token && data.refresh_token) {
-        console.log('access_token: ', data.access_token);
-        // console.log('refresh_token success: ', data.refresh_token);
+        console.log(data.access_token);
         saveAccessTokenToCookie(data.access_token);
         saveRefreshTokenToCookie(data.refresh_token);
         setAccessToken(data.access_token);
@@ -97,7 +96,6 @@ const GoogleLogin = () => {
         }));
 
         const res = await userGet(data.access_token);
-        console.log('res', res);
         if (res.result?.nickname && res.result?.nationality) {
           alert('로그인 되었습니다.');
           sessionStorage.setItem('isLoggedIn', JSON.stringify(true));
@@ -115,7 +113,6 @@ const GoogleLogin = () => {
             refreshToken: data.refresh_token,
             user: null,
           });
-          console.log(data.access_token);
           navigate('/signup/register');
         }
       }
@@ -126,61 +123,13 @@ const GoogleLogin = () => {
 
   // 3-1. [Token 세션 쿠키 저장] Access Token
   const saveAccessTokenToCookie = (token: string) => {
-    // document.cookie = `access_token=${token}; path=/; secure; HttpOnly; SameSite=Strict;`;
     document.cookie = `access_token=${token}; path=/; SameSite=None;`;
-    // console.log('access_token_cookie: ', document.cookie);
   };
 
   // 3-2. [Token 세션 쿠키 저장] Refresh Token
   const saveRefreshTokenToCookie = (token: string) => {
-    // document.cookie = `refresh_token=${token}; path=/; secure; HttpOnly; SameSite=Strict;`;
     document.cookie = `refresh_token=${token}; path=/; SameSite=None;`;
-    // console.log('refresh_token_cookie: ', document.cookie);
   };
-
-  // // 4. Refresh Token으로 Access Token 갱신하기
-  // const refreshAccessToken = async () => {
-  //   const refreshToken = getCookie('refresh_token');
-  //   if (!refreshToken) {
-  //     console.error('No refresh token found');
-  //     alert('로그인 해주세요.');
-  //     navigate('/');
-  //     return;
-  //   }
-
-  //   const body = new URLSearchParams({
-  //     grant_type: 'refresh_token',
-  //     refresh_token: refreshToken,
-  //   });
-
-  //   try {
-  //     const response = await fetch(`${AUTH_SERVER_URL}/oauth2/token`, {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/x-www-form-urlencoded',
-  //         Authorization: `${AUTHORIZATION}`,
-  //       },
-  //       body: body.toString(),
-  //       credentials: 'include',
-  //     });
-
-  //     if (!response.ok) {
-  //       throw new Error(`Failed to refresh access token: ${response.status} ${response.statusText}`);
-  //     }
-
-  //     const data = await response.json();
-  //     if (data.access_token) {
-  //       saveAccessTokenToCookie(data.access_token);
-  //       saveRefreshTokenToCookie(data.refresh_token);
-  //     }
-  //   } catch (err) {
-  //     console.error('Error refreshing token: ', err);
-  //     alert('로그인 해주세요.');
-  //     navigate('/');
-  //   }
-  // };
-
-  // return <>{isLoggedIn ? <p>로그인 되었습니다.</p> : <button onClick={handleGoogleLogin}>Google 로그인</button>}</>;
 
   return (
     <>

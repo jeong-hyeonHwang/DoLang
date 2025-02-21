@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class HeartDataDto {
-    private boolean isHearted;
+    private boolean hearted;
     private long timestamp;
 }
