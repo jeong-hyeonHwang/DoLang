@@ -83,14 +83,13 @@ public class CustomPostRepository {
     }
 
     public Page<ResponseLikedFeedDto> getMyBookmarkedFeedList(int userId, String targetLanguage, Pageable pageable) {
-        QUserSentenceBookmark userSentenceBookmark = QUserSentenceBookmark.userSentenceBookmark;
         QUserDateSentence userDateSentence = QUserDateSentence.userDateSentence;
-        QDateSentence voiceDateSentence = QDateSentence.dateSentence;
-        QUserProfile userProfile = QUserProfile.userProfile;
+        QUserSentenceBookmark userSentenceBookmark = QUserSentenceBookmark.userSentenceBookmark;
+        QDateSentence voiceDateSentence = QDateSentence.dateSentence; // 음성 URL 등 기본 정보용
         QDateSentence nativeDateSentence = new QDateSentence("nativeDateSentence"); // 모국어 문장
         QDateSentence targetDateSentence = new QDateSentence("targetDateSentence"); // 선택 언어 문장
+        QUserProfile userProfile = QUserProfile.userProfile;
 
-        // targetLanguage 파라미터가 제공되면 해당 값을 사용하고, 없으면 userProfile.interestLanguageId 사용
         StringExpression resolvedTargetLanguageExpr =
                 targetLanguage != null
                         ? Expressions.stringTemplate("{0}", targetLanguage)
@@ -99,58 +98,49 @@ public class CustomPostRepository {
         List<ResponseLikedFeedDto> content = queryFactory
                 .select(Projections.bean(
                         ResponseLikedFeedDto.class,
-                        Expressions.numberTemplate(Integer.class, "ANY_VALUE({0})", voiceDateSentence.id).as("feedId"),
+                        voiceDateSentence.id.as("feedId"),
                         voiceDateSentence.dateId.as("date"),
-                        Expressions.stringTemplate("ANY_VALUE({0})", nativeDateSentence.sentence).as("nativeSentence"),
-                        Expressions.stringTemplate("ANY_VALUE({0})", targetDateSentence.sentence).as("targetSentence")
+                        nativeDateSentence.sentence.as("nativeSentence"),
+                        targetDateSentence.sentence.as("targetSentence")
                 ))
+                .distinct()
                 .from(userSentenceBookmark)
                 .join(userSentenceBookmark.userDateSentence, userDateSentence)
                 .join(userDateSentence.dateSentence, voiceDateSentence)
-                // 사용자 프로필 조인: 사용자의 모국어, 관심언어 값을 들고오기 위함
+                // 사용자 프로필을 가져오기 위해 조인
                 .join(userProfile)
-                .on(userProfile.user.id.eq(userId))
-                // 좋아요를 누른 사용자 userId 필터
-                .where(userSentenceBookmark.user.id.eq(userId))
-                // 모국어 문장 조인
+                .on(userDateSentence.user.id.eq(userProfile.user.id))
+                // 모국어 문장을 위해 date_sentences를 left join
                 .join(nativeDateSentence)
-                .on(nativeDateSentence.language.id.eq(userProfile.nativeLanguageId)
+                .on(nativeDateSentence .language.id.eq(userProfile.nativeLanguageId)
                         .and(nativeDateSentence.level.eq("B1"))
                         .and(nativeDateSentence.dateId.eq(voiceDateSentence.dateId)))
-                // 선택 언어 문장 조인
+                // 선택 언어 문장을 위해 date_sentences를 left join
                 .join(targetDateSentence)
                 .on(targetDateSentence.language.id.eq(resolvedTargetLanguageExpr)
                         .and(targetDateSentence.level.eq("B1"))
                         .and(targetDateSentence.dateId.eq(voiceDateSentence.dateId)))
-                // 그룹화: voiceDateSentence.date_id 기준으로 그룹화
-                .groupBy(voiceDateSentence.dateId)
-                .orderBy(voiceDateSentence.dateId.desc())
+                .where(userSentenceBookmark.user.id.eq(userId))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        // Count 쿼리: 그룹화된 결과의 총 건수를 구하기 위해 ds1_0.date_id의 distinct 개수를 센다.
         JPAQuery<Long> countQuery = queryFactory
-                .select(voiceDateSentence.dateId.countDistinct())
-                .from(userSentenceBookmark)
-                .join(userSentenceBookmark.userDateSentence, userDateSentence)
-                .join(userDateSentence.dateSentence, voiceDateSentence)
-                .join(userProfile)
-                .on(userDateSentence.user.id.eq(userProfile.user.id))
-                .where(userSentenceBookmark.user.id.eq(userId));
+                .select(userDateSentence.count())
+                .from(userDateSentence)
+                .where(userDateSentence.user.id.eq(userId));
 
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
     }
 
     public Page<ResponseLikedFeedDto> getMyHeartedFeedList(int userId, String targetLanguage, Pageable pageable) {
-        QUserSentenceLike userSentenceLike = QUserSentenceLike.userSentenceLike;
         QUserDateSentence userDateSentence = QUserDateSentence.userDateSentence;
-        QDateSentence voiceDateSentence = QDateSentence.dateSentence;
-        QUserProfile userProfile = QUserProfile.userProfile;
+        QUserSentenceLike userSentenceLike = QUserSentenceLike.userSentenceLike; // 사용자의 특정 피드 좋아요를
+        QDateSentence voiceDateSentence = QDateSentence.dateSentence; // 음성 URL 등 기본 정보용
         QDateSentence nativeDateSentence = new QDateSentence("nativeDateSentence"); // 모국어 문장
         QDateSentence targetDateSentence = new QDateSentence("targetDateSentence"); // 선택 언어 문장
+        QUserProfile userProfile = QUserProfile.userProfile;
 
-        // targetLanguage 파라미터가 제공되면 해당 값을 사용하고, 없으면 userProfile.interestLanguageId 사용
         StringExpression resolvedTargetLanguageExpr =
                 targetLanguage != null
                         ? Expressions.stringTemplate("{0}", targetLanguage)
@@ -159,45 +149,37 @@ public class CustomPostRepository {
         List<ResponseLikedFeedDto> content = queryFactory
                 .select(Projections.bean(
                         ResponseLikedFeedDto.class,
-                        Expressions.numberTemplate(Integer.class, "ANY_VALUE({0})", voiceDateSentence.id).as("feedId"),
+                        voiceDateSentence.id.as("feedId"),
                         voiceDateSentence.dateId.as("date"),
-                        Expressions.stringTemplate("ANY_VALUE({0})", nativeDateSentence.sentence).as("nativeSentence"),
-                        Expressions.stringTemplate("ANY_VALUE({0})", targetDateSentence.sentence).as("targetSentence")
+                        nativeDateSentence.sentence.as("nativeSentence"),
+                        targetDateSentence.sentence.as("targetSentence")
                 ))
+                .distinct()
                 .from(userSentenceLike)
                 .join(userSentenceLike.userDateSentence, userDateSentence)
                 .join(userDateSentence.dateSentence, voiceDateSentence)
-                // 사용자 프로필 조인: 사용자의 모국어, 관심언어 값을 들고오기 위함
+                // 사용자 프로필을 가져오기 위해 조인
                 .join(userProfile)
-                .on(userProfile.user.id.eq(userId))
-                // 좋아요를 누른 사용자 userId 필터
-                .where(userSentenceLike.user.id.eq(userId))
-                // 모국어 문장 조인
+                .on(userDateSentence.user.id.eq(userProfile.user.id))
+                // 모국어 문장을 위해 date_sentences를 left join
                 .join(nativeDateSentence)
-                .on(nativeDateSentence.language.id.eq(userProfile.nativeLanguageId)
-                        .and(nativeDateSentence.level.eq("B1"))
+                .on(nativeDateSentence .language.id.eq(userProfile.nativeLanguageId)
+                        .and(nativeDateSentence.level.eq("B1")) // 현재 사용 언어 레벨은 B1밖에 없으므로 명시적으로 설정
                         .and(nativeDateSentence.dateId.eq(voiceDateSentence.dateId)))
-                // 선택 언어 문장 조인
+                // 선택 언어 문장을 위해 date_sentences를 left join
                 .join(targetDateSentence)
                 .on(targetDateSentence.language.id.eq(resolvedTargetLanguageExpr)
-                        .and(targetDateSentence.level.eq("B1"))
+                        .and(targetDateSentence.level.eq("B1")) // 현재 사용 언어 레벨은 B1밖에 없으므로 명시적으로 설정
                         .and(targetDateSentence.dateId.eq(voiceDateSentence.dateId)))
-                // 그룹화: voiceDateSentence.date_id 기준으로 그룹화
-                .groupBy(voiceDateSentence.dateId)
-                .orderBy(voiceDateSentence.dateId.desc())
+                .where(userSentenceLike.user.id.eq(userId))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        // Count 쿼리: 그룹화된 결과의 총 건수를 구하기 위해 ds1_0.date_id의 distinct 개수를 센다.
         JPAQuery<Long> countQuery = queryFactory
-                .select(voiceDateSentence.dateId.countDistinct())
-                .from(userSentenceLike)
-                .join(userSentenceLike.userDateSentence, userDateSentence)
-                .join(userDateSentence.dateSentence, voiceDateSentence)
-                .join(userProfile)
-                .on(userDateSentence.user.id.eq(userProfile.user.id))
-                .where(userSentenceLike.user.id.eq(userId));
+                .select(userDateSentence.count())
+                .from(userDateSentence)
+                .where(userDateSentence.user.id.eq(userId));
 
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
     }
